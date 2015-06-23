@@ -206,7 +206,7 @@ vAPI.browserSettings = {
         for ( var key in this.originalValues ) {
             if ( this.originalValues.hasOwnProperty(key) === false ) {
                 continue;
-    }
+            }
             pos = key.lastIndexOf('.');
             this.clear(key.slice(0, pos), key.slice(pos + 1));
         }
@@ -561,7 +561,7 @@ vAPI.tabs.get = function(tabId, callback) {
         tabId = tabWatcher.tabIdFromTarget(browser);
     } else {
         browser = tabWatcher.browserFromTabId(tabId);
-        }
+    }
 
     // For internal use
     if ( typeof callback !== 'function' ) {
@@ -2171,122 +2171,9 @@ vAPI.toolbarButton = {
     }
     var CustomizableUI = null;
 
-    var forceLegacyToolbarButton = vAPI.localStorage.getBool("forceLegacyToolbarButton");
-    if (!forceLegacyToolbarButton) {
-        try {
-            CustomizableUI = Cu.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
-        } catch (ex) {
-        }
-    }
-
-    if (!CustomizableUI) {
-        // Create a fallback non-customizable UI button
-        var sss = Cc["@mozilla.org/content/style-sheet-service;1"].getService(Ci.nsIStyleSheetService);
-        var styleSheetUri = Services.io.newURI(vAPI.getURL("css/legacy-toolbar-button.css"), null, null);
-        var legacyButtonId = "uBlock-legacy-button"; // NOTE: must match legacy-toolbar-button.css
-        this.id = legacyButtonId;
-        this.viewId = legacyButtonId + "-panel";
-                
-        if (!sss.sheetRegistered(styleSheetUri, sss.AUTHOR_SHEET)) {
-            sss.loadAndRegisterSheet(styleSheetUri, sss.AUTHOR_SHEET); // Register global so it works in all windows, including palette
-        }
-
-        var addLegacyToolbarButton = function(window) {
-            var document = window.document;
-            var toolbox = document.getElementById('navigator-toolbox') || document.getElementById('mail-toolbox');
-            
-            if (toolbox) {
-                var palette = toolbox.palette;
-
-                if (!palette) {
-                    // palette might take a little longer to appear on some platforms, give it a small delay and try again
-                    window.setTimeout(function() {
-                        if (toolbox.palette) {
-                            addLegacyToolbarButton(window);
-                        }
-                    }, 250);
-                    return;
-                }
-
-                var toolbarButton = document.createElement('toolbarbutton');
-                toolbarButton.setAttribute('id', legacyButtonId);
-                toolbarButton.setAttribute('type', 'menu'); // type = panel would be more accurate, but doesn't look as good
-                toolbarButton.setAttribute('removable', 'true');
-                toolbarButton.setAttribute('class', 'toolbarbutton-1 chromeclass-toolbar-additional');
-                toolbarButton.setAttribute('label', vAPI.toolbarButton.label);
-
-                var toolbarButtonPanel = document.createElement("panel");
-                // toolbarButtonPanel.setAttribute('level', 'parent'); NOTE: Setting level to parent breaks the popup for PaleMoon under linux (mouse pointer misaligned with content). For some reason.
-                vAPI.toolbarButton.populatePanel(document, toolbarButtonPanel);
-                toolbarButtonPanel.addEventListener('popupshowing', vAPI.toolbarButton.onViewShowing);
-                toolbarButtonPanel.addEventListener('popuphiding', vAPI.toolbarButton.onViewHiding);
-                toolbarButton.appendChild(toolbarButtonPanel);
-                
-                palette.appendChild(toolbarButton);
-
-                vAPI.toolbarButton.closePopup = function() {
-                    toolbarButtonPanel.hidePopup();
-                }
-
-                if (!vAPI.localStorage.getBool('legacyToolbarButtonAdded')) {
-                    // No button yet so give it a default location. If forcing the button, just put in in the palette rather than on any specific toolbar (who knows what toolbars will be available or visible!)
-                    var toolbar = !forceLegacyToolbarButton && document.getElementById('nav-bar');
-                    if (toolbar) {
-                        toolbar.appendChild(toolbarButton);
-                        toolbar.setAttribute('currentset', toolbar.currentSet);
-                        document.persist(toolbar.id, 'currentset');
-                    }
-                    vAPI.localStorage.setBool('legacyToolbarButtonAdded', 'true');
-                } else {
-                    // Find the place to put the button
-                    var toolbars = toolbox.externalToolbars.slice();
-                    for (var child of toolbox.children) {
-                        if (child.localName === 'toolbar') {
-                            toolbars.push(child);
-                        }
-                    }
-
-                    for (var toolbar of toolbars) {
-                        var currentsetString = toolbar.getAttribute('currentset');
-                        if (currentsetString) {
-                            var currentset = currentsetString.split(',');
-                            var index = currentset.indexOf(legacyButtonId);
-                            if (index >= 0) {
-                                // Found our button on this toolbar - but where on it?
-                                var before = null;
-                                for (var i = index + 1; i < currentset.length; i++) {
-                                    before = document.getElementById(currentset[i]);
-                                    if (before) {
-                                        toolbar.insertItem(legacyButtonId, before);
-                                        break;
-                                    }
-                                }
-                                if (!before) {
-                                    toolbar.insertItem(legacyButtonId);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        vAPI.toolbarButton.attachToNewWindow = function(win) {
-            addLegacyToolbarButton(win);
-        }
-
-        cleanupTasks.push(function() {  // Desktop-legacy-only cleanup
-            for ( var win of vAPI.tabs.getWindows() ) {
-                var toolbarButton = win.document.getElementById(legacyButtonId);
-                if (toolbarButton) {
-                    toolbarButton.parentNode.removeChild(toolbarButton);
-                }
-            }
-
-            if (sss.sheetRegistered(styleSheetUri, sss.AUTHOR_SHEET)) {
-                sss.unregisterSheet(styleSheetUri, sss.AUTHOR_SHEET);
-            }
-        }.bind(this));
+    try {
+        CustomizableUI = Cu.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
+    } catch (ex) {
     }
     if ( CustomizableUI === null ) {
         return;
