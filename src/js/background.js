@@ -39,7 +39,6 @@ var oneHour = 60 * oneMinute;
 
 var defaultExternalLists = [
     '! Examples:',
-    '! https://easylist-downloads.adblockplus.org/antiadblockfilters.txt',
     '! https://easylist-downloads.adblockplus.org/fb_annoyances_full.txt',
     '! https://easylist-downloads.adblockplus.org/fb_annoyances_sidebar.txt',
     '! https://easylist-downloads.adblockplus.org/fb_annoyances_newsfeed.txt',
@@ -92,7 +91,7 @@ return {
 
     // read-only
     systemSettings: {
-        compiledMagic: 'eopszukpnrct',
+        compiledMagic: 'msgmqxreevdy',
         selfieMagic: 'spqmeuaftfra'
     },
 
@@ -127,6 +126,10 @@ return {
         },
         'assets/ublock/unbreak.txt': {
             title: 'uBlock filters – Unbreak',
+            group: 'default'
+        },
+        'assets/ublock/badware.txt': {
+            title: 'uBlock filters – Badware risks',
             group: 'default'
         }
     },

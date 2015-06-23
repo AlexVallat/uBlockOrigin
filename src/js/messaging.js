@@ -66,6 +66,22 @@ var onMessage = function(request, sender, callback) {
         µb.reloadAllFilters(callback);
         return;
 
+    case 'listsFromNetFilter':
+        µb.staticFilteringReverseLookup.fromNetFilter(
+            request.compiledFilter,
+            request.rawFilter,
+            callback
+        );
+        return;
+
+    case 'listsFromCosmeticFilter':
+        µb.staticFilteringReverseLookup.fromCosmeticFilter(
+            request.hostname,
+            request.rawFilter,
+            callback
+        );
+        return;
+
     default:
         break;
     }
@@ -287,6 +303,8 @@ var popupDataFromTabId = function(tabId, tabTitle) {
         r.noPopups = µb.hnSwitches.evaluateZ('no-popups', tabContext.rootHostname);
         r.noStrictBlocking = µb.hnSwitches.evaluateZ('no-strict-blocking', tabContext.rootHostname);
         r.noCosmeticFiltering = µb.hnSwitches.evaluateZ('no-cosmetic-filtering', tabContext.rootHostname);
+        r.noRemoteFonts = µb.hnSwitches.evaluateZ('no-remote-fonts', tabContext.rootHostname);
+        r.remoteFontCount = pageStore.remoteFontCount;
     } else {
         r.hostnameDict = {};
         r.firewallRules = getFirewallRules();
@@ -662,15 +680,18 @@ var µb = µBlock;
 
 var prepEntries = function(entries) {
     var µburi = µb.URI;
-    var entry;
+    var entry, hn;
     for ( var k in entries ) {
         if ( entries.hasOwnProperty(k) === false ) {
             continue;
         }
         entry = entries[k];
-        if ( typeof entry.homeURL === 'string' ) {
-            entry.homeHostname = µburi.hostnameFromURI(entry.homeURL);
-            entry.homeDomain = µburi.domainFromHostname(entry.homeHostname);
+        if ( typeof entry.supportURL === 'string' && entry.supportURL !== '' ) {
+            entry.supportName = µburi.hostnameFromURI(entry.supportURL);
+        } else if ( typeof entry.homeURL === 'string' && entry.homeURL !== '' ) {
+            hn = µburi.hostnameFromURI(entry.homeURL);
+            entry.supportURL = 'http://' + hn + '/';
+            entry.supportName = µburi.domainFromHostname(hn);
         }
     }
 };
@@ -1341,7 +1362,9 @@ var logCosmeticFilters = function(tabId, details) {
             'cosmetic',
             'cb:##' + selectors[i],
             'dom',
-            details.pageURL
+            details.frameURL,
+            null,
+            details.frameHostname
         );
     }
 };

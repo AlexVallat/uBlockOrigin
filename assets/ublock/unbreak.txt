@@ -116,9 +116,10 @@ ovh.strim.io#@##tweets
 # Until fixed in EasyList
 @@||cdn.turner.com/ads/nba/adfuel.js$domain=www.nba.com
 
-# From Chrome store: Go to site http://www.vd.nl/ ... links from dropdown top menu do not work
+# From Chrome store: "Go to site http://www.vd.nl/ ... links from dropdown top menu do not work"
+# https://github.com/gorhill/uBlock/issues/349 : "conflicting with reddit's gold popup box"
 # To counter Dan Pollock's, hpHosts, MVPS, Peter Lowe's
-@@||google-analytics.com/analytics.js$domain=www.vd.nl
+@@||google-analytics.com/analytics.js$domain=reddit.com|www.vd.nl
 
 # https://github.com/chrisaljoudi/uBlock/issues/570
 # To counter `yui.yahooapis.com` in hpHosts
@@ -204,3 +205,13 @@ ovh.strim.io#@##tweets
 # https://github.com/chrisaljoudi/uBlock/issues/1421
 # To counter hpHost, MVPS, Peter Lowe: `woopra.com`
 @@||woopra.com^$~third-party
+
+# http://www.wilderssecurity.com/threads/ublock-origin-and-newegg.377014/
+# Until the fix is in EasyPrivacy
+@@||monetate.net/*$script,domain=www.newegg.com
+
+# https://github.com/gorhill/uBlock/issues/372
+@@||googleads.g.doubleclick.net/ads/preferences/getcookie$popup,domain=myaccount.google.com
+
+# http://www.reddit.com/r/AsianBeauty/comments/3ak15v/til_if_youre_using_ublock_origin_some_of_the/
+@@||img.echosting.cafe24.com/design$image,domain=jolse.com

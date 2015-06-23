@@ -40,7 +40,7 @@
     "description":"appears as tab name in dashboard"
   },
   "popupPowerSwitchInfo":{
-    "message":"Clique: desativar\/ativar o uBlock₀ para o site atual.\n\nCtrl+Clique: desativar o uBlock₀ apenas nesta página.",
+    "message":"Clique: desativar\/ativar o uBlock₀ para este site.\n\nCtrl+clique: desativar o uBlock₀ apenas nesta página.",
     "description":"English: Click: disable\/enable uBlock₀ for this site.\n\nCtrl+click: disable uBlock₀ only on this page."
   },
   "popupBlockedRequestPrompt":{
@@ -76,16 +76,20 @@
     "description":"English: Go to request log"
   },
   "popupTipNoPopups":{
-    "message":"Alternar o bloqueio de todos os popups nesta página",
+    "message":"Alternar o bloqueio de todos popups para este site",
     "description":"English: Toggle the blocking of all popups for this site"
   },
   "popupTipNoStrictBlocking":{
-    "message":"Alternar o bloqueio estrito nesta página",
+    "message":"Alternar o bloqueio estrito para este site",
     "description":"English: Toggle strict blocking for this site"
   },
   "popupTipNoCosmeticFiltering":{
-    "message":"Alternar a filtragem cosmética nesta página",
+    "message":"Alternar a filtragem cosmética para este site",
     "description":"English: Toggle cosmetic filtering for this site"
+  },
+  "popupTipNoRemoteFonts":{
+    "message":"Alternar o bloqueio de fontes remotas para este site",
+    "description":"English: Toggle the blocking of remote fonts for this site"
   },
   "popupAnyRulePrompt":{
     "message":"tudo",
@@ -212,7 +216,7 @@
     "description":"English: Update now"
   },
   "3pPurgeAll":{
-    "message":"Limpar todos os caches",
+    "message":"Limpar todos caches",
     "description":"English: Purge all caches"
   },
   "3pParseAllABPHideFiltersPrompt1":{
@@ -416,7 +420,7 @@
     "description":"Small header to identify the dynamic URL filtering section"
   },
   "loggerStaticFilteringHeader":{
-    "message":"Filtragem Estática",
+    "message":"Filtragem estática",
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
@@ -454,6 +458,10 @@
   "loggerStaticFilteringSentencePartImportant":{
     "message":"mesmo se",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Filtro estático {{filter}} encontrado em:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Registro de alterações",
@@ -544,12 +552,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock₀ impediu a seguinte página de ser carregada:",
+    "message":"uBlock Origin impediu a seguinte página de ser carregada:",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
     "message":"Por causa do seguinte filtro",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Encontrado em:",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Voltar",

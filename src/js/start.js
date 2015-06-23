@@ -37,6 +37,19 @@ var µb = µBlock;
 
 /******************************************************************************/
 
+vAPI.app.onShutdown = function() {
+    µb.staticFilteringReverseLookup.shutdown();
+    µb.assetUpdater.shutdown();
+    µb.staticNetFilteringEngine.reset();
+    µb.sessionFirewall.reset();
+    µb.permanentFirewall.reset();
+    µb.permanentFirewall.reset();
+    µb.sessionURLFiltering.reset();
+    µb.permanentURLFiltering.reset();
+};
+
+/******************************************************************************/
+
 // Final initialization steps after all needed assets are in memory.
 // - Initialize internal state with maybe already existing tabs.
 // - Schedule next update operation.

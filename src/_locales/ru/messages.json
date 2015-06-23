@@ -52,7 +52,7 @@
     "description":"English: on this page"
   },
   "popupBlockedStats":{
-    "message":"{{count}}, или {{percent}}%",
+    "message":"{{count}} или {{percent}}%",
     "description":"Example: 15 or 13%"
   },
   "popupBlockedSinceInstallPrompt":{
@@ -86,6 +86,10 @@
   "popupTipNoCosmeticFiltering":{
     "message":"Переключить косметические фильтры на этом сайте",
     "description":"English: Toggle cosmetic filtering for this site"
+  },
+  "popupTipNoRemoteFonts":{
+    "message":"Включить блокировку сторонних шрифтов на этом сайте",
+    "description":"English: Toggle the blocking of remote fonts for this site"
   },
   "popupAnyRulePrompt":{
     "message":"все",
@@ -420,7 +424,7 @@
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
-    "message":"{{action}} сетевые запросы {{type}}, {{br}}URL которых совпадает с {{url}}, {{br}} и которые происходят {{origin}},{{br}}{{importance}} имеется подходящий фильтр-исключение.",
+    "message":"{{action}} сетевые запросы {{type}}, {{br}}URL которых совпадает с {{url}} {{br}} и которые происходят {{origin}},{{br}}{{importance}} имеется подходящий фильтр-исключение.",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartBlock":{
@@ -454,6 +458,10 @@
   "loggerStaticFilteringSentencePartImportant":{
     "message":"даже если",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Статический фильтр {{filter}} найден в:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Список изменений",
@@ -544,12 +552,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock₀ предотвратил загрузку следующей страницы:",
+    "message":"uBlock Origin предотвратил загрузку следующей страницы:",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
     "message":"Из-за следующего фильтра",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Найден в:",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Вернуться",

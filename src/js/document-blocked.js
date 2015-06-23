@@ -42,6 +42,55 @@ var details = {};
 
 /******************************************************************************/
 
+(function() {
+    var onReponseReady = function(response) {
+        if ( typeof response !== 'object' ) {
+            return;
+        }
+        var lists;
+        for ( var rawFilter in response ) {
+            if ( response.hasOwnProperty(rawFilter) === false ) {
+                continue;
+            }
+            lists = response[rawFilter];
+            break;
+        }
+        
+        if ( Array.isArray(lists) === false || lists.length === 0 ) {
+            return;
+        }
+        var parent = uDom.nodeFromSelector('#whyex > span:nth-of-type(2)');
+        var separator = '';
+        var entry, url, node;
+        for ( var i = 0; i < lists.length; i++ ) {
+            entry = lists[i];
+            if ( separator !== '' ) {
+                parent.appendChild(document.createTextNode(separator));
+            }
+            url = entry.supportURL;
+            if ( typeof url === 'string' && url !== '' ) {
+                node = document.createElement('a');
+                node.textContent = entry.title;
+                node.setAttribute('href', url);
+                node.setAttribute('target', '_blank');
+            } else {
+                node = document.createTextNode(entry.title);
+            }
+            parent.appendChild(node);
+            separator = ' \u2022 ';
+        }
+        uDom.nodeFromId('whyex').style.removeProperty('display');
+    };
+
+    messager.send({
+        what: 'listsFromNetFilter',
+        compiledFilter: details.fc,
+        rawFilter: details.fs
+    }, onReponseReady);
+})();
+
+/******************************************************************************/
+
 var getTargetHostname = function() {
     var hostname = details.hn;
     var elem = document.querySelector('#proceed select');
@@ -103,8 +152,8 @@ var proceedPermanent = function() {
 
 /******************************************************************************/
 
-uDom('.what').text(details.url);
-uDom('#why').text(details.why.slice(3));
+uDom.nodeFromSelector('.what').textContent = details.url;
+uDom.nodeFromId('why').textContent = details.fs;
 
 if ( window.history.length > 1 ) {
     uDom('#back').on('click', function() { window.history.back(); });

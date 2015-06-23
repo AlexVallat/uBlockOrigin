@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uMatrix - a browser extension to benchmark browser session.
+    uBlock Origin - a browser extension to block requests.
     Copyright (C) 2015 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see {http://www.gnu.org/licenses/}.
 
-    Home: https://github.com/gorhill/sessbench
+    Home: https://github.com/gorhill/uBlock
 */
 
 /* jshint boss: true */
@@ -32,9 +32,9 @@
 
 // Adjust top padding of content table, to match that of toolbar height.
 
-document.getElementById('content').style.setProperty(
+uDom.nodeFromId('content').style.setProperty(
     'margin-top',
-    document.getElementById('toolbar').offsetHeight + 'px'
+    uDom.nodeFromId('toolbar').offsetHeight + 'px'
 );
 
 /******************************************************************************/
@@ -51,7 +51,8 @@ var allTabIds = {};
 var allTabIdsToken;
 var hiddenTemplate = document.querySelector('#hiddenTemplate > span');
 var reRFC3986 = /^([^:\/?#]+:)?(\/\/[^\/?#]*)?([^?#]*)(\?[^#]*)?(#.*)?/;
-var urlFilteringMenu = document.querySelector('#urlFilteringMenu');
+var netFilteringDialog = uDom.nodeFromId('netFilteringDialog');
+var filterFinderDialog = uDom.nodeFromId('filterFinderDialog');
 
 var prettyRequestTypes = {
     'main_frame': 'doc',
@@ -64,6 +65,13 @@ var uglyRequestTypes = {
     'doc': 'main_frame',
     'css': 'stylesheet',
     'frame': 'sub_frame',
+    'xhr': 'xmlhttprequest'
+};
+
+var staticFilterTypes = {
+    'doc': 'other',
+    'css': 'stylesheet',
+    'frame': 'subdocument',
     'xhr': 'xmlhttprequest'
 };
 
@@ -103,61 +111,24 @@ var tabIdFromClassName = function(className) {
 
 /******************************************************************************/
 
-var retextFromStaticFilteringResult = function(result) {
-    var retext = result.slice(3);
-    var pos = retext.indexOf('$');
-    if ( pos > 0 ) {
-        retext = retext.slice(0, pos);
-    }
-    if ( retext === '*' ) {
-        return '^.*$';
-    }
-    if ( retext.charAt(0) === '/' && retext.slice(-1) === '/' ) {
-        return retext.slice(1, -1);
-    }
-    return retext
-        .replace(/\./g, '\\.')
-        .replace(/\?/g, '\\?')
-        .replace('||', '')
-        .replace(/\^/g, '.')
-        .replace(/^\|/g, '^')
-        .replace(/\|$/g, '$')
-        .replace(/\*/g, '.*')
-        ;
-};
-
-/******************************************************************************/
-
-var retextFromURLFilteringResult = function(result) {
+var regexFromURLFilteringResult = function(result) {
     var beg = result.indexOf(' ');
     var end = result.indexOf(' ', beg + 1);
     var url = result.slice(beg + 1, end);
     if ( url === '*' ) {
-        return '^.*$';
+        return new RegExp('^.*$', 'gi');
     }
-    return '^' + url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('^' + url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
 };
 
 /******************************************************************************/
 
 // Emphasize hostname in URL, as this is what matters in uMatrix's rules.
 
-var nodeFromURL = function(url, filter) {
-    var filterType = filter.charAt(0);
-    if ( filterType !== 's' && filterType !== 'l' ) {
+var nodeFromURL = function(url, re) {
+    if ( re instanceof RegExp === false ) {
         return document.createTextNode(url);
     }
-    // make a regex out of the filter
-    var retext = '';
-    if ( filterType === 's' ) {
-        retext = retextFromStaticFilteringResult(filter);
-    } else if ( filterType === 'l' ) {
-        retext = retextFromURLFilteringResult(filter);
-    }
-    if ( retext === '' ) {
-        return document.createTextNode(url);
-    }
-    var re = new RegExp(retext, 'gi');
     var matches = re.exec(url);
     if ( matches === null || matches[0].length === 0 ) {
         return document.createTextNode(url);
@@ -170,6 +141,186 @@ var nodeFromURL = function(url, filter) {
 };
 
 var renderedURLTemplate = document.querySelector('#renderedURLTemplate > span');
+
+/******************************************************************************/
+
+// Pretty much same logic as found in:
+//   µBlock.staticNetFilteringEngine.filterStringFromCompiled
+//   µBlock.staticNetFilteringEngine.filterRegexFromCompiled
+
+var filterDecompiler = (function() {
+    var typeValToTypeName = {
+         1: 'stylesheet',
+         2: 'image',
+         3: 'object',
+         4: 'script',
+         5: 'xmlhttprequest',
+         6: 'sub_frame',
+         7: 'font',
+         8: 'other',
+        13: 'elemhide',
+        14: 'inline-script',
+        15: 'popup'
+    };
+
+    var toString = function(compiled) {
+        var opts = [];
+        var vfields = compiled.split('\v');
+        var filter = '';
+        var bits = parseInt(vfields[0], 16) | 0;
+
+        if ( bits & 0x01 ) {
+            filter += '@@';
+        }
+
+        var fid = vfields[1] === '.' ? '.' : vfields[2];
+        var tfields = fid !== '.' ? vfields[3].split('\t') : [];
+        var tfield0 = tfields[0];
+
+        switch ( fid ) {
+        case '.':
+            filter += '||' + vfields[2] + '^';
+            break;
+        case 'a':
+        case 'ah':
+        case '0a':
+        case '0ah':
+        case '1a':
+        case '1ah':
+        case '_':
+        case '_h':
+            filter += tfield0;
+            // If the filter resemble a regex, add a trailing `*` as is
+            // customary to prevent ambiguity in logger.
+            if ( tfield0.charAt(0) === '/' && tfield0.slice(-1) === '/' ) {
+                filter += '*';
+            }
+            break;
+        case '|a':
+        case '|ah':
+            filter += '|' + tfield0;
+            break;
+        case 'a|':
+        case 'a|h':
+            filter += tfield0 + '|';
+            break;
+        case '||a':
+        case '||ah':
+        case '||_':
+        case '||_h':
+            filter += '||' + tfield0;
+            break;
+        case '//':
+        case '//h':
+            filter += '/' + tfield0 + '/';
+            break;
+        default:
+            break;
+        }
+
+        // Domain option?
+        switch ( fid ) {
+        case '0ah':
+        case '1ah':
+        case '|ah':
+        case 'a|h':
+        case '||ah':
+        case '||_h':
+        case '//h':
+            opts.push('domain=' + tfields[1]);
+            break;
+        case 'ah':
+        case '_h':
+            opts.push('domain=' + tfields[2]);
+            break;
+        default:
+            break;
+        }
+
+        // Filter options
+        if ( bits & 0x02 ) {
+            opts.push('important');
+        }
+        if ( bits & 0x08 ) {
+            opts.push('third-party');
+        } else if ( bits & 0x04 ) {
+            opts.push('first-party');
+        }
+        var typeVal = bits >>> 4 & 0x0F;
+        if ( typeVal ) {
+            opts.push(typeValToTypeName[typeVal]);
+            // Because of the way `elemhide` is implemented
+            if ( typeVal === 13 ) {
+                filter = '@@' + filter;
+            }
+        }
+        if ( opts.length !== 0 ) {
+            filter += '$' + opts.join(',');
+        }
+
+        return filter;
+    };
+
+    var reEscape = /[.+?^${}()|[\]\\]/g;
+    var reWildcards = /\*+/g;
+
+    var toRegex = function(compiled) {
+        var vfields = compiled.split('\v');
+        var fid = vfields[1] === '.' ? '.' : vfields[2];
+        var tfields = fid !== '.' ? vfields[3].split('\t') : [];
+        var reStr;
+
+        switch ( fid ) {
+        case '.':
+            reStr = vfields[2].replace(reEscape, '\\$&');
+            break;
+        case 'a':
+        case 'ah':
+        case '0a':
+        case '0ah':
+        case '1a':
+        case '1ah':
+        case '_':
+        case '_h':
+        case '||a':
+        case '||ah':
+        case '||_':
+        case '||_h':
+            reStr = tfields[0]
+                        .replace(reEscape, '\\$&')
+                        .replace(reWildcards, '.*');
+            break;
+        case '|a':
+        case '|ah':
+            reStr = '^' + tfields[0].
+                        replace(reEscape, '\\$&')
+                        .replace(reWildcards, '.*');
+            break;
+        case 'a|':
+        case 'a|h':
+            reStr = tfields[0]
+                        .replace(reEscape, '\\$&')
+                        .replace(reWildcards, '.*') + '$';
+            break;
+        case '//':
+        case '//h':
+            reStr = tfields[0];
+            break;
+        default:
+            break;
+        }
+
+        if ( reStr === undefined) {
+            return null;
+        }
+        return new RegExp(reStr, 'gi');
+    };
+
+    return {
+        toString: toString,
+        toRegex: toRegex
+    };
+})();
 
 /******************************************************************************/
 
@@ -199,6 +350,7 @@ var createRow = function(layout) {
         tr.className = '';
         tr.removeAttribute('data-hn-page');
         tr.removeAttribute('data-hn-frame');
+        tr.removeAttribute('data-filter');
     } else {
         tr = document.createElement('tr');
     }
@@ -255,12 +407,13 @@ var createGap = function(tabId, url) {
 /******************************************************************************/
 
 var renderNetLogEntry = function(tr, entry) {
+    var trcl = tr.classList;
     var filter = entry.d0;
     var type = entry.d1;
     var url = entry.d2;
     var td;
 
-    tr.classList.add('canMtx');
+    trcl.add('canMtx');
 
     // If the request is that of a root frame, insert a gap in the table
     // in order to visually separate entries for different documents. 
@@ -276,34 +429,51 @@ var renderNetLogEntry = function(tr, entry) {
         tr.setAttribute('data-hn-frame', entry.d4);
     }
 
-    // Cosmetic filter?
     var filterCat = filter.slice(0, 3);
     if ( filterCat.charAt(2) === ':' ) {
-        tr.classList.add(filterCat.slice(0, 2));
+        trcl.add(filterCat.slice(0, 2));
     }
 
-    var filterText = filter.slice(3);
-    if ( filter.lastIndexOf('sa', 0) === 0 ) {
-        filterText = '@@' + filterText;
+    var filteringType = filterCat.charAt(0);
+    td = tr.cells[2];
+    if ( filter !== '' ) {
+        filter = filter.slice(3);
+        if ( filteringType === 's' ) {
+            td.textContent = filterDecompiler.toString(filter);
+            trcl.add('canLookup');
+            tr.setAttribute('data-filter', filter);
+        } else if ( filteringType === 'c' ) {
+            td.textContent = filter;
+            trcl.add('canLookup');
+        } else {
+            td.textContent = filter;
+        }
     }
-    tr.cells[2].textContent = filterText;
 
     td = tr.cells[3];
-    if ( filter.charAt(1) === 'b' ) {
-        tr.classList.add('blocked');
+    var filteringOp = filterCat.charAt(1);
+    if ( filteringOp === 'b' ) {
+        trcl.add('blocked');
         td.textContent = '--';
-    } else if ( filter.charAt(1) === 'a' ) {
-        tr.classList.add('allowed');
+    } else if ( filteringOp === 'a' ) {
+        trcl.add('allowed');
         td.textContent = '++';
-    } else if ( filter.charAt(1) === 'n' ) {
-        tr.classList.add('nooped');
+    } else if ( filteringOp === 'n' ) {
+        trcl.add('nooped');
         td.textContent = '**';
     } else {
         td.textContent = '';
     }
 
     tr.cells[4].textContent = (prettyRequestTypes[type] || type);
-    tr.cells[5].appendChild(nodeFromURL(url, filter));
+
+    var re = null;
+    if ( filteringType === 's' ) {
+        re = filterDecompiler.toRegex(filter);
+    } else if ( filteringType === 'l' ) {
+        re = regexFromURLFilteringResult(filter);
+    }
+    tr.cells[5].appendChild(nodeFromURL(url, re));
 };
 
 /******************************************************************************/
@@ -337,7 +507,8 @@ var renderLogEntry = function(entry) {
     tr.cells[0].title = time.toLocaleDateString('fullwide', dateOptions);
 
     if ( entry.tab ) {
-        tr.classList.add('tab', classNameFromTabId(entry.tab));
+        tr.classList.add('tab');
+        tr.classList.add(classNameFromTabId(entry.tab));
         if ( entry.tab === noTabId ) {
             tr.cells[1].appendChild(createHiddenTextNode('bts'));
         }
@@ -431,7 +602,7 @@ var synchronizeTabIds = function(newTabIds) {
         }
     }
 
-    var select = document.getElementById('pageSelector');
+    var select = uDom.nodeFromId('pageSelector');
     var selectValue = select.value;
     var tabIds = Object.keys(newTabIds).sort(function(a, b) {
         return newTabIds[a].localeCompare(newTabIds[b]);
@@ -536,8 +707,8 @@ var readLogBuffer = function() {
 /******************************************************************************/
 
 var pageSelectorChanged = function() {
-    var style = document.getElementById('tabFilterer');
-    var tabClass = document.getElementById('pageSelector').value;
+    var style = uDom.nodeFromId('tabFilterer');
+    var tabClass = uDom.nodeFromId('pageSelector').value;
     var sheet = style.sheet;
     while ( sheet.cssRules.length !== 0 )  {
         sheet.deleteRule(0);
@@ -557,7 +728,7 @@ var pageSelectorChanged = function() {
 /******************************************************************************/
 
 var reloadTab = function() {
-    var tabClass = document.getElementById('pageSelector').value;
+    var tabClass = uDom.nodeFromId('pageSelector').value;
     var tabId = tabIdFromClassName(tabClass);
     if ( tabId === 'bts' || tabId === '' ) {
         return;
@@ -568,15 +739,20 @@ var reloadTab = function() {
 /******************************************************************************/
 
 var onMaxEntriesChanged = function() {
-    var raw = uDom(this).val();
+    var input = this;
     try {
-        maxEntries = parseInt(raw, 10);
-        if ( isNaN(maxEntries) ) {
-            maxEntries = 0;
+        maxEntries = parseInt(input.value, 10);
+        if ( maxEntries === 0 || isNaN(maxEntries) ) {
+            maxEntries = 1000;
         }
     } catch (e) {
-        maxEntries = 0;
+        maxEntries = 1000;
     }
+
+    maxEntries = Math.min(maxEntries, 5000);
+    maxEntries = Math.max(maxEntries, 10);
+
+    input.value = maxEntries.toString(10);
 
     messager.send({
         what: 'userSettings',
@@ -590,7 +766,7 @@ var onMaxEntriesChanged = function() {
 /******************************************************************************/
 /******************************************************************************/
 
-var filteringDialog = (function() {
+var netFilteringManager = (function() {
     var targetRow = null;
     var dialog = null;
     var createdStaticFilters = {};
@@ -612,6 +788,9 @@ var filteringDialog = (function() {
 
     var uglyTypeFromSelector = function(pane) {
         var prettyType = selectValue('select.type.' + pane);
+        if ( pane === 'static' ) {
+            return staticFilterTypes[prettyType] || prettyType;
+        }
         return uglyRequestTypes[prettyType] || prettyType;
     };
 
@@ -700,8 +879,8 @@ var filteringDialog = (function() {
     var onClick = function(ev) {
         var target = ev.target;
 
-        // click outside the url filtering menu
-        if ( target.id === 'urlFilteringMenu' ) {
+        // click outside the dialog proper
+        if ( target.classList.contains('modalDialog') ) {
             toggleOff();
             return;
         }
@@ -1061,14 +1240,14 @@ var filteringDialog = (function() {
         createPreview(targetType, targetURLs[0]);
         fillDynamicPane();
         fillStaticPane();
-        document.body.appendChild(urlFilteringMenu);
-        urlFilteringMenu.addEventListener('click', onClick, true);
-        urlFilteringMenu.addEventListener('change', onSelectChange, true);
-        urlFilteringMenu.addEventListener('input', onInputChange, true);
+        document.body.appendChild(netFilteringDialog);
+        netFilteringDialog.addEventListener('click', onClick, true);
+        netFilteringDialog.addEventListener('change', onSelectChange, true);
+        netFilteringDialog.addEventListener('input', onInputChange, true);
     };
 
     var toggleOn = function(ev) {
-        dialog = urlFilteringMenu.querySelector('.dialog');
+        dialog = netFilteringDialog.querySelector('.dialog');
         targetRow = ev.target.parentElement;
         targetTabId = tabIdFromClassName(targetRow.className);
         targetType = targetRow.cells[4].textContent.trim() || '';
@@ -1089,10 +1268,127 @@ var filteringDialog = (function() {
         dialog = null;
         targetRow = null;
         targetURLs = [];
-        urlFilteringMenu.removeEventListener('click', onClick, true);
-        urlFilteringMenu.removeEventListener('change', onSelectChange, true);
-        urlFilteringMenu.removeEventListener('input', onInputChange, true);
-        document.body.removeChild(urlFilteringMenu);
+        netFilteringDialog.removeEventListener('click', onClick, true);
+        netFilteringDialog.removeEventListener('change', onSelectChange, true);
+        netFilteringDialog.removeEventListener('input', onInputChange, true);
+        document.body.removeChild(netFilteringDialog);
+    };
+
+    return {
+        toggleOn: toggleOn
+    };
+})();
+
+/******************************************************************************/
+/******************************************************************************/
+
+var reverseLookupManager = (function() {
+    var reSentence1 = /\{\{filter\}\}/g;
+    var sentence1Template = vAPI.i18n('loggerStaticFilteringFinderSentence1');
+
+    var removeAllChildren = function(node) {
+        while ( node.firstChild ) {
+            node.removeChild(node.firstChild);
+        }
+    };
+
+    var onClick = function(ev) {
+        var target = ev.target;
+
+        // click outside the dialog proper
+        if ( target.classList.contains('modalDialog') ) {
+            toggleOff();
+            return;
+        }
+
+        ev.stopPropagation();
+    };
+
+    var nodeFromFilter = function(filter, lists) {
+        if ( Array.isArray(lists) === false || lists.length === 0 ) {
+            return null;
+        }
+        var node;
+        var p = document.createElement('p');
+
+        reSentence1.lastIndex = 0;
+        var matches = reSentence1.exec(sentence1Template);
+        if ( matches === null ) {
+            node = document.createTextNode(sentence1Template);
+        } else {
+            node = uDom.nodeFromSelector('#filterFinderDialogSentence1 > span').cloneNode(true);
+            node.childNodes[0].textContent = sentence1Template.slice(0, matches.index);
+            node.childNodes[1].textContent = filter;
+            node.childNodes[2].textContent = sentence1Template.slice(reSentence1.lastIndex);
+        }
+        p.appendChild(node);
+
+        var ul = document.createElement('ul');
+        var list, li;
+        for ( var i = 0; i < lists.length; i++ ) {
+            list = lists[i];
+            li = document.createElement('li');
+            if ( list.supportURL ) {
+                node = document.createElement('a');
+                node.textContent = list.title;
+                node.setAttribute('href', list.supportURL);
+                node.setAttribute('target', '_blank');
+            } else {
+                node = document.createTextNode(list.title);
+            }
+            li.appendChild(node);
+            ul.appendChild(li);
+        }
+        p.appendChild(ul);
+
+        return p;
+    };
+
+    var reverseLookupDone = function(response) {
+        if ( typeof response !== 'object' ) {
+            return;
+        }
+
+        var dialog = filterFinderDialog.querySelector('.dialog');
+        removeAllChildren(dialog);
+
+        for ( var filter in response ) {
+            var p = nodeFromFilter(filter, response[filter]);
+            if ( p === null ) {
+                continue;
+            }
+            dialog.appendChild(p);
+        }
+
+        document.body.appendChild(filterFinderDialog);
+        filterFinderDialog.addEventListener('click', onClick, true);
+    };
+
+    var toggleOn = function(ev) {
+        var row = ev.target.parentElement;
+        var rawFilter = row.cells[2].textContent;
+        if ( rawFilter === '' ) {
+            return;
+        }
+
+        if ( row.classList.contains('cat_net') ) {
+            messager.send({
+                what: 'listsFromNetFilter',
+                compiledFilter: row.getAttribute('data-filter') || '',
+                rawFilter: rawFilter
+            }, reverseLookupDone);
+        } else if ( row.classList.contains('cat_cosmetic') ) {
+            messager.send({
+                what: 'listsFromCosmeticFilter',
+                hostname: row.getAttribute('data-hn-frame') || '',
+                rawFilter: rawFilter,
+            }, reverseLookupDone);
+        }
+    };
+
+    var toggleOff = function() {
+        filterFinderDialog.removeEventListener('click', onClick, true);
+        document.body.removeChild(filterFinderDialog);
     };
 
     return {
@@ -1252,14 +1548,25 @@ var toJunkyard = function(trs) {
 /******************************************************************************/
 
 var clearBuffer = function() {
+    var tabId = uDom.nodeFromId('pageSelector').value || null;
     var tbody = document.querySelector('#content tbody');
-    var tr;
-    while ( tbody.firstChild !== null ) {
-        tr = tbody.lastElementChild;
-        trJunkyard.push(tbody.removeChild(tr));
+    var tr = tbody.lastElementChild;
+    var trPrevious;
+    while ( tr !== null ) {
+        trPrevious = tr.previousElementSibling;
+        if ( tabId === null || tr.classList.contains(tabId) ) {
+            trJunkyard.push(tbody.removeChild(tr));
+        }
+        tr = trPrevious;
     }
-    uDom('#clear').addClass('disabled');
-    uDom('#clean').addClass('disabled');
+    uDom.nodeFromId('clear').classList.toggle(
+        'disabled',
+        tbody.childElementCount === 0
+    );
+    uDom.nodeFromId('clean').classList.toggle(
+        'disabled',
+        tbody.querySelector('tr.tab:not(.canMtx)') === null
+    );
 };
 
 /******************************************************************************/
@@ -1333,7 +1640,7 @@ var popupManager = (function() {
             realTabId = noTabId;
         }
 
-        container = document.getElementById('popupContainer');
+        container = uDom.nodeFromId('popupContainer');
 
         container.querySelector('div > span:nth-of-type(1)').addEventListener('click', toggleSize);
         container.querySelector('div > span:nth-of-type(2)').addEventListener('click', toggleOff);
@@ -1344,7 +1651,7 @@ var popupManager = (function() {
         popupObserver = new MutationObserver(resizePopup);
         container.appendChild(popup);
 
-        style = document.getElementById('popupFilterer');
+        style = uDom.nodeFromId('popupFilterer');
         style.textContent = styleTemplate.replace('{{tabId}}', localTabId);
 
         document.body.classList.add('popupOn');
@@ -1403,7 +1710,8 @@ uDom.onLoad(function() {
     uDom('#clear').on('click', clearBuffer);
     uDom('#maxEntries').on('change', onMaxEntriesChanged);
     uDom('#content table').on('click', 'tr.canMtx > td:nth-of-type(2)', popupManager.toggleOn);
-    uDom('#content').on('click', 'tr.cat_net > td:nth-of-type(4)', filteringDialog.toggleOn);
+    uDom('#content').on('click', 'tr.cat_net > td:nth-of-type(4)', netFilteringManager.toggleOn);
+    uDom('#content').on('click', 'tr.canLookup > td:nth-of-type(3)', reverseLookupManager.toggleOn);
 });
 
 /******************************************************************************/

@@ -87,6 +87,10 @@
     "message":"Alternar filtros cosméticos para este sitio",
     "description":"English: Toggle cosmetic filtering for this site"
   },
+  "popupTipNoRemoteFonts":{
+    "message":"Alternar bloqueo de fuentes remotas para este sitio",
+    "description":"English: Toggle the blocking of remote fonts for this site"
+  },
   "popupAnyRulePrompt":{
     "message":"todo",
     "description":""
@@ -176,7 +180,7 @@
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Deshabilitar auditoría de hipervínculos",
+    "message":"Deshabilitar auditoría de hipervínculos\/señales (<i>beacon<\/i>)",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -416,44 +420,48 @@
     "description":"Small header to identify the dynamic URL filtering section"
   },
   "loggerStaticFilteringHeader":{
-    "message":"Static filtering",
+    "message":"Filtrado estático",
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
-    "message":"{{action}} network requests of {{type}} {{br}}which URL address matches {{url}} {{br}}and which originates {{origin}},{{br}}{{importance}} there is a matching exception filter.",
+    "message":"{{action}} peticiones de red tipo {{type}} {{br}}cuya dirección URL contenga {{url}} {{br}}y que se originen desde {{origin}},{{br}}{{importance}} exista una regla de excepción aplicable.",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartBlock":{
-    "message":"Block",
+    "message":"Bloquear",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAllow":{
-    "message":"Allow",
+    "message":"Permitir",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartType":{
-    "message":"type “{{type}}”",
+    "message":"tipo “{{type}}”",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyType":{
-    "message":"any type",
+    "message":"cualquier tipo",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartOrigin":{
-    "message":"from “{{origin}}”",
+    "message":"desde “{{origin}}”",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyOrigin":{
-    "message":"from anywhere",
+    "message":"desde cualquier lugar",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartNotImportant":{
-    "message":"except when",
+    "message":"excepto cuando",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartImportant":{
-    "message":"even if",
+    "message":"incluso cuando",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Filtro estático {{filter}} encontrado en:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Registro de cambios",
@@ -544,12 +552,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock₀ impidió la carga de la página:",
+    "message":"uBlock Origin impidió la carga de la página:",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
     "message":"Como resultado del siguiente filtro:",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Encontrado en:",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Regresar",

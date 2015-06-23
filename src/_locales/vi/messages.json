@@ -87,6 +87,10 @@
     "message":"Bật\/tắt bộ lọc phần tử trên trang này",
     "description":"English: Toggle cosmetic filtering for this site"
   },
+  "popupTipNoRemoteFonts":{
+    "message":"Bật tắt chặn kiểu chữ từ xa trên trang này",
+    "description":"English: Toggle the blocking of remote fonts for this site"
+  },
   "popupAnyRulePrompt":{
     "message":"tất cả",
     "description":""
@@ -416,44 +420,48 @@
     "description":"Small header to identify the dynamic URL filtering section"
   },
   "loggerStaticFilteringHeader":{
-    "message":"Static filtering",
+    "message":"Bộ lọc tĩnh",
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
-    "message":"{{action}} network requests of {{type}} {{br}}which URL address matches {{url}} {{br}}and which originates {{origin}},{{br}}{{importance}} there is a matching exception filter.",
+    "message":"{{action}} yêu cầu mạng của {{type}} {{br}}có địa chỉ URL phù hợp {{url}} {{br}}và từ nguồn {{origin}},{{br}}{{importance}} có một bộ lọc loại trừ phù hợp.",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartBlock":{
-    "message":"Block",
+    "message":"Chặn",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAllow":{
-    "message":"Allow",
+    "message":"Cho phép",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartType":{
-    "message":"type “{{type}}”",
+    "message":"loại “{{type}}”",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyType":{
-    "message":"any type",
+    "message":"mọi loại",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartOrigin":{
-    "message":"from “{{origin}}”",
+    "message":"từ “{{origin}}”",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyOrigin":{
-    "message":"from anywhere",
+    "message":"từ mọi nơi",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartNotImportant":{
-    "message":"except when",
+    "message":"loại trừ khi",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartImportant":{
-    "message":"even if",
+    "message":"loại trừ nếu",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Bộ lọc tĩnh {{filter}} phát hiện trong:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Thay đổi",
@@ -544,12 +552,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock₀ đã chặn tải trang sau:",
+    "message":"uBloc Origin đã chặn tải trang sau:",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
     "message":"Vì bộ lọc sau",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Tìm thấy trong:",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Trở lại",

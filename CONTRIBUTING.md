@@ -1,11 +1,14 @@
 # Submitting issues
 
-**Must read:** [How to Report Bugs Effectively](http://www.chiark.greenend.org.uk/~sgtatham/bugs.html).
+Any issue opened without effort to provide the required details for me to reproduce the problem will be closed as _invalid_. If you provide more details thereafter for me to reproduce the issue, I will reopen the it.
+
+***
 
 ### Before you submit
 
 1. Submit **bugs/issues only**.
     - Bugs occur, I will fix them.
+1. The logger is the tool of choice to use to help diagnose issues.
 1. Do **NOT**:
     - Submit design ideas.
     - Submit feature requests.
@@ -15,15 +18,10 @@
     - Any such issue will be closed without comment.
 1. Make sure your issue [hasn't already been fixed in a recent release](https://github.com/gorhill/uBlock/releases).
 1. Verify that the issue does **not** occur with uBlock disabled.
-    - If it still occurs with uBlock disabled, it's probably not an issue with uBlock.
 1. Verify that the issue is not related to a 3rd-party filter lists.
-    - If it is the case, report to the list maintainer(s).
-    - It helps to also test with Adblock Plus, with **same** filter lists.
-        - If issue also occurs with ABP, it's most likely a filter list issue.
-1. Verify that the issue is not caused by another extension, such as HTTPS Everywhere.
-1. Any issue opened with no effort to provide the required details will be closed without comment.
+1. Verify that the issue is not caused by another extension.
 
----
+***
 
 ### What to include
 
@@ -31,10 +29,11 @@
 To help diagnose and fix the bug/issue, please always, **always**, **ALWAYS** include the following in your report:
 
 * A clear list of steps to reproduce the problem
-  * **Always include a URL**, _even_ if "it happens everywhere". Just do it.
+  * **Always include a URL**, _even_ if "it happens everywhere".
 * Symptoms of the issue
   * Describe what you observe and consider broken behavior; this is what we'll be looking for after executing the steps
   * Example: video doesn't start playing, page layout broken
+* Include whatever relevant the logger reports.
 * A screenshot or transcription of **any of uBlock's preferences that differ from the defaults**
   * This includes a whitelisted website, enabled/disabled filter list, anything
   * Please do include everything different from the defaults whether or not it seems relevant to your issue
@@ -48,3 +47,7 @@ To help diagnose and fix the bug/issue, please always, **always**, **ALWAYS** in
   * Tip: try disabling them and see if your issue still occurs
 
 Otherwise, we've noticed that a lot of **your** time (and the developers') gets thrown away on exchanging back and forth to get this information.
+
+***
+
+**Good read:** [How to Report Bugs Effectively](http://www.chiark.greenend.org.uk/~sgtatham/bugs.html).

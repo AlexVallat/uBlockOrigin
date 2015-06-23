@@ -3,25 +3,21 @@
 
 ***
 
-**Regarding the new required Chromium permission as of 0.9.8.2**: [About the required permissions: change your privacy related settings](https://github.com/gorhill/uBlock/wiki/About-the-required-permissions#change-your-privacy-related-settings). My answer to [someone pointing out](https://github.com/chrisaljoudi/uBlock/issues/1424#issuecomment-107742160) at all the slew of negative reviews in the Chrome store:
+There is an idea floating around that uBlock Origin is a _lesser_ branch relative to [uBlock](https://github.com/chrisaljoudi/uBlock)<sup>[1]</sup>.
 
-> It's worth noting that there are a slew of negative reviews after this change
+The current reality is that there are *two branches*, not an official one and a lesser one. I keep developing my branch the same way and in the same spirit I have since [the beginning of uBlock in June 23, 2014](http://www.wilderssecurity.com/threads/ublock-a-lean-and-fast-blocker.365273/).
 
-I see this as a long term project. My decision will be proven right in the long run. People knee jerking without fully understanding what really went on is not a good reason for me to weaken good privacy habits. There will be a setting next version to re-enable it if you want, but prefetching will always be disabled by default, for all the reasons invoked. My track record is that of not compromising users' interests for the benefits of data miners etc., and disabling prefetching is consistent with this.
+You are more likely than anywhere else to find a neutral explanation in this [Wikipedia article](http://en.wikipedia.org/wiki/UBlock) for the differences in features between uBlock Origin and uBlock.
 
-**Couple of ongoing myths to dispel**:
+Somewhere toward the end of May, I decided I will not contribute code anymore to this [uBlock branch](https://github.com/chrisaljoudi/uBlock).<sup>[2]</sup>
 
-I've seen in many places lately the following assertion ([example](https://np.reddit.com/r/AskReddit/comments/35s2je/whats_a_product_that_everybody_uses_but_nobody/cr7h8l6), [example](https://np.reddit.com/r/leagueoflegends/comments/37e8ed/want_to_support_your_favorite_content_producers/)):
+Looks like I still need to dispel that other myth: I've seen in many places lately the following assertion<sup>[3]</sup>:
 
 > ublock blocks ads just like adblock plus, but triggers the ads API to think it got viewed
 
-**Completely false.** uBlock Origin (and uBlock) does not "trigger" any "ads API" (whatever that is). It prevents network requests from being made according to filter lists so that your browser does not connect to remote servers, period.
+Completely false. uBlock Origin (or uBlock) does not "trigger" any "ads API" (whatever that is). It [prevents network requests from being made](https://github.com/gorhill/uBlock/wiki/Does-uBlock-block-ads-or-just-hide-them%3F) according to filter lists so that your browser does not connect to remote servers, period.
 
-Also, as opposed to what [_uBlock FAQ_ suggests](https://www.ublock.org/faq/):
-
-> [...] **In contrast**, the uBlock project will be moving forward with awesome new features, refinements, and enhancements [...]
-
-uBlock Origin is also actively maintained and is also moving forward with new features, refinements, and enhancements and stability work. For a neutral assessment of the differences between uBlock Origin and uBlock, it is best to rely on [Wikipedia's article on uBlock](http://en.wikipedia.org/wiki/UBlock).
+<sub>[1] [An example](https://www.ublock.org/faq/). [Another one](https://addons.mozilla.org/en-US/firefox/addon/ublock-origin/reviews/716364/).<br></sub><sub>[2] Reasons: [this](https://en.wikipedia.org/w/index.php?title=UBlock&type=revision&diff=662527440&oldid=662107368) vs. [this](https://github.com/chrisaljoudi/uBlock/commits/master?author=gorhill), and [this](https://www.reddit.com/r/ublock/comments/38lf1y/any_difference_between_ublock_and_ublock_origin/crwhmwt).</sub><br></sub><sub>[3] Examples: [here](https://np.reddit.com/r/AskReddit/comments/35s2je/whats_a_product_that_everybody_uses_but_nobody/cr7h8l6), [here](https://twitter.com/1v1MeInBed/status/611658444244951040), [here](https://np.reddit.com/r/explainlikeimfive/comments/363569/eli5_how_come_adblockublock_doesnt_let_the_ad/crafo5p?context=3).</sub>
 
 *** 
 
@@ -142,7 +138,11 @@ Alternatively, you can install [chrisaljoudi/uBlock](https://github.com/chrisalj
 
 [Firefox Add-ons web site](https://addons.mozilla.org/firefox/addon/ublock-origin/), or install manually by downloading the latest [uBlock0.firefox.xpi](https://github.com/gorhill/uBlock/releases) file, and by dragging the downloaded `xpi` file to your add-on page.
 
+uBlock Origin works fine on Nightly with e10s enabled, however there is [bugzilla issue 1171173](https://bugzilla.mozilla.org/show_bug.cgi?id=1171173), which causes uBlock to not perform optimally. To work around this issue, disable then renable uBlock after launching Nightly with uBlock already enabled. The issue does not occur if e10s is not enabled.
+
 Alternatively, you can install [chrisaljoudi/uBlock](https://github.com/chrisaljoudi/uBlock) from [Firefox Add-ons homepage](https://addons.mozilla.org/firefox/addon/ublock/). Slightly different feature set, same performance, proper support for legacy Firefox-based browsers.
+
+For Firefox legacy versions -- prior to Firefox 29 -- it is best to install [chrisaljoudi/uBlock](https://github.com/chrisaljoudi/uBlock) as it has official support for legacy Firefox versions.
 
 #### Safari
 

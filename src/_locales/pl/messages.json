@@ -87,6 +87,10 @@
     "message":"Włącz\/wyłącz kosmetyczne filtrowanie na tej witrynie",
     "description":"English: Toggle cosmetic filtering for this site"
   },
+  "popupTipNoRemoteFonts":{
+    "message":"Włącz\/wyłącz blokowanie zdalnych czcionek na tej stronie",
+    "description":"English: Toggle the blocking of remote fonts for this site"
+  },
   "popupAnyRulePrompt":{
     "message":"wszystko",
     "description":""
@@ -164,19 +168,19 @@
     "description":"English: Make use of context menu where appropriate"
   },
   "settingsColorBlindPrompt":{
-    "message":"Schemat kolorów przyjazny daltonistom",
+    "message":"Zastosuj schemat kolorów przyjazny osobom niedowidzcym",
     "description":"English: Color-blind friendly"
   },
   "settingsAdvancedUserPrompt":{
-    "message":"Jestem zaawansowanym użytkownikiem (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>funkcje zaawansowane<\/a>)",
+    "message":"Włącz funkcje zaawansowane (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Informacje<\/a>)",
     "description":"English: "
   },
   "settingsPrefetchingDisabledPrompt":{
-    "message":"Wyłącz wstępne pobieranie (by uniknąć połączeń z zablokowanymi zapytaniami sieciowymi)",
+    "message":"Wyłącz wstępne pobieranie, by uniknąć połączeń z zablokowanymi zapytaniami sieciowymi",
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"Wyłącz śledzenie kliknięć odnośników",
+    "message":"Nie śledź kliknięć odnośników\/beaconów",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -412,7 +416,7 @@
     "description":"Label for the type selector"
   },
   "loggerURLFilteringHeader":{
-    "message":"Dynamiczne filtrowanie adresów URL",
+    "message":"Dynamiczne filtrowanie URL",
     "description":"Small header to identify the dynamic URL filtering section"
   },
   "loggerStaticFilteringHeader":{
@@ -420,7 +424,7 @@
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
-    "message":"{{action}} network requests of {{type}} {{br}}which URL address matches {{url}} {{br}}and which originates {{origin}},{{br}}{{importance}} there is a matching exception filter.",
+    "message":"{{action}} żądania sieciowe {{type}}, których adres URL jest zgodny z: {{url}} {{br}}i pochodzi {{origin}}, {{importance}} filtr znajduje się na liście wyjątków.",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartBlock":{
@@ -428,15 +432,15 @@
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAllow":{
-    "message":"Zezwól",
+    "message":"Zezwalaj na",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartType":{
-    "message":"typ „{{type}}”",
+    "message":"typu „{{type}}”",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyType":{
-    "message":"każdy typ",
+    "message":"każdego typu",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartOrigin":{
@@ -448,12 +452,16 @@
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartNotImportant":{
-    "message":"tylko gdy",
+    "message":"z wyjątkiem, gdy",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartImportant":{
     "message":"nawet, jeśli",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Filtr statyczny {{filter}} znajdujący się w:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Dziennik zmian",
@@ -536,7 +544,7 @@
     "description":"Firefox\/Fennec-specific: Show Dashboard"
   },
   "showNetworkLogButton":{
-    "message":"Dziennik żądań sieciowych",
+    "message":"Dziennik żądań",
     "description":"Firefox\/Fennec-specific: Show Logger"
   },
   "fennecMenuItemBlockingOff":{
@@ -544,12 +552,16 @@
     "description":"Firefox-specific: appears as 'uBlock₀ (off)'"
   },
   "docblockedPrompt1":{
-    "message":"uBlock₀ zablokował wczytywanie tej strony:",
+    "message":"uBlock₀ zablokował wczytywanie strony",
     "description":"English: uBlock₀ has prevented the following page from loading:"
   },
   "docblockedPrompt2":{
-    "message":"ponieważ znajduje się w filtrze",
+    "message":"Powodem zablokowania jest filtr",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Filtr znajduje się na liście:",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Wstecz",

@@ -72,7 +72,7 @@
     "description":"English: Enter element picker mode"
   },
   "popupTipLog":{
-    "message":"Aller au journal des requêtes",
+    "message":"Consulter le journal des requêtes",
     "description":"English: Go to request log"
   },
   "popupTipNoPopups":{
@@ -86,6 +86,10 @@
   "popupTipNoCosmeticFiltering":{
     "message":"Activer\/Désactiver le filtrage esthétique pour ce site",
     "description":"English: Toggle cosmetic filtering for this site"
+  },
+  "popupTipNoRemoteFonts":{
+    "message":"Basculer le blocage de polices distantes pour ce site",
+    "description":"English: Toggle the blocking of remote fonts for this site"
   },
   "popupAnyRulePrompt":{
     "message":"Tout",
@@ -420,7 +424,7 @@
     "description":"Small header to identify the static filtering section"
   },
   "loggerStaticFilteringSentence":{
-    "message":"{{action}} les requêtes réseau de {{type}} {{br}}dont l'adresse URL contient {{url}} {{br}}en provenance de {{origin}},{{br}}{{importance}} il y a un filtre exception correspondant.",
+    "message":"{{action}} les requêtes réseau de {{type}} {{br}} dont l'adresse Web correspond à {{url}} {{br}} qui provient du domaine {{origin}}, {{br}}{{importance}} il y a un filtre d'exception correspondant",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartBlock":{
@@ -432,7 +436,7 @@
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartType":{
-    "message":"type “{{type}}”",
+    "message":"type \"{{type}}\"",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyType":{
@@ -440,20 +444,24 @@
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartOrigin":{
-    "message":"{{origin}}",
+    "message":"\"{{origin}}\"",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartAnyOrigin":{
-    "message":"n'importe où",
+    "message":"de n'importe où",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartNotImportant":{
-    "message":"sauf si",
+    "message":"sauf quand",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartImportant":{
-    "message":"même si",
+    "message":"même s'",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"Filtre statique {{filter}} trouvé dans :",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"Journal des changements (en Anglais)",
@@ -550,6 +558,10 @@
   "docblockedPrompt2":{
     "message":"À cause du filtre suivant :",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"Trouvé dans :",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"Retour",

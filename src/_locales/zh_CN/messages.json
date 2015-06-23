@@ -87,6 +87,10 @@
     "message":"不对此网站应用修饰规则",
     "description":"English: Toggle cosmetic filtering for this site"
   },
+  "popupTipNoRemoteFonts":{
+    "message":"阻止此网站的第三方字体",
+    "description":"English: Toggle the blocking of remote fonts for this site"
+  },
   "popupAnyRulePrompt":{
     "message":"全部",
     "description":""
@@ -176,7 +180,7 @@
     "description":"English: "
   },
   "settingsHyperlinkAuditingDisabledPrompt":{
-    "message":"禁用超链接审计",
+    "message":"禁用超链接审核",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -348,7 +352,7 @@
     "description":"English: List of your dynamic filtering rules."
   },
   "rulesFormatHint":{
-    "message":"规则语法：<code>源的目标操作类型<\/code>（<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Dynamic-filtering:-rule-syntax'>完整文档<\/a>）。",
+    "message":"规则语法：<code>来源 目标 资源类型 操作<\/code>（<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Dynamic-filtering:-rule-syntax'>完整文档<\/a>）。",
     "description":"English: dynamic rule syntax and full documentation."
   },
   "whitelistPrompt":{
@@ -448,12 +452,16 @@
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartNotImportant":{
-    "message":"除了当",
+    "message":"除非",
     "description":"Used in the static filtering wizard"
   },
   "loggerStaticFilteringSentencePartImportant":{
     "message":"即使",
     "description":"Used in the static filtering wizard"
+  },
+  "loggerStaticFilteringFinderSentence1":{
+    "message":"静态规则 {{filter}} 被包含于:",
+    "description":"Below this sentence, the filter lists in which the filter was found"
   },
   "aboutChangelog":{
     "message":"更新日志",
@@ -550,6 +558,10 @@
   "docblockedPrompt2":{
     "message":"因为下列过滤规则",
     "description":"English: Because of the following filter"
+  },
+  "docblockedFoundIn":{
+    "message":"被包含于：",
+    "description":"English: List of filter list names follows"
   },
   "docblockedBack":{
     "message":"返回",

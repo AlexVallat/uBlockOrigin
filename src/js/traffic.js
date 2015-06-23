@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    µBlock - a browser extension to block requests.
-    Copyright (C) 2014 Raymond Hill
+    uBlock - a browser extension to block requests.
+    Copyright (C) 2014-2015 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -185,11 +185,14 @@ var onBeforeRootFrameRequest = function(details) {
 
     // Filtering
     if ( result === '' ) {
-        result = µb.staticNetFilteringEngine.matchString(context);
-        // https://github.com/chrisaljoudi/uBlock/issues/1128
-        // Do not block if the match begins after the hostname.
-        if ( result !== '' ) {
-            result = toBlockDocResult(requestURL, requestHostname, result);
+        if ( µb.staticNetFilteringEngine.matchString(context) !== undefined ) {
+            // We always need the long-form result here.
+            result = µb.staticNetFilteringEngine.toResultString(true);
+            // https://github.com/chrisaljoudi/uBlock/issues/1128
+            // Do not block if the match begins after the hostname.
+            if ( result.charAt(1) === 'b' ) {
+                result = toBlockDocResult(requestURL, requestHostname, result);
+            }
         }
     }
 
@@ -216,12 +219,15 @@ var onBeforeRootFrameRequest = function(details) {
         return;
     }
 
+    var compiled = result.slice(3);
+
     // Blocked
     var query = btoa(JSON.stringify({
         url: requestURL,
         hn: requestHostname,
         dn: requestDomain,
-        why: result
+        fc: compiled,
+        fs: µb.staticNetFilteringEngine.filterStringFromCompiled(compiled)
     }));
 
     vAPI.tabs.replace(tabId, vAPI.getURL('document-blocked.html?details=') + query);
@@ -232,32 +238,12 @@ var onBeforeRootFrameRequest = function(details) {
 /******************************************************************************/
 
 var toBlockDocResult = function(url, hostname, result) {
-    if ( result.charAt(1) !== 'b' ) {
+    // Make a regex out of the result
+    var re = µBlock.staticNetFilteringEngine
+                   .filterRegexFromCompiled(result.slice(3), 'gi');
+    if ( re === null ) {
         return '';
     }
-
-    // Make a regex out of the result
-    var reText = result.slice(3);
-    var pos = reText.indexOf('$');
-    if ( pos > 0 ) {
-        reText = reText.slice(0, pos);
-    }
-
-    // We are going to have to take the long way to find out
-    if ( reText.charAt(0) === '/' && reText.slice(-1) === '/' ) {
-        reText = reText.slice(1, -1);
-    } else {
-        reText = reText
-            .replace(/\./g, '\\.')
-            .replace(/\?/g, '\\?')
-            .replace(/^\|\|/, '')
-            .replace(/\^/g, '.')
-            .replace(/^\|/g, '^')
-            .replace(/\|$/g, '$')
-            .replace(/\*/g, '.*');
-    }
-
-    var re = new RegExp(reText, 'gi');
     var matches = re.exec(url);
     if ( matches === null ) {
         return '';
@@ -340,6 +326,11 @@ var onHeadersReceived = function(details) {
     // Special handling for root document.
     if ( details.type === 'main_frame' ) {
         return onRootFrameHeadersReceived(details);
+    }
+
+    // Just in case...
+    if ( details.type !== 'sub_frame' ) {
+        return;
     }
 
     // If we reach this point, we are dealing with a sub_frame

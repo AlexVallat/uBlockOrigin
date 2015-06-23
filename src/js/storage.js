@@ -400,6 +400,7 @@
         µb.cosmeticFilteringEngine.reset();
         µb.staticNetFilteringEngine.reset();
         µb.destroySelfie();
+        µb.staticFilteringReverseLookup.resetLists();
 
         // We need to build a complete list of assets to pull first: this is
         // because it *may* happens that some load operations are synchronous:
@@ -443,19 +444,23 @@
     var µb = this;
 
     var onRawListLoaded = function(details) {
-        if ( details.content !== '' ) {
-            var listMeta = µb.remoteBlacklists[path];
-            if ( listMeta && listMeta.title === '' ) {
-                var matches = details.content.slice(0, 1024).match(/(?:^|\n)!\s*Title:([^\n]+)/i);
-                if ( matches !== null ) {
-                    listMeta.title = matches[1].trim();
-                }
-            }
-
-            //console.debug('µBlock.getCompiledFilterList/onRawListLoaded: compiling "%s"', path);
-            details.content = µb.compileFilters(details.content);
-            µb.assets.put(compiledPath, details.content);
+        if ( details.content === '' ) {
+            callback(details);
+            return;
         }
+        var listMeta = µb.remoteBlacklists[path];
+        // https://github.com/gorhill/uBlock/issues/313
+        // Always try to fetch the name if this is an external filter list.
+        if ( listMeta && listMeta.title === '' || /^https?:/.test(path) ) {
+            var matches = details.content.slice(0, 1024).match(/(?:^|\n)!\s*Title:([^\n]+)/i);
+            if ( matches !== null ) {
+                listMeta.title = matches[1].trim();
+            }
+        }
+
+        //console.debug('µBlock.getCompiledFilterList/onRawListLoaded: compiling "%s"', path);
+        details.content = µb.compileFilters(details.content);
+        µb.assets.put(compiledPath, details.content);
         callback(details);
     };
 
@@ -573,7 +578,6 @@
             continue;
         }
 
-        //staticNetFilteringEngine.add(line);
         staticNetFilteringEngine.compile(line, compiledFilters);
     }
 
