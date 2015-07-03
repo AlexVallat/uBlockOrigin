@@ -30,17 +30,42 @@
 
 /******************************************************************************/
 
-// Adjust top padding of content table, to match that of toolbar height.
-
-uDom.nodeFromId('content').style.setProperty(
-    'margin-top',
-    uDom.nodeFromId('toolbar').offsetHeight + 'px'
-);
+var logger = self.logger = {};
+var messager = logger.messager = vAPI.messaging.channel('logger-ui.js');
 
 /******************************************************************************/
 
-var messager = vAPI.messaging.channel('logger-ui.js');
-var tbody = document.querySelector('#content tbody');
+var removeAllChildren = logger.removeAllChildren = function(node) {
+    while ( node.firstChild ) {
+        node.removeChild(node.firstChild);
+    }
+};
+
+/******************************************************************************/
+
+var tabIdFromClassName = logger.tabIdFromClassName = function(className) {
+    var matches = className.match(/(?:^| )tab_([^ ]+)(?: |$)/);
+    if ( matches === null ) {
+        return '';
+    }
+    return matches[1];
+};
+
+/******************************************************************************/
+/******************************************************************************/
+
+// Adjust top padding of content table, to match that of toolbar height.
+
+(function() {
+    var toolbar = uDom.nodeFromSelector('body > .permatoolbar');
+    var size = toolbar.clientHeight + 'px';
+    uDom('#inspectors').css('top', size);
+    uDom('.vscrollable').css('padding-top', size);
+})();
+
+/******************************************************************************/
+
+var tbody = document.querySelector('#netInspector tbody');
 var trJunkyard = [];
 var tdJunkyard = [];
 var firstVarDataCol = 2;  // currently, column 2 (0-based index)
@@ -52,7 +77,6 @@ var allTabIdsToken;
 var hiddenTemplate = document.querySelector('#hiddenTemplate > span');
 var reRFC3986 = /^([^:\/?#]+:)?(\/\/[^\/?#]*)?([^?#]*)(\?[^#]*)?(#.*)?/;
 var netFilteringDialog = uDom.nodeFromId('netFilteringDialog');
-var filterFinderDialog = uDom.nodeFromId('filterFinderDialog');
 
 var prettyRequestTypes = {
     'main_frame': 'doc',
@@ -100,15 +124,6 @@ var classNameFromTabId = function(tabId) {
 };
 
 /******************************************************************************/
-
-var tabIdFromClassName = function(className) {
-    var matches = className.match(/(?:^| )tab_([^ ]+)(?: |$)/);
-    if ( matches === null ) {
-        return '';
-    }
-    return matches[1];
-};
-
 /******************************************************************************/
 
 var regexFromURLFilteringResult = function(result) {
@@ -238,14 +253,17 @@ var filterDecompiler = (function() {
         }
 
         // Filter options
+        // Importance
         if ( bits & 0x02 ) {
             opts.push('important');
         }
+        // Party
         if ( bits & 0x08 ) {
             opts.push('third-party');
         } else if ( bits & 0x04 ) {
             opts.push('first-party');
         }
+        // Type
         var typeVal = bits >>> 4 & 0x0F;
         if ( typeVal ) {
             opts.push(typeValToTypeName[typeVal]);
@@ -552,25 +570,14 @@ var renderLogEntries = function(response) {
     // dynamically refreshed pages.
     truncateLog(maxEntries);
 
+    // Follow waterfall if not observing top of waterfall.
     var yDelta = tbody.offsetHeight - height;
     if ( yDelta === 0 ) {
         return;
     }
-
-    // Chromium:
-    //   body.scrollTop = good value
-    //   body.parentNode.scrollTop = 0
-    if ( document.body.scrollTop !== 0 ) {
-        document.body.scrollTop += yDelta;
-        return;
-    }
-
-    // Firefox:
-    //   body.scrollTop = 0
-    //   body.parentNode.scrollTop = good value
-    var parentNode = document.body.parentNode;
-    if ( parentNode && parentNode.scrollTop !== 0 ) {
-        parentNode.scrollTop += yDelta;
+    var container = uDom.nodeFromId('netInspector');
+    if ( container.scrollTop !== 0 ) {
+        container.scrollTop += yDelta;
     }
 };
 
@@ -614,7 +621,6 @@ var synchronizeTabIds = function(newTabIds) {
             continue;
         }
         option = select.options[j];
-        j += 1;
         if ( !option ) {
             option = document.createElement('option');
             select.appendChild(option);
@@ -622,10 +628,12 @@ var synchronizeTabIds = function(newTabIds) {
         option.textContent = newTabIds[tabId];
         option.value = classNameFromTabId(tabId);
         if ( option.value === selectValue ) {
+            select.selectedIndex = j;
             option.setAttribute('selected', '');
         } else {
             option.removeAttribute('selected');
         }
+        j += 1;
     }
     while ( j < select.options.length ) {
         select.removeChild(select.options[j]);
@@ -648,7 +656,7 @@ var truncateLog = function(size) {
     if ( size === 0 ) {
         size = 5000;
     }
-    var tbody = document.querySelector('#content tbody');
+    var tbody = document.querySelector('#netInspector tbody');
     size = Math.min(size, 10000);
     var tr;
     while ( tbody.childElementCount > size ) {
@@ -715,11 +723,11 @@ var pageSelectorChanged = function() {
     }
     if ( tabClass !== '' ) {
         sheet.insertRule(
-            '#content table tr:not(.' + tabClass + ') { display: none; }',
+            'table tr:not(.' + tabClass + ') { display: none; }',
             0
         );
     }
-    uDom('#refresh').toggleClass(
+    uDom('.needtab').toggleClass(
         'disabled',
         tabClass === '' || tabClass === 'tab_bts'
     );
@@ -779,12 +787,6 @@ var netFilteringManager = (function() {
     var targetDomain;
     var targetPageDomain;
     var targetFrameDomain;
-
-    var removeAllChildren = function(node) {
-        while ( node.firstChild ) {
-            node.removeChild(node.firstChild);
-        }
-    };
 
     var uglyTypeFromSelector = function(pane) {
         var prettyType = selectValue('select.type.' + pane);
@@ -1279,12 +1281,15 @@ var netFilteringManager = (function() {
     };
 })();
 
+// https://www.youtube.com/watch?v=XyNYrmmdUd4
+
 /******************************************************************************/
 /******************************************************************************/
 
 var reverseLookupManager = (function() {
     var reSentence1 = /\{\{filter\}\}/g;
     var sentence1Template = vAPI.i18n('loggerStaticFilteringFinderSentence1');
+    var filterFinderDialog = uDom.nodeFromId('filterFinderDialog');
 
     var removeAllChildren = function(node) {
         while ( node.firstChild ) {
@@ -1495,10 +1500,10 @@ var rowFilterer = (function() {
     var filterAll = function() {
         // Special case: no filter
         if ( filters.length === 0 ) {
-            uDom('#content tr').removeClass('f');
+            uDom('#netInspector tr').removeClass('f');
             return;
         }
-        var tbody = document.querySelector('#content tbody');
+        var tbody = document.querySelector('#netInspector tbody');
         var rows = tbody.rows;
         var i = rows.length;
         while ( i-- ) {
@@ -1522,12 +1527,16 @@ var rowFilterer = (function() {
     })();
 
     var onFilterButton = function() {
-        var cl = document.body.classList;
-        cl.toggle('f', cl.contains('f') === false);
+        uDom.nodeFromId('netInspector').classList.toggle('f');
     };
 
     uDom('#filterButton').on('click', onFilterButton);
     uDom('#filterInput').on('input', onFilterChangedAsync);
+
+    // https://github.com/gorhill/uBlock/issues/404
+    // Ensure page state is in sync with the state of its various widgets.
+    parseInput();
+    filterAll();
 
     return {
         filterOne: filterOne,
@@ -1549,7 +1558,7 @@ var toJunkyard = function(trs) {
 
 var clearBuffer = function() {
     var tabId = uDom.nodeFromId('pageSelector').value || null;
-    var tbody = document.querySelector('#content tbody');
+    var tbody = document.querySelector('#netInspector tbody');
     var tr = tbody.lastElementChild;
     var trPrevious;
     while ( tr !== null ) {
@@ -1572,7 +1581,7 @@ var clearBuffer = function() {
 /******************************************************************************/
 
 var cleanBuffer = function() {
-    var rows = uDom('#content tr.tab:not(.canMtx)').remove();
+    var rows = uDom('#netInspector tr.tab:not(.canMtx)').remove();
     var i = rows.length;
     while ( i-- ) {
         trJunkyard.push(rows.nodeAt(i));
@@ -1583,10 +1592,13 @@ var cleanBuffer = function() {
 /******************************************************************************/
 
 var toggleCompactView = function() {
-    document.body.classList.toggle(
-        'compactView',
-        document.body.classList.contains('compactView') === false
-    );
+    uDom.nodeFromId('netInspector').classList.toggle('compactView');
+};
+
+/******************************************************************************/
+
+var toggleInspectors = function() {
+    uDom.nodeFromId('inspectors').classList.toggle('dom');
 };
 
 /******************************************************************************/
@@ -1599,7 +1611,7 @@ var popupManager = (function() {
     var popupObserver = null;
     var style = null;
     var styleTemplate = [
-        '#content tr:not(.tab_{{tabId}}) {',
+        'table tr:not(.tab_{{tabId}}) {',
             'cursor: not-allowed;',
             'opacity: 0.2;',
         '}'
@@ -1654,11 +1666,15 @@ var popupManager = (function() {
         style = uDom.nodeFromId('popupFilterer');
         style.textContent = styleTemplate.replace('{{tabId}}', localTabId);
 
-        document.body.classList.add('popupOn');
+        var parent = uDom.nodeFromId('netInspector');
+        var rect = parent.getBoundingClientRect();
+        container.style.setProperty('top', rect.top + 'px');
+        container.style.setProperty('right', (rect.right - parent.clientWidth) + 'px');
+        parent.classList.add('popupOn');
     };
 
     var toggleOff = function() {
-        document.body.classList.remove('popupOn');
+        uDom.nodeFromId('netInspector').classList.remove('popupOn');
 
         container.querySelector('div > span:nth-of-type(1)').removeEventListener('click', toggleSize);
         container.querySelector('div > span:nth-of-type(2)').removeEventListener('click', toggleOff);
@@ -1705,13 +1721,19 @@ uDom.onLoad(function() {
 
     uDom('#pageSelector').on('change', pageSelectorChanged);
     uDom('#refresh').on('click', reloadTab);
+    uDom('#showdom').on('click', toggleInspectors);
+
     uDom('#compactViewToggler').on('click', toggleCompactView);
     uDom('#clean').on('click', cleanBuffer);
     uDom('#clear').on('click', clearBuffer);
     uDom('#maxEntries').on('change', onMaxEntriesChanged);
-    uDom('#content table').on('click', 'tr.canMtx > td:nth-of-type(2)', popupManager.toggleOn);
-    uDom('#content').on('click', 'tr.cat_net > td:nth-of-type(4)', netFilteringManager.toggleOn);
-    uDom('#content').on('click', 'tr.canLookup > td:nth-of-type(3)', reverseLookupManager.toggleOn);
+    uDom('#netInspector table').on('click', 'tr.canMtx > td:nth-of-type(2)', popupManager.toggleOn);
+    uDom('#netInspector').on('click', 'tr.canLookup > td:nth-of-type(3)', reverseLookupManager.toggleOn);
+    uDom('#netInspector').on('click', 'tr.cat_net > td:nth-of-type(4)', netFilteringManager.toggleOn);
+
+    // https://github.com/gorhill/uBlock/issues/404
+    // Ensure page state is in sync with the state of its various widgets.
+    pageSelectorChanged();
 });
 
 /******************************************************************************/

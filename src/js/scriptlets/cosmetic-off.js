@@ -36,7 +36,7 @@ if ( document instanceof HTMLDocument === false ) {
 }
 
 // This can happen
-if ( !vAPI ) {
+if ( typeof vAPI !== 'object' ) {
     //console.debug('cosmetic-off.js > no vAPI');
     return;
 }

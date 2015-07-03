@@ -366,7 +366,10 @@ const contentObserver = {
 
             lss(this.contentBaseURI + 'contentscript-end.js', sandbox);
 
-            if ( doc.querySelector('a[href^="abp:"]') ) {
+            if (
+                doc.querySelector('a[href^="abp:"]') ||
+                loc.href === 'https://github.com/gorhill/uBlock/wiki/Filter-lists-from-around-the-web'
+            ) {
                 lss(this.contentBaseURI + 'subscriber.js', sandbox);
             }
         };
