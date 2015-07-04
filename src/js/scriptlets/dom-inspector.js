@@ -52,13 +52,10 @@ if ( document.querySelector('iframe.dom-inspector.' + vAPI.sessionId) !== null )
 // Modified to avoid installing as a global shim -- so the scriptlet can be
 // flushed from memory once no longer in use.
 
-/*! http://mths.be/cssescape v0.2.1 by @mathias | MIT license */
-var cssEscape = (function(root) {
+// Added serializeAsString parameter.
 
-    var css = root.CSS || {};
-    if ( css.escape ) {
-        return css.escape;
-    }
+/*! http://mths.be/cssescape v0.2.1 by @mathias | MIT license */
+var cssEscape = (function(/*root*/) {
 
     var InvalidCharacterError = function(message) {
         this.message = message;
@@ -67,7 +64,7 @@ var cssEscape = (function(root) {
     InvalidCharacterError.prototype.name = 'InvalidCharacterError';
 
     // http://dev.w3.org/csswg/cssom/#serialize-an-identifier
-    return function(value) {
+    return function(value, serializeAsString) {
         var string = String(value);
         var length = string.length;
         var index = -1;
@@ -90,16 +87,16 @@ var cssEscape = (function(root) {
             if (
                 // If the character is in the range [\1-\1F] (U+0001 to U+001F) or is
                 // U+007F, […]
-                (codeUnit >= 0x0001 && codeUnit <= 0x001F) || codeUnit == 0x007F ||
+                (codeUnit >= 0x0001 && codeUnit <= 0x001F) || codeUnit === 0x007F ||
                 // If the character is the first character and is in the range [0-9]
                 // (U+0030 to U+0039), […]
                 (index === 0 && codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
                 // If the character is the second character and is in the range [0-9]
                 // (U+0030 to U+0039) and the first character is a `-` (U+002D), […]
                 (
-                    index == 1 &&
+                    index === 1 &&
                     codeUnit >= 0x0030 && codeUnit <= 0x0039 &&
-                    firstCodeUnit == 0x002D
+                    firstCodeUnit === 0x002D
                 )
             ) {
                 // http://dev.w3.org/csswg/cssom/#escape-a-character-as-code-point
@@ -113,12 +110,22 @@ var cssEscape = (function(root) {
             // U+005A), or [a-z] (U+0061 to U+007A), […]
             if (
                 codeUnit >= 0x0080 ||
-                codeUnit == 0x002D ||
-                codeUnit == 0x005F ||
+                codeUnit === 0x002D ||
+                codeUnit === 0x005F ||
                 codeUnit >= 0x0030 && codeUnit <= 0x0039 ||
                 codeUnit >= 0x0041 && codeUnit <= 0x005A ||
                 codeUnit >= 0x0061 && codeUnit <= 0x007A
             ) {
+                // the character itself
+                result += string.charAt(index);
+                continue;
+            }
+
+            // If "serialize a string":
+            // If the character is '"' (U+0022) or "\" (U+005C), the escaped
+            // character. Otherwise, the character itself.
+            // http://dev.w3.org/csswg/cssom/#serialize-a-string
+            if ( serializeAsString && codeUnit !== 0x0022 && codeUnit !== 0x005C ) {
                 // the character itself
                 result += string.charAt(index);
                 continue;
@@ -239,7 +246,7 @@ var domLayout = (function() {
                 sw = '';
             }
             if ( str !== '' ) {
-                selector += '[' + attr + sw + '="' + cssEscape(str) + '"]';
+                selector += '[' + attr + sw + '="' + cssEscape(str, true) + '"]';
             }
         }
         return selector;
@@ -631,7 +638,7 @@ var cosmeticFilterFromNode = function(elem) {
         if ( attr.v.length === 0 ) {
             continue;
         }
-        suffix.push('[', attr.k, '="', attr.v, '"]');
+        suffix.push('[', attr.k, '="', cssEscape(attr.v, true), '"]');
     }
 
     var selector = prefix + suffix.join('');

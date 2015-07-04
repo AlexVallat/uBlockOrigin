@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global addMessageListener, removeMessageListener, sendAsyncMessage */
+/* global addMessageListener, removeMessageListener, sendAsyncMessage, outerShutdown */
 
 // For non background pages
 
@@ -76,32 +76,47 @@ vAPI.messaging = {
         messagingConnector(JSON.parse(msg));
     },
 
-    setup: function() {
-        addMessageListener(this.connector);
-        this.connected = true;
-        this.channels['vAPI'] = new MessagingChannel('vAPI', function(msg) {
-            if ( msg.cmd === 'injectScript' ) {
-                var details = msg.details;
-                if ( !details.allFrames && window !== window.top ) {
-                    return;
-                }
-                // TODO: investigate why this happens, and if this happens
-                // legitimately (content scripts not injected I suspect, so
-                // that would make this legitimate).
-                // Case: open popup UI from icon in uBlock's logger
-                if ( typeof self.injectScript === 'function' )  {
-                    self.injectScript(details.file);
-                }
+    builtinChannelHandler: function(msg) {
+        if ( msg.cmd === 'injectScript' ) {
+            // injectScript is not always present.
+            // - See contentObserver.initContentScripts in frameModule.js
+            if ( typeof self.injectScript !== 'function' )  {
+                return;
             }
-        });
+            var details = msg.details;
+            if ( !details.allFrames && window !== window.top ) {
+                return;
+            }
+            self.injectScript(details.file);
+            return;
+        }
+        if ( msg.cmd === 'shutdownSandbox' ) {
+            vAPI.shutdown.exec();
+            vAPI.messaging.shutdown();
+            if ( typeof self.outerShutdown === 'function' ) {
+                outerShutdown();
+            }
+            return;
+        }
+    },
+
+    setup: function() {
+        this.channels['vAPI'] = new MessagingChannel('vAPI', this.builtinChannelHandler);
+        window.addEventListener('pagehide', this.toggleListener, true);
+        window.addEventListener('pageshow', this.toggleListener, true);
+    },
+
+    shutdown: function() {
+        this.close();
+        window.removeEventListener('pagehide', this.toggleListener, true);
+        window.removeEventListener('pageshow', this.toggleListener, true);
+        vAPI.messaging = null;
     },
 
     close: function() {
-        if ( !this.connected ) {
-            return;
-        }
-        removeMessageListener();
-        this.connected = false;
+        window.removeEventListener('pagehide', this.toggleListener, true);
+        window.removeEventListener('pageshow', this.toggleListener, true);
+        this.disconnect();
         this.channels = {};
         this.pending = {};
     },
@@ -120,24 +135,41 @@ vAPI.messaging = {
         return channel;
     },
 
+    connect: function() {
+        if ( !this.connected ) {
+            addMessageListener(this.connector);
+            this.connected = true;
+        }
+    },
+
+    disconnect: function() {
+        if ( this.connected ) {
+            removeMessageListener();
+            this.connected = false;
+        }
+    },
+
     toggleListener: function({type, persisted}) {
-        if ( !vAPI.messaging.connected ) {
+        var me = vAPI.messaging;
+        if ( !me ) {
             return;
         }
 
         if ( type === 'pagehide' ) {
-            removeMessageListener();
+            if ( !persisted ) {
+                vAPI.shutdown.exec();
+                vAPI.messaging.shutdown();
+                if ( typeof self.outerShutdown === 'function' ) {
+                    outerShutdown();
+                }
+            }
+            me.disconnect();
             return;
         }
 
-        if ( persisted ) {
-            addMessageListener(vAPI.messaging.connector);
-        }
+        me.connect();
     }
 };
-
-window.addEventListener('pagehide', vAPI.messaging.toggleListener, true);
-window.addEventListener('pageshow', vAPI.messaging.toggleListener, true);
 
 /******************************************************************************/
 
@@ -147,6 +179,12 @@ var messagingConnector = function(details) {
     }
 
     var messaging = vAPI.messaging;
+
+    // Sandbox might have been shutdown
+    if ( !messaging ) {
+        return;
+    }
+
     var channels = messaging.channels;
     var channel;
 
@@ -195,10 +233,7 @@ var MessagingChannel = function(name, callback) {
     this.listeners = typeof callback === 'function' ? [callback] : [];
     this.refCount = 1;
     if ( typeof callback === 'function' ) {
-        var messaging = vAPI.messaging;
-        if ( !messaging.connected ) {
-            messaging.setup();
-        }
+        vAPI.messaging.connect();
     }
 };
 
@@ -208,9 +243,7 @@ MessagingChannel.prototype.send = function(message, callback) {
 
 MessagingChannel.prototype.sendTo = function(message, toTabId, toChannel, callback) {
     var messaging = vAPI.messaging;
-    if ( !messaging.connected ) {
-        messaging.setup();
-    }
+    messaging.connect();
     var auxProcessId;
     if ( callback ) {
         auxProcessId = messaging.auxProcessId++;
@@ -241,10 +274,7 @@ MessagingChannel.prototype.addListener = function(callback) {
         throw new Error('Duplicate listener.');
     }
     this.listeners.push(callback);
-    var messaging = vAPI.messaging;
-    if ( !messaging.connected ) {
-        messaging.setup();
-    }
+    vAPI.messaging.connect();
 };
 
 MessagingChannel.prototype.removeListener = function(callback) {
@@ -275,6 +305,10 @@ MessagingChannel.prototype.sendToListeners = function(msg) {
 };
 
 // https://www.youtube.com/watch?v=Cg0cmhjdiLs
+
+/******************************************************************************/
+
+vAPI.messaging.setup();
 
 /******************************************************************************/
 
