@@ -170,7 +170,7 @@ var filterDecompiler = (function() {
          3: 'object',
          4: 'script',
          5: 'xmlhttprequest',
-         6: 'sub_frame',
+         6: 'subdocument',
          7: 'font',
          8: 'other',
         13: 'elemhide',
@@ -229,8 +229,11 @@ var filterDecompiler = (function() {
         case '//h':
             filter += '/' + tfield0 + '/';
             break;
+        // https://github.com/gorhill/uBlock/issues/465
+        // Unexpected: return the raw compiled representation instead of a
+        // blank string.
         default:
-            break;
+            return compiled.replace(/\s+/g, ' ');
         }
 
         // Domain option?
@@ -575,7 +578,7 @@ var renderLogEntries = function(response) {
     if ( yDelta === 0 ) {
         return;
     }
-    var container = uDom.nodeFromId('netInspector');
+    var container = uDom.nodeFromSelector('#netInspector .vscrollable');
     if ( container.scrollTop !== 0 ) {
         container.scrollTop += yDelta;
     }
@@ -689,7 +692,7 @@ var onLogBufferRead = function(response) {
     if ( rowVoided ) {
         uDom('#clean').toggleClass(
             'disabled',
-            tbody.querySelector('tr.tab:not(.canMtx)') === null
+            tbody.querySelector('#netInspector tr.tab:not(.canMtx)') === null
         );
     }
 
@@ -723,7 +726,7 @@ var pageSelectorChanged = function() {
     }
     if ( tabClass !== '' ) {
         sheet.insertRule(
-            'table tr:not(.' + tabClass + ') { display: none; }',
+            '#netInspector tr:not(.' + tabClass + ') { display: none; }',
             0
         );
     }
@@ -1574,7 +1577,7 @@ var clearBuffer = function() {
     );
     uDom.nodeFromId('clean').classList.toggle(
         'disabled',
-        tbody.querySelector('tr.tab:not(.canMtx)') === null
+        tbody.querySelector('#netInspector tr.tab:not(.canMtx)') === null
     );
 };
 
@@ -1611,7 +1614,7 @@ var popupManager = (function() {
     var popupObserver = null;
     var style = null;
     var styleTemplate = [
-        'table tr:not(.tab_{{tabId}}) {',
+        '#netInspector tr:not(.tab_{{tabId}}) {',
             'cursor: not-allowed;',
             'opacity: 0.2;',
         '}'

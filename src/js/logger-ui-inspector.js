@@ -29,8 +29,11 @@
 
 /******************************************************************************/
 
+var showdomButton = uDom.nodeFromId('showdom');
+
 // Don't bother if the browser is not modern enough.
 if ( typeof Map === undefined || typeof WeakMap === undefined ) {
+    showdomButton.classList.add('disabled');
     return;
 }
 
@@ -44,10 +47,11 @@ var inspectedURL = '';
 var inspectedHostname = '';
 var pollTimer = null;
 var fingerprint = null;
-var showdomButton = uDom.nodeFromId('showdom');
 var inspector = uDom.nodeFromId('domInspector');
 var domTree = uDom.nodeFromId('domTree');
 var tabSelector = uDom.nodeFromId('pageSelector');
+var uidGenerator = 1;
+var filterToIdMap = new Map();
 
 /******************************************************************************/
 
@@ -69,13 +73,21 @@ var nodeFromDomEntry = function(entry) {
     node.setAttribute('data-cnt', value);
     li.appendChild(node);
     // cosmetic filter
-    if ( entry.filter !== undefined ) {
-        node = document.createElement('code');
-        node.classList.add('filter');
-        node.textContent = entry.filter;
-        li.appendChild(node);
-        li.classList.add('isCosmeticHide');
+    if ( entry.filter === undefined ) {
+        return li;
     }
+    node = document.createElement('code');
+    node.classList.add('filter');
+    value = filterToIdMap.get(entry.filter);
+    if ( value === undefined ) {
+        value = uidGenerator.toString();
+        filterToIdMap.set(entry.filter, value);
+        uidGenerator += 1;
+    }
+    node.setAttribute('data-filter-id', value);
+    node.textContent = entry.filter;
+    li.appendChild(node);
+    li.classList.add('isCosmeticHide');
     return li;
 };
 
@@ -104,6 +116,8 @@ var renderDOMFull = function(response) {
     var ul = domTreeParent.removeChild(domTree);
     logger.removeAllChildren(domTree);
 
+    filterToIdMap.clear();
+
     var lvl = 0;
     var entries = response.layout;
     var n = entries.length;
@@ -113,7 +127,6 @@ var renderDOMFull = function(response) {
         if ( entry.lvl === lvl ) {
             li = nodeFromDomEntry(entry);
             appendListItem(ul, li);
-            //expandIfBlockElement(li);
             continue;
         }
         if ( entry.lvl > lvl ) {
@@ -122,7 +135,6 @@ var renderDOMFull = function(response) {
             li.classList.add('branch');
             li = nodeFromDomEntry(entry);
             appendListItem(ul, li);
-            //expandIfBlockElement(li);
             lvl = entry.lvl;
             continue;
         }
@@ -152,8 +164,8 @@ var patchIncremental = function(from, delta) {
     var span, cnt;
     var li = from.parentElement.parentElement;
     var patchCosmeticHide = delta >= 0 &&
-                            from.classList.contains('isCosmeticFilter') &&
-                            li.classList.contains('hasCosmeticFilter') === false;
+                            from.classList.contains('isCosmeticHide') &&
+                            li.classList.contains('hasCosmeticHide') === false;
     // Include descendants count when removing a node
     if ( delta < 0 ) {
         delta -= countFromNode(from);
@@ -166,7 +178,7 @@ var patchIncremental = function(from, delta) {
             span.setAttribute('data-cnt', cnt);
         }
         if ( patchCosmeticHide ) {
-            li.classList.add('hasCosmeticFilter');
+            li.classList.add('hasCosmeticHide');
         }
     }
 };
@@ -240,7 +252,7 @@ var renderDOMIncremental = function(response) {
 var countFromNode = function(li) {
     var span = li.children[2];
     var cnt = parseInt(span.getAttribute('data-cnt'), 10);
-    return isNaN(cnt) ? cnt : 0;
+    return isNaN(cnt) ? 0 : cnt;
 };
 
 /******************************************************************************/
@@ -355,9 +367,15 @@ var startDialog = (function() {
         for ( i = 0; i < entries.length; i++ ) {
             taValue.push(inspectedHostname + '##' + entries[i]);
         }
+        var ids = new Set(), id;
         var nodes = domTree.querySelectorAll('code.filter.off');
         for ( i = 0; i < nodes.length; i++ ) {
             node = nodes[i];
+            id = node.getAttribute('data-filter-id');
+            if ( ids.has(id) ) {
+                continue;
+            }
+            ids.add(id);
             unhideSelectors.push(node.textContent);
             taValue.push(inspectedHostname + '#@#' + node.textContent);
         }
@@ -451,25 +469,47 @@ var onClick = function(ev) {
         return;
     }
 
-    // Toggle selector
-    if ( target.localName === 'code' ) {
-        var original = target.classList.contains('filter') === false;
+    // Not a node or filter 
+    if ( target.localName !== 'code' ) {
+        return;
+    }
+
+    // Toggle cosmetic filter
+    if ( target.classList.contains('filter') ) {
         messager.sendTo(
             {
                 what: 'toggleNodes',
-                original: original,
-                target: original !== target.classList.toggle('off'),
-                selector: selectorFromNode(target, original ? 1 : 2),
-                nid: original ? nidFromNode(target) : ''
+                original: false,
+                target: target.classList.toggle('off'),
+                selector: selectorFromNode(target, 2),
+                nid: ''
             },
             inspectedTabId,
             'dom-inspector.js'
         );
-        var cantCreate = domTree.querySelector('.off') === null;
-        inspector.querySelector('.permatoolbar .revert').classList.toggle('disabled', cantCreate);
-        inspector.querySelector('.permatoolbar .commit').classList.toggle('disabled', cantCreate);
-        return;
+        uDom('[data-filter-id="' + target.getAttribute('data-filter-id') + '"]', inspector).toggleClass(
+            'off',
+            target.classList.contains('off')
+        );
     }
+    // Toggle node
+    else {
+        messager.sendTo(
+            {
+                what: 'toggleNodes',
+                original: true,
+                target: target.classList.toggle('off') === false,
+                selector: selectorFromNode(target, 1),
+                nid: nidFromNode(target)
+            },
+            inspectedTabId,
+            'dom-inspector.js'
+        );
+    }
+
+    var cantCreate = domTree.querySelector('.off') === null;
+    inspector.querySelector('.permatoolbar .revert').classList.toggle('disabled', cantCreate);
+    inspector.querySelector('.permatoolbar .commit').classList.toggle('disabled', cantCreate);
 };
 
 /******************************************************************************/

@@ -781,7 +781,11 @@ vAPI.tabs.select = function(tab) {
         return;
     }
 
-    var tabBrowser = getTabBrowser(getOwnerWindow(tab));
+    // https://github.com/gorhill/uBlock/issues/470
+    var win = getOwnerWindow(tab);
+    win.focus();
+
+    var tabBrowser = getTabBrowser(win);
 
     if ( vAPI.fennec ) {
         tabBrowser.selectTab(tab);
@@ -926,7 +930,7 @@ var tabWatcher = (function() {
         if ( tabBrowser === null ) {
             return null;
         }
-        return browserFromTarget(getTabBrowser(win).selectedTab);
+        return browserFromTarget(tabBrowser.selectedTab);
     };
 
     var removeBrowserEntry = function(tabId, browser) {
@@ -1166,7 +1170,7 @@ vAPI.messaging.onMessage = (function() {
     var toAuxPending = {};
 
     // Use a wrapper to avoid closure and to allow reuse.
-    var CallbackWrapper = function(messageManager, channelName, listenerId, auxProcessId, timeout) {
+    var CallbackWrapper = function(messageManager, listenerId, channelName, auxProcessId, timeout) {
         this.callback = this.proxy.bind(this); // bind once
         this.init(messageManager, listenerId, channelName, auxProcessId, timeout);
     };
@@ -1803,11 +1807,14 @@ vAPI.net.registerListeners = function() {
                 var URI = browser.currentURI;
 
                 // Probably isn't the best method to identify the source tab.
+
+                // https://github.com/gorhill/uBlock/issues/450
+                // Skip entry if no valid URI available.
                 // Apparently URI can be undefined under some circumstances: I
                 // believe this may have to do with those very temporary
                 // browser objects created when opening a new tab, i.e. related
                 // to https://github.com/gorhill/uBlock/issues/212
-                if ( URI && URI.spec !== details.openerURL ) {
+                if ( !URI || URI.spec !== details.openerURL ) {
                     continue;
                 }
 

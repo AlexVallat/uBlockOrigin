@@ -157,12 +157,32 @@ var hideElements = function(selectors) {
     if ( document.body === null ) {
         return;
     }
-    // https://github.com/chrisaljoudi/uBlock/issues/158
-    // Using CSSStyleDeclaration.setProperty is more reliable
     var elems = document.querySelectorAll(selectors);
     var i = elems.length;
+    if ( i === 0 ) {
+        return;
+    }
+    // https://github.com/chrisaljoudi/uBlock/issues/158
+    // Using CSSStyleDeclaration.setProperty is more reliable
+    if ( document.body.shadowRoot === undefined ) {
+        while ( i-- ) {
+            elems[i].style.setProperty('display', 'none', 'important');
+        }
+        return;
+    }
+    // https://github.com/gorhill/uBlock/issues/435
+    // Using shadow content so that we do not have to modify style
+    // attribute.
+    var sessionId = vAPI.sessionId;
+    var elem, shadow;
     while ( i-- ) {
-        elems[i].style.setProperty('display', 'none', 'important');
+        elem = elems[i];
+        shadow = elem.shadowRoot;
+        if ( shadow !== null && shadow.className === sessionId ) {
+            continue;
+        }
+        shadow = elem.createShadowRoot();
+        shadow.className = sessionId;
     }
 };
 
