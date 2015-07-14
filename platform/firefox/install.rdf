@@ -7,9 +7,12 @@
         <description>{description}</description>
         <homepageURL>{homepage}</homepageURL>
         <creator>{author}</creator>
+        <developer>Deathamns</developer>
+        <developer>Alex Vallat</developer>
         <type>2</type>
         <bootstrap>true</bootstrap>
         <multiprocessCompatible>true</multiprocessCompatible>
+        <aboutURL>chrome://ublock0/content/about.html</aboutURL>
         <optionsType>2</optionsType>
 {localized}
 
@@ -18,7 +21,7 @@
             <r:Description>
                 <id>{{ec8030f7-c20a-464f-9b0e-13a3a9e97384}}</id>
                 <minVersion>24.0</minVersion>
-                <maxVersion>41.0</maxVersion>
+                <maxVersion>42.0</maxVersion>
             </r:Description>
         </targetApplication>
 
