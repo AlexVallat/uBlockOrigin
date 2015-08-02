@@ -440,10 +440,7 @@ Matrix.prototype.mustAbort = function() {
 /******************************************************************************/
 
 Matrix.prototype.toFilterString = function() {
-    if ( this.r === 0 ) {
-        return '';
-    }
-    if ( this.type === '' ) {
+    if ( this.r === 0  || this.type === '' ) {
         return '';
     }
     var body = this.z + ' ' + this.y + ' ' + this.type;
@@ -583,51 +580,6 @@ Matrix.prototype.fromString = function(text, append) {
         }
 
         this.setCell(srcHostname, desHostname, type, action);
-    }
-};
-
-/******************************************************************************/
-
-Matrix.prototype.fromObsoleteSelfie = function(selfie) {
-    if ( selfie === '' ) {
-        return '';
-    }
-    var bin = {};
-    try {
-        bin = JSON.parse(selfie);
-    } catch(e) {
-    }
-    var filters = bin.filters;
-    var bits, val;
-    for ( var hostname in filters ) {
-        if ( filters.hasOwnProperty(hostname) === false ) {
-            continue;
-        }
-        bits = filters[hostname];
-        val = bits & 3;
-        if ( val === 1 ) {
-            this.setCell(hostname, '*', 'inline-script', 1);
-        } else if ( val === 2 ) {
-            this.setCell(hostname, '*', 'inline-script', 3);
-        }
-        val = (bits >> 2) & 3;
-        if ( val === 1 ) {
-            this.setCell(hostname, '*', '1p-script', 1);
-        } else if ( val === 2 ) {
-            this.setCell(hostname, '*', '1p-script', 3);
-        }
-        val = (bits >> 4) & 3;
-        if ( val === 1 ) {
-            this.setCell(hostname, '*', '3p-script', 1);
-        } else if ( val === 2 ) {
-            this.setCell(hostname, '*', '3p-script', 3);
-        }
-        val = (bits >> 8) & 3;
-        if ( val === 1 ) {
-            this.setCell(hostname, '*', '3p-frame', 1);
-        } else if ( val === 2 ) {
-            this.setCell(hostname, '*', '3p-frame', 3);
-        }
     }
 };
 

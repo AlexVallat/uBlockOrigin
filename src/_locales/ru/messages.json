@@ -103,6 +103,10 @@
     "message":"от третьих лиц",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"сторонние таблицы стилей\/изображения",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"встроенные скрипты",
     "description":""

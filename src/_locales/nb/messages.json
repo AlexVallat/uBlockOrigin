@@ -103,6 +103,10 @@
     "message":"tredjepart",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"tredjeparts css\/bilder",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"integrerte skript",
     "description":""
@@ -184,7 +188,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"Hindre WebRTC i å lekke din hjemme-IP-adresse",
+    "message":"Hindre WebRTC i å lekke hjemme-IP-adresser",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{

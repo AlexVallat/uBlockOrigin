@@ -103,6 +103,10 @@
     "message":"pihak ketiga",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"css\/gambar pihak ketiga",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"skrip inline",
     "description":""

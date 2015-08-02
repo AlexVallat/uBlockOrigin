@@ -103,6 +103,10 @@
     "message":"de tercers",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"css\/images de tercers",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"scripts incrustats",
     "description":""

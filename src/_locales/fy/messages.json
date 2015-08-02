@@ -103,6 +103,10 @@
     "message":"fan tredden",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"3e-party css\/ôfbyldingen",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"inline scripts",
     "description":""

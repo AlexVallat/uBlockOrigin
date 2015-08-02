@@ -103,6 +103,10 @@
     "message":"treće strane",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"CSS\/slike trećih strana",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"skripte u liniji",
     "description":""

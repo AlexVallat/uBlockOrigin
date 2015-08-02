@@ -103,6 +103,10 @@
     "message":"trečios šalies",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"3-ios šalies css\/paveikslai",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"įterptieji scenarijai",
     "description":""

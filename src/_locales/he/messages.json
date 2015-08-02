@@ -103,6 +103,10 @@
     "message":"צד-3",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"css\/תמונות צד-3",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"סקריפטים מוטמעים",
     "description":""
@@ -184,7 +188,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"מנע מ WebRTC להדליף כתובת IP לוקאלית",
+    "message":"מנע מ WebRTC להדליף כתובות IP לוקאליות",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{

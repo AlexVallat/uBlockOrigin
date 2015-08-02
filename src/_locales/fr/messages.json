@@ -103,6 +103,10 @@
     "message":"Tierce-partie",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"CSS\/Images de tierce-partie",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"Scripts embarqués",
     "description":""
@@ -184,7 +188,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"Empêcher la fuite de l'adresse IP locale via WebRTC",
+    "message":"Empêcher la fuite des adresses IP locales via WebRTC",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{

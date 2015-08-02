@@ -103,6 +103,10 @@
     "message":"సైట్-ఏతరుల అంశాలు",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"సైట్-ఏతరుల సిఎస్ఎస్\/చిత్రాలు",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"లోబడిన స్క్రిప్ట్లు",
     "description":""
@@ -184,7 +188,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"WebRTCని మీ స్థానిక IP చిరునామాను బహిర్గతపరచనివ్వొద్దు",
+    "message":"WebRTCని మీ స్థానిక IP చిరునామాలను బహిర్గతపరచనివ్వొద్దు",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{

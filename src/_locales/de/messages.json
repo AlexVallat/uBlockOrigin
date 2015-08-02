@@ -103,6 +103,10 @@
     "message":"Ressourcen von Drittseiten",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"CSS\/Bilder von Drittseiten",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"Inline-Skripte",
     "description":""

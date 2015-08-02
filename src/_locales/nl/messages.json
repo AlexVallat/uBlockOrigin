@@ -103,6 +103,10 @@
     "message":"van derden",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"css\/afbeeldingen van derden",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"inline scripts",
     "description":""

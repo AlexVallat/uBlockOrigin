@@ -103,6 +103,10 @@
     "message":"сторонні",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"сторонні css\/зображення",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"вбудовані сценарії",
     "description":""

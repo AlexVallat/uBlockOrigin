@@ -103,6 +103,10 @@
     "message":"৩য়-দল",
     "description":""
   },
+  "popup3pPassiveRulePrompt":{
+    "message":"৩য়-দলের css\/চিত্র",
+    "description":""
+  },
   "popupInlineScriptRulePrompt":{
     "message":"সারির স্ক্রিপ্ট",
     "description":""
