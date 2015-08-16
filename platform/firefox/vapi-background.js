@@ -103,60 +103,94 @@ window.addEventListener('unload', function() {
 vAPI.browserSettings = {
     originalValues: {},
 
-    rememberOriginalValue: function(branch, setting) {
-        var key = branch + '.' + setting;
+    rememberOriginalValue: function(path, setting) {
+        var key = path + '.' + setting;
         if ( this.originalValues.hasOwnProperty(key) ) {
             return;
         }
-        var hasUserValue = false;
+        var hasUserValue;
+        var branch = Services.prefs.getBranch(path + '.');
         try {
-            hasUserValue = Services.prefs.getBranch(branch + '.').prefHasUserValue(setting);
+            hasUserValue = branch.prefHasUserValue(setting);
         } catch (ex) {
         }
-        this.originalValues[key] = hasUserValue ? this.getBool(branch, setting) : undefined;
+        if ( hasUserValue !== undefined ) {
+            this.originalValues[key] = hasUserValue ? this.getValue(path, setting) : undefined;
+        }
     },
 
-    clear: function(branch, setting) {
-        var key = branch + '.' + setting;
+    clear: function(path, setting) {
+        var key = path + '.' + setting;
+
         // Value was not overriden -- nothing to restore
         if ( this.originalValues.hasOwnProperty(key) === false ) {
             return;
         }
+
         var value = this.originalValues[key];
         // https://github.com/gorhill/uBlock/issues/292#issuecomment-109621979
         // Forget the value immediately, it may change outside of
         // uBlock control.
         delete this.originalValues[key];
+
         // Original value was a default one
         if ( value === undefined ) {
             try {
-                Services.prefs.getBranch(branch + '.').clearUserPref(setting);
+                Services.prefs.getBranch(path + '.').clearUserPref(setting);
             } catch (ex) {
             }
             return;
         }
+
         // Current value is same as original
-        if ( this.getBool(branch, setting) === value ) {
+        if ( this.getValue(path, setting) === value ) {
             return;
         }
+
         // Reset to original value
         try {
-            Services.prefs.getBranch(branch + '.').setBoolPref(setting, value);
+            this.setValue(path, setting, value);
         } catch (ex) {
         }
     },
 
-    getBool: function(branch, setting) {
+    getValue: function(path, setting) {
+        var branch = Services.prefs.getBranch(path + '.');
+        var getMethod;
+
+        // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIPrefBranch#getPrefType%28%29
+        switch ( branch.getPrefType(setting) ) {
+        case  64: // PREF_INT
+            getMethod = 'getIntPref';
+            break;
+        case 128: // PREF_BOOL
+            getMethod = 'getBoolPref';
+            break;
+        default:  // not supported
+            return;
+        }
+
         try {
-            return Services.prefs.getBranch(branch + '.').getBoolPref(setting);
+            return branch[getMethod](setting);
         } catch (ex) {
         }
-        return undefined;
     },
 
-    setBool: function(branch, setting, value) {
+    setValue: function(path, setting, value) {
+        var setMethod;
+        switch ( typeof value ) {
+        case  'number':
+            setMethod = 'setIntPref';
+            break;
+        case 'boolean':
+            setMethod = 'setBoolPref';
+            break;
+        default:  // not supported
+            return;
+        }
+
         try {
-            Services.prefs.getBranch(branch + '.').setBoolPref(setting, value);
+            Services.prefs.getBranch(path + '.')[setMethod](setting, value);
         } catch (ex) {
         }
     },
@@ -170,13 +204,19 @@ vAPI.browserSettings = {
             switch ( setting ) {
             case 'prefetching':
                 this.rememberOriginalValue('network', 'prefetch-next');
+                // http://betanews.com/2015/08/15/firefox-stealthily-loads-webpages-when-you-hover-over-links-heres-how-to-stop-it/
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=814169
+                // Sigh.
+                this.rememberOriginalValue('network.http', 'speculative-parallel-limit');
                 value = !!details[setting];
                 // https://github.com/gorhill/uBlock/issues/292
                 // "true" means "do not disable", i.e. leave entry alone
                 if ( value === true ) {
                     this.clear('network', 'prefetch-next');
+                    this.clear('network.http', 'speculative-parallel-limit');
                 } else {
-                    this.setBool('network', 'prefetch-next', false);
+                    this.setValue('network', 'prefetch-next', false);
+                    this.setValue('network.http', 'speculative-parallel-limit', 0);
                 }
                 break;
 
@@ -190,8 +230,8 @@ vAPI.browserSettings = {
                     this.clear('browser', 'send_pings');
                     this.clear('beacon', 'enabled');
                 } else {
-                    this.setBool('browser', 'send_pings', false);
-                    this.setBool('beacon', 'enabled', false);
+                    this.setValue('browser', 'send_pings', false);
+                    this.setValue('beacon', 'enabled', false);
                 }
                 break;
 
@@ -201,7 +241,7 @@ vAPI.browserSettings = {
                 if ( value === true ) {
                     this.clear('media.peerconnection', 'enabled');
                 } else {
-                    this.setBool('media.peerconnection', 'enabled', false);
+                    this.setValue('media.peerconnection', 'enabled', false);
                 }
                 break;
 
@@ -711,7 +751,7 @@ vAPI.tabs.open = function(details) {
             self,
             details.url,
             null,
-            'menubar=no,toolbar=no,location=no,resizable=yes',
+            'location=1,menubar=1,personalbar=1,resizable=1,toolbar=1',
             null
         );
         return;
@@ -1039,7 +1079,7 @@ var tabWatcher = (function() {
             return;
         }
 
-        var tabContainer = null;
+        var tabContainer;
         if ( tabBrowser.deck ) {                    // Fennec
             tabContainer = tabBrowser.deck;
         } else if ( tabBrowser.tabContainer ) {     // Firefox
@@ -1052,8 +1092,20 @@ var tabWatcher = (function() {
             tabContainer.removeEventListener('TabSelect', onSelect);
         }
 
+        // https://github.com/gorhill/uBlock/issues/574
+        // To keep in mind: not all windows are tab containers,
+        // sometimes the window IS the tab.
+        var tabs;
+        if ( tabBrowser.tabs ) {
+            tabs = tabBrowser.tabs;
+        } else if ( tabBrowser.localName === 'browser' ) {
+            tabs = [tabBrowser];
+        } else {
+            tabs = [];
+        }
+
         var browser, URI, tabId;
-        for ( var tab of tabBrowser.tabs ) {
+        for ( var tab of tabs ) {
             browser = tabWatcher.browserFromTarget(tab);
             if ( browser === null ) {
                 continue;
@@ -2882,6 +2934,7 @@ vAPI.contextMenu.remove = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 var optionsObserver = {
     addonId: 'uBlock0@raymondhill.net',
@@ -2924,6 +2977,7 @@ var optionsObserver = {
 optionsObserver.register();
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.lastError = function() {
     return null;
@@ -2950,6 +3004,7 @@ vAPI.onLoadAllCompleted = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 // Likelihood is that we do not have to punycode: given punycode overhead,
 // it's faster to check and skip than do it unconditionally all the time.
@@ -2968,6 +3023,114 @@ vAPI.punycodeURL = function(url) {
     return url;
 };
 
+/******************************************************************************/
+/******************************************************************************/
+
+vAPI.cloud = (function() {
+    var extensionBranchPath = 'extensions.' + location.host;
+    var cloudBranchPath = extensionBranchPath + '.cloudStorage';
+
+    var options = {
+        defaultDeviceName: '',
+        deviceName: ''
+    };
+
+    // User-supplied device name.
+    try {
+        options.deviceName = Services.prefs
+                                     .getBranch(extensionBranchPath + '.')
+                                     .getCharPref('deviceName');
+    } catch(ex) {
+    }
+
+    var getDefaultDeviceName = function() {
+        var name = '';
+        try {
+            name = Services.prefs
+                           .getBranch('services.sync.client.')
+                           .getCharPref('name');
+        } catch(ex) {
+        }
+
+        return name || window.navigator.platform || window.navigator.oscpu;
+    };
+
+    var start = function(dataKeys) {
+        var extensionBranch = Services.prefs.getBranch(extensionBranchPath + '.');
+        var syncBranch = Services.prefs.getBranch('services.sync.prefs.sync.');
+
+        // Mark config entries as syncable
+        var dataKey;
+        for ( var i = 0; i < dataKeys.length; i++ ) {
+            dataKey = dataKeys[i];
+            if ( extensionBranch.prefHasUserValue('cloudStorage.' + dataKey) === false ) {
+                extensionBranch.setCharPref('cloudStorage.' + dataKey, '');
+            }
+            syncBranch.setBoolPref(cloudBranchPath + '.' + dataKey, true);
+        }
+    };
+
+    var push = function(datakey, data, callback) {
+        var branch = Services.prefs.getBranch(cloudBranchPath + '.');
+        var bin = {
+            'source': options.deviceName || getDefaultDeviceName(),
+            'tstamp': Date.now(),
+            'data': data,
+            'size': 0
+        };
+        bin.size = JSON.stringify(bin).length;
+        branch.setCharPref(datakey, JSON.stringify(bin));
+        if ( typeof callback === 'function' ) {
+            callback();
+        }
+    };
+
+    var pull = function(datakey, callback) {
+        var result = null;
+        var branch = Services.prefs.getBranch(cloudBranchPath + '.');
+        try {
+            var json = branch.getCharPref(datakey);
+            if ( typeof json === 'string' ) {
+                result = JSON.parse(json);
+            }
+        } catch(ex) {
+        }
+        callback(result);
+    };
+
+    var getOptions = function(callback) {
+        if ( typeof callback !== 'function' ) {
+            return;
+        }
+        options.defaultDeviceName = getDefaultDeviceName();
+        callback(options);
+    };
+
+    var setOptions = function(details, callback) {
+        if ( typeof details !== 'object' || details === null ) {
+            return;
+        }
+
+        var branch = Services.prefs.getBranch(extensionBranchPath + '.');
+
+        if ( typeof details.deviceName === 'string' ) {
+            branch.setCharPref('deviceName', details.deviceName);
+            options.deviceName = details.deviceName;
+        }
+
+        getOptions(callback);
+    };
+
+    return {
+        start: start,
+        push: push,
+        pull: pull,
+        getOptions: getOptions,
+        setOptions: setOptions
+    };
+})();
+
+/******************************************************************************/
 /******************************************************************************/
 
 })();

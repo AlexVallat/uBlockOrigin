@@ -467,11 +467,23 @@ var uBlockCollapser = (function() {
         while ( i-- ) {
             elem = elems[i];
             shadow = elem.shadowRoot;
-            if ( shadow !== null && shadow.className === sessionId ) {
+            // https://www.chromestatus.com/features/4668884095336448
+            // "Multiple shadow roots is being deprecated."
+            if ( shadow !== null ) {
+                if ( shadow.className !== sessionId ) {
+                    elem.style.setProperty('display', 'none', 'important');
+                }
                 continue;
             }
-            shadow = elem.createShadowRoot();
-            shadow.className = sessionId;
+            // https://github.com/gorhill/uBlock/pull/555
+            // Not all nodes can be shadowed:
+            //   https://github.com/w3c/webcomponents/issues/102
+            try {
+                shadow = elem.createShadowRoot();
+                shadow.className = sessionId;
+            } catch (ex) {
+                elem.style.setProperty('display', 'none', 'important');
+            }
         }
     };
 

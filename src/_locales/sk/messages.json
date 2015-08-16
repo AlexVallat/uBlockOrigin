@@ -104,7 +104,7 @@
     "description":""
   },
   "popup3pPassiveRulePrompt":{
-    "message":"obrázky\/css tretích strán",
+    "message":"CSS\/obrázky tretích strán",
     "description":""
   },
   "popupInlineScriptRulePrompt":{
@@ -174,6 +174,10 @@
   "settingsColorBlindPrompt":{
     "message":"Režim pre farboslepých",
     "description":"English: Color-blind friendly"
+  },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Povoliť podporu cloudového úložiska",
+    "description":""
   },
   "settingsAdvancedUserPrompt":{
     "message":"Som pokročilý používateľ (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Povinne prečítať<\/a>)",
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Natrvalo",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportovať do cloudového úložiska",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importovať z cloudového úložiska",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Názov tohto zariadenia:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Poslať",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Vrátiť",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

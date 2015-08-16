@@ -175,6 +175,10 @@
     "message":"Color-blind friendly",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Enable cloud storage support",
+    "description": ""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"I am an advanced user (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Required reading<\/a>)",
     "description":"English: "
@@ -288,8 +292,8 @@
     "description":"English: new version available"
   },
   "3pExternalListObsolete":{
-    "message":"outdated",
-    "description":"English: outdated"
+    "message":"out of date",
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Last update: {{ago}}",
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent": {
     "message": "Permanently",
     "description": "English: Permanently"
+  },
+  "cloudPush": {
+    "message": "Export to cloud storage",
+    "description": "tooltip"
+  },
+  "cloudPull": {
+    "message": "Import from cloud storage",
+    "description": "tooltip"
+  },
+  "cloudNoData": {
+    "message": "...\n...",
+    "description": ""
+  },
+  "cloudDeviceNamePrompt": {
+    "message": "This device name:",
+    "description": "used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit": {
+    "message": "Submit",
+    "description": "for generic 'submit' buttons"
+  },
+  "genericRevert": {
+    "message": "Revert",
+    "description": "for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

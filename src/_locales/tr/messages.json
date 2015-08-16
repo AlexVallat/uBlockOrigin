@@ -175,6 +175,10 @@
     "message":"Renk körü dostu",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Bulut depolama desteğini etkinleştir",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Deneyimli bir kullanıcıyım (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Okunması gerekli<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Kalıcı olarak",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Bulut deposuna gönder",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Bulut deposundan getir",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Bu cihazın adı:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Gönder",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Geri al",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Bu girdi en sonda olmalıdır",

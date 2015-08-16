@@ -175,6 +175,10 @@
     "message":"Ugodan za daltoniste",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Omogući podršku za pohranu u oblaku",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Ja sam napredni korisnik (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Obavezna literatura<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Trajno",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Izvezi u pohranu u oblaku",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Uvezi iz pohrane u oblaku",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Naziv ovog uređaja:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Pošalji",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Vratiti",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Ova stavka mora biti posljednja",

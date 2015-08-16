@@ -9,7 +9,7 @@ New benchmark: [Blocking mode](https://github.com/gorhill/uBlock/wiki/Blocking-m
 
 There is an idea floating around that uBlock Origin is a _lesser_ branch relative to [uBlock](https://github.com/chrisaljoudi/uBlock)<sup>[1]</sup>.
 
-The current reality is that there are *two branches*, not an official one and a lesser one. I keep developing my branch the same way and in the same spirit I have since [the beginning of uBlock in June 23, 2014](http://www.wilderssecurity.com/threads/ublock-a-lean-and-fast-blocker.365273/), so in substance uBlock Origin _is_ the original uBlock.
+The current reality is that there are *two branches*, not an official one and a lesser one. I [keep developing my branch](https://github.com/gorhill/uBlock/wiki/uBlock-vs.-uBlock-Origin:-Facts#ublock-is-the-main-branch-ublock-origin-is-just-bug-fixes) the same way and in the same spirit I have since [the beginning of uBlock in June 23, 2014](http://www.wilderssecurity.com/threads/ublock-a-lean-and-fast-blocker.365273/), so in substance uBlock Origin _is_ the original uBlock.
 
 **uBlock Origin is _completely_ unrelated to the web site `ublock.org`:** the donations sought by `ublock.org` are _not_ benefiting any of those who contributed most to create uBlock ([developers](https://github.com/gorhill/uBlock/graphs/contributors)<sup>[2]</sup>, [translators](https://crowdin.com/project/ublock), and all those who put efforts in opening detailed issues). For the differences in features between uBlock Origin and uBlock, you are more likely than anywhere else to find an unbiased explanation in this [Wikipedia article](http://en.wikipedia.org/wiki/UBlock).
 
@@ -48,8 +48,8 @@ uBlock Origin
 
 **An efficient blocker add-on for various browsers. Fast, potent, and lean.**
 
-* [Purpose & General Info](#philosophy)
 * [Documentation](#documentation)
+* [Purpose & General Info](#philosophy)
 * [Performance and Efficiency](#performance)
   * [Memory](#memory)
   * [CPU](#cpu)
@@ -63,6 +63,15 @@ uBlock Origin
 * [Privacy policy](https://github.com/gorhill/uBlock/wiki/Privacy-policy)
 * [Wiki](https://github.com/gorhill/uBlock/wiki)
 
+## Documentation
+
+ Basic mode | Advanced-user mode
+:----------:|:------------------:
+[Popup user interface](https://github.com/gorhill/uBlock/wiki/Quick-guide:-popup-user-interface) | [A point-and-click firewall which can be configured on a per-site basis](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-quick-guide) 
+<a href="https://github.com/gorhill/uBlock/wiki/Quick-guide:-popup-user-interface"><img src="https://raw.githubusercontent.com/gorhill/uBlock/master/doc/img/popup-1.png" /></a><br><sup>.<br>.</sup> | <a href="https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-quick-guide"><img src="https://cloud.githubusercontent.com/assets/585534/9021740/41eac000-3821-11e5-9842-c4c6fea573c3.png" /></a><br><sup>Configure as you wish:<br>picture shows 3rd-party scripts and frames blocked by default everywhere</sup>
+
+Visit the [uBlock Origin's wiki](https://github.com/gorhill/uBlock/wiki) for documentation.
+
 ## Philosophy
 
 uBlock Origin (or uBlock₀) is not an *ad blocker*; it's a general-purpose blocker. uBlock₀ blocks ads through its support of the [Adblock Plus filter syntax](https://adblockplus.org/en/filters). uBlock₀ [extends](https://github.com/gorhill/uBlock/wiki/Filter-syntax-extensions) the syntax and is designed to work with custom rules and filters. Furthermore, advanced mode allows uBlock₀ to work in [default-deny mode](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-default-deny), which mode will cause [all 3rd-party network requests](https://requestpolicycontinued.github.io/#what-are-cross-site-requests) to be blocked by default, unless allowed by the user.
@@ -74,20 +83,6 @@ Ads, "unintrusive" or not, are just the visible portions of privacy-invading app
 _EasyList_, _Peter Lowe's Adservers_, _EasyPrivacy_ and _Malware domains_ are enabled by default when you install uBlock₀. Many more lists are readily available to block trackers, analytics, and more. Hosts files are also supported.
 
 Once you install uBlock₀, you may easily un-select any of the pre-selected filter lists if you think uBlock₀ blocks too much. For reference, Adblock Plus installs with only _EasyList_ enabled by default.
-
-By the way, looks like I still need to dispel that other myth: I've seen in [many](https://np.reddit.com/r/AskReddit/comments/35s2je/whats_a_product_that_everybody_uses_but_nobody/cr7h8l6) [places](https://twitter.com/1v1MeInBed/status/611658444244951040) [lately](https://np.reddit.com/r/explainlikeimfive/comments/363569/eli5_how_come_adblockublock_doesnt_let_the_ad/crafo5p?context=3) the following assertion:
-
-> ublock blocks ads just like adblock plus, but triggers the ads API to think it got viewed
-
-Completely false. uBlock Origin does not "trigger" any "ads API" (whatever that is). It [prevents network requests from being made](https://github.com/gorhill/uBlock/wiki/Does-uBlock-block-ads-or-just-hide-them%3F) according to filter lists so that your browser does not connect to remote servers, period.
-
-## Documentation
-
-[Quick guide: popup user interface](https://github.com/gorhill/uBlock/wiki/Quick-guide:-popup-user-interface)
-
-<a href="https://github.com/gorhill/uBlock/wiki/Quick-guide:-popup-user-interface"><img src="https://raw.githubusercontent.com/gorhill/uBlock/master/doc/img/popup-1.png" /></a>
-
-For advanced usage, read about [dynamic filtering](https://github.com/gorhill/uBlock/wiki/Dynamic-filtering:-quick-guide) and more on [uBlock₀'s wiki](https://github.com/gorhill/uBlock/wiki).
 
 ## Performance
 

@@ -175,6 +175,10 @@
     "message":"Режим для дальтоников",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Включить поддержку облачного хранилища",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Я опытный пользователь (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Обязательно к прочтению<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Навсегда",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Экспортировать в облачное хранилище",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Импортировать из облачного хранилища",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Название этого устройства:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Отправить",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Отменить",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Эта запись должна быть последней",

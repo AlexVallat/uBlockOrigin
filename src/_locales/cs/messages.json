@@ -175,6 +175,10 @@
     "message":"Styl pro barvoslepé",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Povolit podporu cloudového úložiště",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Jsem pokročilý uživatel (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Nutno přečíst<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Trvale",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportovat do cloudového úložiště",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importovat z cloudového úložiště",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Název tohoto zařízení:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Odeslat",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Vrátit",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

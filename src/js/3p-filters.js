@@ -116,7 +116,7 @@ var renderFilterLists = function() {
             elem.css('display', '');
         }
 
-        elem = li.descendants('span:nth-of-type(1)');
+        elem = li.descendants('span.counts');
         var text = listStatsTemplate
             .replace('{{used}}', renderNumber(!entry.off && !isNaN(+entry.entryUsedCount) ? entry.entryUsedCount : 0))
             .replace('{{total}}', !isNaN(+entry.entryCount) ? renderNumber(entry.entryCount) : '?');
@@ -486,16 +486,14 @@ var renderExternalLists = function() {
 /******************************************************************************/
 
 var externalListsChangeHandler = function() {
-    uDom('#externalListsApply').prop(
-        'disabled',
-        this.value.trim() === externalLists
-    );
+    uDom.nodeFromId('externalListsApply').disabled =
+        uDom.nodeFromId('externalLists').value.trim() === externalLists;
 };
 
 /******************************************************************************/
 
 var externalListsApplyHandler = function() {
-    externalLists = uDom('#externalLists').val();
+    externalLists = uDom.nodeFromId('externalLists').value;
     messager.send({
         what: 'userSettings',
         name: 'externalLists',
@@ -520,21 +518,69 @@ var groupEntryClickHandler = function() {
 
 /******************************************************************************/
 
-uDom.onLoad(function() {
-    uDom('#autoUpdate').on('change', autoUpdateCheckboxChanged);
-    uDom('#parseCosmeticFilters').on('change', cosmeticSwitchChanged);
-    uDom('#buttonApply').on('click', buttonApplyHandler);
-    uDom('#buttonUpdate').on('click', buttonUpdateHandler);
-    uDom('#buttonPurgeAll').on('click', buttonPurgeAllHandler);
-    uDom('#lists').on('change', '.listEntry > input', onListCheckboxChanged);
-    uDom('#lists').on('click', 'span.purge', onPurgeClicked);
-    uDom('#externalLists').on('input', externalListsChangeHandler);
-    uDom('#externalListsApply').on('click', externalListsApplyHandler);
-    uDom('#lists').on('click', '.groupEntry > span', groupEntryClickHandler);
+var getCloudData = function() {
+    var bin = {
+        parseCosmeticFilters: uDom.nodeFromId('parseCosmeticFilters').checked,
+        selectedLists: [],
+        externalLists: externalLists
+    };
 
-    renderFilterLists();
-    renderExternalLists();
-});
+    var lis = uDom('#lists .listEntry'), li;
+    var i = lis.length;
+    while ( i-- ) {
+        li = lis.at(i);
+        if ( li.descendants('input').prop('checked') ) {
+            bin.selectedLists.push(li.descendants('a').attr('data-listkey'));
+        }
+    }
+
+    return bin;
+};
+
+var setCloudData = function(data) {
+    if ( typeof data !== 'object' || data === null ) {
+        return;
+    }
+
+    var checked = data.parseCosmeticFilters === true;
+    uDom.nodeFromId('parseCosmeticFilters').checked = checked;
+    listDetails.cosmetic = checked;
+
+    var lis = uDom('#lists .listEntry'), li, input, listKey;
+    var i = lis.length;
+    while ( i-- ) {
+        li = lis.at(i);
+        input = li.descendants('input');
+        listKey = li.descendants('a').attr('data-listkey');
+        checked = data.selectedLists.indexOf(listKey) !== -1;
+        input.prop('checked', checked);
+        listDetails.available[listKey].off = !checked;
+    }
+
+    uDom.nodeFromId('externalLists').value = data.externalLists || '';
+
+    renderWidgets();
+    externalListsChangeHandler();
+};
+
+self.cloud.onPush = getCloudData;
+self.cloud.onPull = setCloudData;
+
+/******************************************************************************/
+
+uDom('#autoUpdate').on('change', autoUpdateCheckboxChanged);
+uDom('#parseCosmeticFilters').on('change', cosmeticSwitchChanged);
+uDom('#buttonApply').on('click', buttonApplyHandler);
+uDom('#buttonUpdate').on('click', buttonUpdateHandler);
+uDom('#buttonPurgeAll').on('click', buttonPurgeAllHandler);
+uDom('#lists').on('change', '.listEntry > input', onListCheckboxChanged);
+uDom('#lists').on('click', 'span.purge', onPurgeClicked);
+uDom('#externalLists').on('input', externalListsChangeHandler);
+uDom('#externalListsApply').on('click', externalListsApplyHandler);
+uDom('#lists').on('click', '.groupEntry > span', groupEntryClickHandler);
+
+renderFilterLists();
+renderExternalLists();
 
 /******************************************************************************/
 

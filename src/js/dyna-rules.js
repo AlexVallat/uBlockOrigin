@@ -158,7 +158,7 @@ function exportUserRulesToFile() {
         .replace('{{datetime}}', now.toLocaleString())
         .replace(/ +/g, '_');
     vAPI.download({
-        'url': 'data:text/plain,' + encodeURIComponent(rulesFromHTML('#diff .left li')),
+        'url': 'data:text/plain,' + encodeURIComponent(rulesFromHTML('#diff .left li') + '\n'),
         'filename': filename,
         'saveAs': true
     });
@@ -234,21 +234,42 @@ var editCancelHandler = function() {
 
 /******************************************************************************/
 
-uDom.onLoad(function() {
-    // Handle user interaction
-    uDom('#importButton').on('click', startImportFilePicker);
-    uDom('#importFilePicker').on('change', handleImportFilePicker);
-    uDom('#exportButton').on('click', exportUserRulesToFile);
+var getCloudData = function() {
+    return rulesFromHTML('#diff .left li');
+};
 
-    uDom('#revertButton').on('click', revertHandler);
-    uDom('#commitButton').on('click', commitHandler);
-    uDom('#editEnterButton').on('click', editStartHandler);
-    uDom('#diff > .pane.right > .rulesContainer').on('dblclick', editStartHandler);
-    uDom('#editStopButton').on('click', editStopHandler);
-    uDom('#editCancelButton').on('click', editCancelHandler);
+var setCloudData = function(data, append) {
+    if ( typeof data !== 'string' ) {
+        return;
+    }
+    if ( append ) {
+        data = rulesFromHTML('#diff .right li') + '\n' + data;
+    }
+    var request = {
+        'what': 'setSessionRules',
+        'rules': data
+    };
+    messager.send(request, renderRules);
+};
 
-    messager.send({ what: 'getRules' }, renderRules);
-});
+self.cloud.onPush = getCloudData;
+self.cloud.onPull = setCloudData;
+
+/******************************************************************************/
+
+// Handle user interaction
+uDom('#importButton').on('click', startImportFilePicker);
+uDom('#importFilePicker').on('change', handleImportFilePicker);
+uDom('#exportButton').on('click', exportUserRulesToFile);
+
+uDom('#revertButton').on('click', revertHandler);
+uDom('#commitButton').on('click', commitHandler);
+uDom('#editEnterButton').on('click', editStartHandler);
+uDom('#diff > .pane.right > .rulesContainer').on('dblclick', editStartHandler);
+uDom('#editStopButton').on('click', editStopHandler);
+uDom('#editCancelButton').on('click', editCancelHandler);
+
+messager.send({ what: 'getRules' }, renderRules);
 
 /******************************************************************************/
 

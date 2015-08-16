@@ -175,6 +175,10 @@
     "message":"Accesibil pentru daltonism",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Activează suportul pentru stocare în cloud",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Sunt un utilizator avansat (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lectură obligatorie<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exportă către stocarea în cloud",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importă din stocarea în cloud",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Numele acestui dispozitiv:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Trimite",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Înlătură",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Aceasta intrare trebuie sa fie ultima",

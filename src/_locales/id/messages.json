@@ -175,6 +175,10 @@
     "message":"Ramah buta warna",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Fungsikan dukungan penyimpanan awan",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Saya pengguna tingkat lanjut (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Bacaan wajib<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanen",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Ekspor ke penyimpanan awan",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Impor dari penyimpanan awan",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Nama perangkat ini:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Kirim",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Urungkan",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Entri ini harus menjadi yang terakhir",

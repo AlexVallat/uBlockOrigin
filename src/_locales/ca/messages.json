@@ -175,6 +175,10 @@
     "message":"Configuració per a persones daltòniques",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Habilita el suport d'emmagatzematge al núvol",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Sóc un usuari avançat (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lectura necessària<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanentment",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exporta a un servei al núvol",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importa des d'un servei al núvol",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Nom d'aquest dispositiu:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Envia",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Desfer",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Aquesta entrada ha de ser l'última",

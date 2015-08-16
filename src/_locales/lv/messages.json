@@ -175,6 +175,10 @@
     "message":"Daltoniķiem draudzīgs",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Aktivizēt mākoņdatu glabāšanas atbalstu",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Es esmu pieredzējis lietotājs (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Vēlams izlasīt<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Paliekoši",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Eksports uz mākoņdatu glabātuvi",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Imports no mākoņdatu glabātuves",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Šīs ierīces nosaukums:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Iesniegt",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Atgriezt",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Šim ierakstam ir jābūt pēdējam",

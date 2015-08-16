@@ -175,6 +175,10 @@
     "message":"Anzeige für farbenblinde Benutzer",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Aktiviere die Unterstützung der Speicherung in der Cloud",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Ich bin ein erfahrener Benutzer (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Pflichtlektüre<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Export in den Cloud-Speicher",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Import aus dem Cloud-Speicher",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Dieser Gerätename:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Absenden",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Rückgängig machen",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Dieser Eintrag muss der letzte sein",

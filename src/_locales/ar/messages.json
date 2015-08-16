@@ -175,6 +175,10 @@
     "message":"وضع عمى الألوان",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"تفعيل دعم سحابة التخزين",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"إظهار الإعدادات المتقدمة (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>يجب القراءة<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"بشكل دائم",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"التصدير إلى سحابة التخزين",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"إستيراد من سحابة التخزين",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"إسم هذا الجهاز:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"تطبيق",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"إلغاء",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"يجب أن يكون هذا الإدخال آخر واحد",

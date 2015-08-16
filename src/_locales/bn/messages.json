@@ -175,6 +175,10 @@
     "message":"বর্ণান্ধ বন্ধুত্বপূর্ণ",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"ক্লাউড সঞ্চয়ের সমর্থন সক্রিয় করুন",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"আমি একজন উন্নত ব্যবহারকারী (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>পড়া আবশ্যক<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"স্থায়ীভাবে",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"ক্লাউড সঞ্চয়ে রপ্তানি করুন",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"ক্লাউড সঞ্চয় থেকে আমদানি করুন",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"এই ডিভাইসের নাম:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"জমা দিন",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"প্রত্যাবর্তন",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

@@ -175,6 +175,10 @@
     "message":"Mode Daltonien",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Activer le support de stockage dans la nuage",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Activer le mode pour personnes expérimentées (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>À lire<\/a>, page en Anglais)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"De manière définitive",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Exporter vers le stockage dans le nuage",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importer depuis le stockage dans le nuage",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Nom de ce périphérique :",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Appliquer",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Rétablir",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

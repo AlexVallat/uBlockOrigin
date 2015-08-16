@@ -175,6 +175,10 @@
     "message":"Fargeblind-vennlig",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Aktiver støtte for nettlagring",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Jeg er en avansert bruker (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Nødvendig lesning<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanent",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Eksporter til nettlagring",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Importer fra nettlagring",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Denne enhets navn:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Send",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Tilbakestill",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

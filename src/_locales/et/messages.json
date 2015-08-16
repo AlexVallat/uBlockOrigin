@@ -175,6 +175,10 @@
     "message":"Värvipimeduse sõbralik",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Luba pilves hoiustamise tugi",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Olen kogenud kasutaja (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Vajalik lugemus<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Püsivalt",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Ekspordi pilvehoidlasse",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Impordi pilvehoidlast",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Selle seadme nimi:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Saada",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Ennista",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"See sisestus peab olema viimane",

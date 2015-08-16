@@ -175,6 +175,10 @@
     "message":"Підтримка дальтонізму",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Увімкнути підтримку хмаринкового сховища",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Я досвідчений користувач (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Обов’язково для прочитання<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Завжди",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Експортувати до хмаринкового сховища",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Імпортувати із хмаринкового сховища",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Назва цього пристрою:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Надіслати",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Скасувати зміни",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Цей запис має бути останнім",

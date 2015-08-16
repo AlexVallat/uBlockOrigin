@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, uDom */
+/* global vAPI, uDom, uBlockDashboard */
 
 /******************************************************************************/
 
@@ -41,24 +41,24 @@ var reUnwantedChars = /[\x00-\x09\x0b\x0c\x0e-\x1f!"$'()<>{}|\\^\[\]`~]/;
 /******************************************************************************/
 
 var whitelistChanged = function() {
-    var s = uDom('#whitelist').val().trim();
+    var textarea = uDom.nodeFromId('whitelist');
+    var s = textarea.value.trim();
+    var changed = s === cachedWhitelist;
     var bad = reUnwantedChars.test(s);
-    uDom('#whitelistApply').prop(
-        'disabled',
-        s === cachedWhitelist || bad
-    );
-    uDom('#whitelist').toggleClass('bad', bad);
+    uDom.nodeFromId('whitelistApply').disabled = changed || bad;
+    uDom.nodeFromId('whitelistRevert').disabled = changed;
+    textarea.classList.toggle('bad', bad);
 };
 
 /******************************************************************************/
 
 var renderWhitelist = function() {
     var onRead = function(whitelist) {
-        cachedWhitelist = whitelist;
-        uDom('#whitelist').val(cachedWhitelist);
+        cachedWhitelist = whitelist.trim();
+        uDom.nodeFromId('whitelist').value = cachedWhitelist + '\n';
+        whitelistChanged();
     };
     messager.send({ what: 'getWhitelist' }, onRead);
-    whitelistChanged();
 };
 
 /******************************************************************************/
@@ -104,15 +104,15 @@ var exportWhitelistToFile = function() {
         .replace('{{datetime}}', now.toLocaleString())
         .replace(/ +/g, '_');
     vAPI.download({
-        'url': 'data:text/plain;charset=utf-8,' + encodeURIComponent(val),
+        'url': 'data:text/plain;charset=utf-8,' + encodeURIComponent(val + '\n'),
         'filename': filename
     });
 };
 
 /******************************************************************************/
 
-var whitelistApplyHandler = function() {
-    cachedWhitelist = uDom('#whitelist').val().trim();
+var applyChanges = function() {
+    cachedWhitelist = uDom.nodeFromId('whitelist').value.trim();
     var request = {
         what: 'setWhitelist',
         whitelist: cachedWhitelist
@@ -120,17 +120,42 @@ var whitelistApplyHandler = function() {
     messager.send(request, renderWhitelist);
 };
 
+var revertChanges = function() {
+    uDom.nodeFromId('whitelist').value = cachedWhitelist + '\n';
+    whitelistChanged();
+};
+
 /******************************************************************************/
 
-uDom.onLoad(function() {
-    uDom('#importWhitelistFromFile').on('click', startImportFilePicker);
-    uDom('#importFilePicker').on('change', handleImportFilePicker);
-    uDom('#exportWhitelistToFile').on('click', exportWhitelistToFile);
-    uDom('#whitelist').on('input', whitelistChanged);
-    uDom('#whitelistApply').on('click', whitelistApplyHandler);
+var getCloudData = function() {
+    return uDom.nodeFromId('whitelist').value;
+};
 
-    renderWhitelist();
-});
+var setCloudData = function(data, append) {
+    if ( typeof data !== 'string' ) {
+        return;
+    }
+    var textarea = uDom.nodeFromId('whitelist');
+    if ( append ) {
+        data = uBlockDashboard.mergeNewLines(textarea.value.trim(), data);
+    }
+    textarea.value = data.trim() + '\n';
+    whitelistChanged();
+};
+
+self.cloud.onPush = getCloudData;
+self.cloud.onPull = setCloudData;
+
+/******************************************************************************/
+
+uDom('#importWhitelistFromFile').on('click', startImportFilePicker);
+uDom('#importFilePicker').on('change', handleImportFilePicker);
+uDom('#exportWhitelistToFile').on('click', exportWhitelistToFile);
+uDom('#whitelist').on('input', whitelistChanged);
+uDom('#whitelistApply').on('click', applyChanges);
+uDom('#whitelistRevert').on('click', revertChanges);
+
+renderWhitelist();
 
 /******************************************************************************/
 

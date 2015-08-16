@@ -175,6 +175,10 @@
     "message":"ידידותי לעיוורי צבעים",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"הפעל אחסון בענן",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"אני משתמש מתקדם (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>נדרש לקרוא<\/a>)",
     "description":"English: "
@@ -288,7 +292,7 @@
     "description":"English: new version available"
   },
   "3pExternalListObsolete":{
-    "message":"לא עדכני",
+    "message":"עדכון זמין",
     "description":"English: outdated"
   },
   "3pLastUpdate":{
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"לצמיתות",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"ייצא לאחסון ענן",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"ייבא מאחסון ענן",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"שם המכשיר:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"שלח",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"החזר למצב הקודם",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"ערך זה חייב להיות האחרון",

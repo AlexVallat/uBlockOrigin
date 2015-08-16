@@ -175,6 +175,10 @@
     "message":"Thân thiện với người mù màu",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Kích hoạt hỗ trợ lưu trữ trực tuyến",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Tôi là một người dùng có kinh nghiệm (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Yêu cầu đọc qua<\/a>)",
     "description":"English: "
@@ -188,7 +192,7 @@
     "description":"English: "
   },
   "settingsWebRTCIPAddressHiddenPrompt":{
-    "message":"Ngăn WebRTC làm lộ địa chỉ IP cục bộ",
+    "message":"Ngặn WebRTC làm lộ địa chỉ IP nội bộ",
     "description":"English: "
   },
   "settingsExperimentalPrompt":{
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Vĩnh viễn",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Xuất ra lưu trữ trực tuyến",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Nhập từ lưu trữ trực tuyến",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Tên thiết bị này:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Gửi",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Phục hồi",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"Đây là mục cuối",

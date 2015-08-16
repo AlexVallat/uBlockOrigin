@@ -175,6 +175,10 @@
     "message":"Kleureblyn freonlik",
     "description":"English: Color-blind friendly"
   },
+  "settingsCloudStorageEnabledPrompt":{
+    "message":"Stipe cloudûnthâld ynskeakelje",
+    "description":""
+  },
   "settingsAdvancedUserPrompt":{
     "message":"Ik bin in betûfte brûker (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Advanced-user-features'>Lês dit earst<\/a>)",
     "description":"English: "
@@ -590,6 +594,30 @@
   "docblockedDisablePermanent":{
     "message":"Permanint",
     "description":"English: Permanently"
+  },
+  "cloudPush":{
+    "message":"Eksportearje nei cloudûnthâld",
+    "description":"tooltip"
+  },
+  "cloudPull":{
+    "message":"Ymportearje fan cloudûnthâld",
+    "description":"tooltip"
+  },
+  "cloudNoData":{
+    "message":"...\n...",
+    "description":""
+  },
+  "cloudDeviceNamePrompt":{
+    "message":"Apparaatnamme:",
+    "description":"used as a prompt for the user to provide a custom device name"
+  },
+  "genericSubmit":{
+    "message":"Ferstjoere",
+    "description":"for generic 'submit' buttons"
+  },
+  "genericRevert":{
+    "message":"Tebeksette",
+    "description":"for generic 'revert' buttons"
   },
   "dummy":{
     "message":"This entry must be the last one",

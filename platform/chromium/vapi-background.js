@@ -54,15 +54,24 @@ vAPI.app.restart = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 // chrome.storage.local.get(null, function(bin){ console.debug('%o', bin); });
 
 vAPI.storage = chrome.storage.local;
 
 /******************************************************************************/
+/******************************************************************************/
 
 // https://github.com/gorhill/uMatrix/issues/234
 // https://developer.chrome.com/extensions/privacy#property-network
+
+// 2015-08-12: Wrapped Chrome API in try-catch statements. I had a fluke
+// event in which it appeared the Chrome 46 decided to restart uBlock (for
+// unknown reasons) and again for unknown reasons the browser acted as if
+// uBlock did not declare the `privacy` permission in its manifest, putting
+// uBlock in a bad, non-fonctional state -- because call to `chrome.privacy`
+// API threw an exception.
 
 vAPI.browserSettings = {
     set: function(details) {
@@ -72,25 +81,37 @@ vAPI.browserSettings = {
             }
             switch ( setting ) {
             case 'prefetching':
-                chrome.privacy.network.networkPredictionEnabled.set({
-                    value: !!details[setting],
-                    scope: 'regular'
-                });
+                try {
+                    chrome.privacy.network.networkPredictionEnabled.set({
+                        value: !!details[setting],
+                        scope: 'regular'
+                    });
+                } catch(ex) {
+                    console.error(ex);
+                }
                 break;
 
             case 'hyperlinkAuditing':
-                chrome.privacy.websites.hyperlinkAuditingEnabled.set({
-                    value: !!details[setting],
-                    scope: 'regular'
-                });
+                try {
+                    chrome.privacy.websites.hyperlinkAuditingEnabled.set({
+                        value: !!details[setting],
+                        scope: 'regular'
+                    });
+                } catch(ex) {
+                    console.error(ex);
+                }
                 break;
 
             case 'webrtcIPAddress':
                 if ( typeof chrome.privacy.network.webRTCMultipleRoutesEnabled === 'object' ) {
-                    chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
-                        value: !!details[setting],
-                        scope: 'regular'
-                    });
+                    try {
+                        chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
+                            value: !!details[setting],
+                            scope: 'regular'
+                        });
+                    } catch(ex) {
+                        console.error(ex);
+                    }
                 }
                 break;
 
@@ -101,6 +122,7 @@ vAPI.browserSettings = {
     }
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 vAPI.tabs = {};
@@ -375,11 +397,8 @@ vAPI.tabs.open = function(details) {
     // "Note that fragment identifiers are not matched."
     // It's a lie, fragment identifiers ARE matched. So we need to remove the
     // fragment.
-    var targetURLWithoutHash = targetURL;
     var pos = targetURL.indexOf('#');
-    if ( pos !== -1 ) {
-        targetURLWithoutHash = targetURL.slice(0, pos);
-    }
+    var targetURLWithoutHash = pos === -1 ? targetURL : targetURL.slice(0, pos);
 
     chrome.tabs.query({ url: targetURLWithoutHash }, function(tabs) {
         var tab = tabs[0];
@@ -503,6 +522,7 @@ vAPI.tabs.injectScript = function(tabId, details, callback) {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 // Must read: https://code.google.com/p/chromium/issues/detail?id=410868#c8
 
@@ -537,6 +557,7 @@ vAPI.setIcon = function(tabId, iconStatus, badge) {
     chrome.browserAction.setIcon({ tabId: tabId, path: iconPaths }, onIconReady);
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 vAPI.messaging = {
@@ -755,6 +776,7 @@ vAPI.messaging.broadcast = function(message) {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.net = {};
 
@@ -879,6 +901,7 @@ vAPI.net.registerListeners = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.contextMenu = {
     create: function(details, callback) {
@@ -894,11 +917,13 @@ vAPI.contextMenu = {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.lastError = function() {
     return chrome.runtime.lastError;
 };
 
+/******************************************************************************/
 /******************************************************************************/
 
 // This is called only once, when everything has been loaded in memory after
@@ -951,6 +976,7 @@ vAPI.onLoadAllCompleted = function() {
 };
 
 /******************************************************************************/
+/******************************************************************************/
 
 vAPI.punycodeHostname = function(hostname) {
     return hostname;
@@ -960,6 +986,181 @@ vAPI.punycodeURL = function(url) {
     return url;
 };
 
+/******************************************************************************/
+/******************************************************************************/
+
+vAPI.cloud = (function() {
+    var chunkCountPerFetch = 16; // Must be a power of 2
+
+    // Mind chrome.storage.sync.MAX_ITEMS (512 at time of writing)
+    var maxChunkCountPerItem = Math.floor(512 * 0.75) & ~(chunkCountPerFetch - 1);
+
+    // Mind chrome.storage.sync.QUOTA_BYTES_PER_ITEM (8192 at time of writing)
+    var maxChunkSize = Math.floor(chrome.storage.sync.QUOTA_BYTES_PER_ITEM * 0.75);
+
+    // Mind chrome.storage.sync.QUOTA_BYTES_PER_ITEM (8192 at time of writing)
+    var maxStorageSize = chrome.storage.sync.QUOTA_BYTES;
+
+    var options = {
+        defaultDeviceName: window.navigator.platform,
+        deviceName: window.localStorage.getItem('deviceName') || ''
+    };
+
+    // This is used to find out a rough count of how many chunks exists:
+    // We "poll" at specific index in order to get a rough idea of how
+    // large is the stored string.
+    // This allows reading a single item with only 2 sync operations -- a
+    // good thing given chrome.storage.syncMAX_WRITE_OPERATIONS_PER_MINUTE
+    // and chrome.storage.syncMAX_WRITE_OPERATIONS_PER_HOUR.
+
+    var getCoarseChunkCount = function(dataKey, callback) {
+        var bin = {};
+        for ( var i = 0; i < maxChunkCountPerItem; i += 16 ) {
+            bin[dataKey + i.toString()] = '';
+        }
+
+        chrome.storage.sync.get(bin, function(bin) {
+            if ( chrome.runtime.lastError ) {
+                callback(0, chrome.runtime.lastError.message);
+                return;
+            }
+
+            var chunkCount = 0;
+            for ( var i = 0; i < maxChunkCountPerItem; i += 16 ) {
+                if ( bin[dataKey + i.toString()] === '' ) {
+                    break;
+                }
+                chunkCount = i + 16;
+            }
+
+            callback(chunkCount);
+        });
+    };
+
+    var deleteChunks = function(dataKey, start) {
+        var keys = [];
+
+        // No point in deleting more than:
+        // - The max number of chunks per item
+        // - The max number of chunks per storage limit
+        var n = Math.min(
+            maxChunkCountPerItem,
+            Math.ceil(maxStorageSize / maxChunkSize)
+        );
+        for ( var i = start; i < n; i++ ) {
+            keys.push(dataKey + i.toString());
+        }
+        chrome.storage.sync.remove(keys);
+    };
+
+    var start = function(/* dataKeys */) {
+    };
+
+    var push = function(dataKey, data, callback) {
+        var item = JSON.stringify({
+            'source': options.deviceName || options.defaultDeviceName,
+            'tstamp': Date.now(),
+            'data': data
+        });
+
+        // Chunkify taking into account  QUOTA_BYTES_PER_ITEM:
+        //   https://developer.chrome.com/extensions/storage#property-sync
+        //   "The maximum size (in bytes) of each individual item in sync
+        //   "storage, as measured by the JSON stringification of its value
+        //   "plus its key length."
+        var bin = {};
+        var chunkCount = Math.ceil(item.length / maxChunkSize);
+        for ( var i = 0; i < chunkCount; i++ ) {
+            bin[dataKey + i.toString()] = item.substr(i * maxChunkSize, maxChunkSize);
+        }
+        bin[dataKey + i.toString()] = ''; // Sentinel
+
+        chrome.storage.sync.set(bin, function() {
+            var errorStr;
+            if ( chrome.runtime.lastError ) {
+                errorStr = chrome.runtime.lastError.message;
+            }
+            callback(errorStr);
+
+            // Remove potentially unused trailing chunks
+            deleteChunks(dataKey, chunkCount);
+        });
+    };
+
+    var pull = function(dataKey, callback) {
+        var assembleChunks = function(bin) {
+            if ( chrome.runtime.lastError ) {
+                callback(null, chrome.runtime.lastError.message);
+                return;
+            }
+
+            // Assemble chunks into a single string.
+            var json = [], jsonSlice;
+            var i = 0;
+            for (;;) {
+                jsonSlice = bin[dataKey + i.toString()];
+                if ( jsonSlice === '' ) {
+                    break;
+                }
+                json.push(jsonSlice);
+                i += 1;
+            }
+
+            var entry = null;
+            try {
+                entry = JSON.parse(json.join(''));
+            } catch(ex) {
+            }
+            callback(entry);
+        };
+
+        var fetchChunks = function(coarseCount, errorStr) {
+            if ( coarseCount === 0 || typeof errorStr === 'string' ) {
+                callback(null, errorStr);
+                return;
+            }
+
+            var bin = {};
+            for ( var i = 0; i < coarseCount; i++ ) {
+                bin[dataKey + i.toString()] = '';
+            }
+
+            chrome.storage.sync.get(bin, assembleChunks);
+        };
+
+        getCoarseChunkCount(dataKey, fetchChunks);
+    };
+
+    var getOptions = function(callback) {
+        if ( typeof callback !== 'function' ) {
+            return;
+        }
+        callback(options);
+    };
+
+    var setOptions = function(details, callback) {
+        if ( typeof details !== 'object' || details === null ) {
+            return;
+        }
+
+        if ( typeof details.deviceName === 'string' ) {
+            window.localStorage.setItem('deviceName', details.deviceName);
+            options.deviceName = details.deviceName;
+        }
+
+        getOptions(callback);
+    };
+
+    return {
+        start: start,
+        push: push,
+        pull: pull,
+        getOptions: getOptions,
+        setOptions: setOptions
+    };
+})();
+
+/******************************************************************************/
 /******************************************************************************/
 
 })();
