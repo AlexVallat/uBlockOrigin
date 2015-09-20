@@ -67,10 +67,10 @@ vAPI.storage = chrome.storage.local;
 // https://developer.chrome.com/extensions/privacy#property-network
 
 // 2015-08-12: Wrapped Chrome API in try-catch statements. I had a fluke
-// event in which it appeared the Chrome 46 decided to restart uBlock (for
+// event in which it appeared Chrome 46 decided to restart uBlock (for
 // unknown reasons) and again for unknown reasons the browser acted as if
 // uBlock did not declare the `privacy` permission in its manifest, putting
-// uBlock in a bad, non-fonctional state -- because call to `chrome.privacy`
+// uBlock in a bad, non-functional state -- because call to `chrome.privacy`
 // API threw an exception.
 
 vAPI.browserSettings = {
@@ -190,7 +190,7 @@ vAPI.tabs.registerListeners = function() {
         if ( popup !== undefined ) {
             return;
         }
-        return popupCandidates[details.tabId] = new PopupCandidate(details);
+        return (popupCandidates[details.tabId] = new PopupCandidate(details));
     };
 
     var popupCandidateTest = function(details) {
@@ -838,20 +838,6 @@ vAPI.net.registerListeners = function() {
         normalizeRequestDetails(details);
         return onBeforeRequestClient(details);
     };
-    chrome.webRequest.onBeforeRequest.addListener(
-        onBeforeRequest,
-        //function(details) {
-        //    quickProfiler.start('onBeforeRequest');
-        //    var r = onBeforeRequest(details);
-        //    quickProfiler.stop();
-        //    return r;
-        //},
-        {
-            'urls': this.onBeforeRequest.urls || ['<all_urls>'],
-            'types': this.onBeforeRequest.types || undefined
-        },
-        this.onBeforeRequest.extra
-    );
 
     var onHeadersReceivedClient = this.onHeadersReceived.callback;
     var onHeadersReceivedClientTypes = this.onHeadersReceived.types.slice(0);
@@ -890,14 +876,47 @@ vAPI.net.registerListeners = function() {
         }
         return onHeadersReceivedClient(details);
     };
-    chrome.webRequest.onHeadersReceived.addListener(
-        onHeadersReceived,
-        {
-            'urls': this.onHeadersReceived.urls || ['<all_urls>'],
-            'types': onHeadersReceivedTypes
-        },
-        this.onHeadersReceived.extra
-    );
+
+    var installListeners = (function() {
+        var listener;
+        var crapi = chrome.webRequest;
+
+        listener = onBeforeRequest;
+        //listener = function(details) {
+        //    quickProfiler.start('onBeforeRequest');
+        //    var r = onBeforeRequest(details);
+        //    quickProfiler.stop();
+        //    return r;
+        //};
+        if ( crapi.onBeforeRequest.hasListener(listener) === false ) {
+            crapi.onBeforeRequest.addListener(
+                listener,
+                {
+                    'urls': this.onBeforeRequest.urls || ['<all_urls>'],
+                    'types': this.onBeforeRequest.types || undefined
+                },
+                this.onBeforeRequest.extra
+            );
+        }
+
+        listener = onHeadersReceived;
+        if ( crapi.onHeadersReceived.hasListener(listener) === false ) {
+            crapi.onHeadersReceived.addListener(
+                listener,
+                {
+                    'urls': this.onHeadersReceived.urls || ['<all_urls>'],
+                    'types': onHeadersReceivedTypes
+                },
+                this.onHeadersReceived.extra
+            );
+        }
+
+        // https://github.com/gorhill/uBlock/issues/675
+        // Experimental: keep polling to be sure our listeners are still installed.
+        //setTimeout(installListeners, 20000);
+    }).bind(this);
+
+    installListeners();
 };
 
 /******************************************************************************/
@@ -1057,18 +1076,21 @@ vAPI.cloud = (function() {
     };
 
     var push = function(dataKey, data, callback) {
-        var item = JSON.stringify({
+        var bin = {
             'source': options.deviceName || options.defaultDeviceName,
             'tstamp': Date.now(),
-            'data': data
-        });
+            'data': data,
+            'size': 0
+        };
+        bin.size = JSON.stringify(bin).length;
+        var item = JSON.stringify(bin);
 
         // Chunkify taking into account  QUOTA_BYTES_PER_ITEM:
         //   https://developer.chrome.com/extensions/storage#property-sync
         //   "The maximum size (in bytes) of each individual item in sync
         //   "storage, as measured by the JSON stringification of its value
         //   "plus its key length."
-        var bin = {};
+        bin = {};
         var chunkCount = Math.ceil(item.length / maxChunkSize);
         for ( var i = 0; i < chunkCount; i++ ) {
             bin[dataKey + i.toString()] = item.substr(i * maxChunkSize, maxChunkSize);

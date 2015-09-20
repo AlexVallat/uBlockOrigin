@@ -20,7 +20,7 @@
 */
 
 /* jshint multistr: true */
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 
@@ -36,8 +36,14 @@
 
 // https://github.com/chrisaljoudi/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    //console.debug('contentscript-start.js > not a HTLMDocument');
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // This can happen

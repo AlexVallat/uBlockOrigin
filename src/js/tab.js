@@ -500,13 +500,40 @@ vAPI.tabs.onPopup = function(details) {
     var loggerEnabled = µb.logger.isEnabled();
 
     // Check user switch first
-    if ( µb.hnSwitches.evaluateZ('no-popups', openerHostname) ) {
+    if (
+        targetURL !== µb.mouseURL &&
+        µb.hnSwitches.evaluateZ('no-popups', openerHostname)
+    ) {
         result = 'ub:no-popups: ' + µb.hnSwitches.z + ' true';
+    }
+
+    // https://github.com/gorhill/uBlock/issues/581
+    //   Take into account popup-specific rules in dynamic URL filtering, OR
+    //   generic allow rules.
+    if ( result === '' ) {
+        µb.sessionURLFiltering.evaluateZ(openerHostname, targetURL, 'popup');
+        if (
+            µb.sessionURLFiltering.r === 1 && µb.sessionURLFiltering.type === 'popup' ||
+            µb.sessionURLFiltering.r === 2
+        ) {
+            result = µb.sessionURLFiltering.toFilterString();
+        }
+    }
+
+    // https://github.com/gorhill/uBlock/issues/581
+    //   Take into account `allow` rules in dynamic filtering: `block` rules
+    //   are ignored, as block rules are not meant to block specific types
+    //   like `popup` (just like with static filters).
+    if ( result === '' ) {
+        µb.sessionFirewall.evaluateCellZY(openerHostname, context.requestHostname, 'popup');
+        if ( µb.sessionFirewall.r === 2 ) {
+            result = µb.sessionFirewall.toFilterString();
+        }
     }
 
     // https://github.com/chrisaljoudi/uBlock/issues/323
     // https://github.com/chrisaljoudi/uBlock/issues/1142
-    // Don't block if uBlock is turned off in popup's context
+    //   Don't block if uBlock is turned off in popup's context
     if (
         result === '' &&
         µb.getNetFilteringSwitch(targetURL) &&
@@ -573,7 +600,7 @@ vAPI.tabs.registerListeners();
     if ( !pageStore ) {
         this.updateTitle(tabId);
         this.pageStoresToken = Date.now();
-        return this.pageStores[tabId] = this.PageStore.factory(tabId);
+        return (this.pageStores[tabId] = this.PageStore.factory(tabId));
     }
 
     // https://github.com/chrisaljoudi/uBlock/issues/516

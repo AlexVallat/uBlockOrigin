@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    µBlock - a browser extension to block requests.
+    uBlock - a browser extension to block requests.
     Copyright (C) 2014-2015 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -392,8 +392,14 @@ var getRepoMetadata = function(callback) {
                 continue;
             }
             entry = entries[path];
-            // If repo checksums could not be fetched, assume no change
-            if ( repoChecksums === '' ) {
+            // If repo checksums could not be fetched, assume no change.
+            // https://github.com/gorhill/uBlock/issues/602
+            //   Added: if repo checksum is that of the empty string,
+            //   assume no change
+            if (
+                repoChecksums === '' ||
+                entry.repoChecksum === 'd41d8cd98f00b204e9800998ecf8427e'
+            ) {
                 entry.repoChecksum = entry.localChecksum;
             }
             if ( entry.repoChecksum !== '' || entry.localChecksum === '' ) {
@@ -426,7 +432,22 @@ var getRepoMetadata = function(callback) {
         if ( /^(?:[0-9a-f]{32}\s+\S+(?:\s+|$))+/.test(details.content) === false ) {
             return '';
         }
-        return details.content;
+        // https://github.com/gorhill/uBlock/issues/602
+        // External filter lists are not meant to appear in checksums.txt.
+        // TODO: remove this code once v1.1.0.0 is everywhere.
+        var out = [];
+        var listMap = µBlock.oldListToNewListMap;
+        var lines = details.content.split(/\s*\n\s*/);
+        var line, matches;
+        for ( var i = 0; i < lines.length; i++ ) {
+            line = lines[i];
+            matches = line.match(/^[0-9a-f]+ (.+)$/);
+            if ( matches === null || listMap.hasOwnProperty(matches[1]) ) {
+               continue;
+            }
+            out.push(line);
+        }
+        return out.join('\n');
     };
 
     var parseChecksums = function(text, which) {
@@ -448,14 +469,14 @@ var getRepoMetadata = function(callback) {
     };
 
     var onLocalChecksumsLoaded = function(details) {
-        if ( localChecksums = validateChecksums(details) ) {
+        if ( (localChecksums = validateChecksums(details)) ) {
             parseChecksums(localChecksums, 'local');
         }
         checksumsReceived();
     };
 
     var onRepoChecksumsLoaded = function(details) {
-        if ( repoChecksums = validateChecksums(details) ) {
+        if ( (repoChecksums = validateChecksums(details)) ) {
             parseChecksums(repoChecksums, 'repo');
         }
         checksumsReceived();
@@ -1042,6 +1063,33 @@ exports.rmrf = function() {
 
 /******************************************************************************/
 
+exports.rename = function(from, to, callback) {
+    var done = function() {
+        if ( typeof callback === 'function' ) {
+            callback();
+        }
+    };
+
+    var fromLoaded = function(details) {
+        cachedAssetsManager.remove(from);
+        cachedAssetsManager.save(to, details.content, callback);
+        done();
+    };
+
+    var toLoaded = function(details) {
+        // `to` already exists: do nothing
+        if ( details.content !== '' ) {
+            return done();
+        }
+        cachedAssetsManager.load(from, fromLoaded);
+    };
+
+    // If `to` content already exists, do nothing.
+    cachedAssetsManager.load(to, toLoaded);
+};
+
+/******************************************************************************/
+
 exports.metadata = function(callback) {
     var out = {};
 
@@ -1049,13 +1097,17 @@ exports.metadata = function(callback) {
     // We need to check cache obsolescence when both cache and repo meta data
     // has been gathered.
     var checkCacheObsolescence = function() {
-        var entry;
+        var entry, homeURL;
         for ( var path in out ) {
             if ( out.hasOwnProperty(path) === false ) {
                 continue;
             }
             entry = out[path];
-            entry.cacheObsolete = stringIsNotEmpty(homeURLs[path]) &&
+            // https://github.com/gorhill/uBlock/issues/528
+            // Not having a homeURL property does not mean the filter list
+            // is not external.
+            homeURL = reIsExternalPath.test(path) ? path : homeURLs[path];
+            entry.cacheObsolete = stringIsNotEmpty(homeURL) &&
                                   cacheIsObsolete(entry.lastModified);
         }
         callback(out);

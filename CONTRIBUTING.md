@@ -1,6 +1,19 @@
 # Submitting issues
 
-Any issue opened without effort to provide the required details for me to reproduce the problem will be closed as _invalid_. If you provide more details thereafter for me to reproduce the issue, I will reopen it.
+**Any issue opened without effort to provide the required details for me (or anybody else) to reproduce the problem will be closed as _invalid_.** If you provide more details thereafter for me to reproduce the issue, I will reopen it if I can confirm there is indeed an issue with uBlock Origin. Example of detailed steps:
+
+> 1. browser version/ublock version
+> 1. these settings, these filter lists, these custom filters.
+> 1. do this.
+> 1. open this exact URL.
+> 1. do this.
+> 1. observe this.
+> 1. click this.
+> 1. observe such and such issue
+> 1. see screenshot
+> 1. etc.
+
+The most important part when opening an issue: **detailed steps**.
 
 **Important:** I simply do not have the time to take care of filter-related issues, you will have to find help elsewhere for this. The mere need to have to respond to filter-related issues can quickly become a burden. Consider that writing code/doc occupies all my free time. Surely there are other people out there ready to help with filter-related issues, it does not have to be me.
 
@@ -20,7 +33,8 @@ Any issue opened without effort to provide the required details for me to reprod
     - Any such issue will be closed without comment.
 1. Make sure your issue [hasn't already been fixed in a recent release](https://github.com/gorhill/uBlock/releases).
 1. Verify that the issue does **not** occur with uBlock disabled.
-1. Verify that the issue is not related to a 3rd-party filter lists.
+1. **Verify that the issue is not related to a 3rd-party filter lists.**
+    - Issues with 3rd-party filter lists are the responsibility of their respective maintainers.
 1. Verify that the issue is not caused by another extension.
 
 ***

@@ -59,6 +59,9 @@ google.*###sqh
 # For when javascript is disabled
 google.*###center_col > #tads
 
+# https://github.com/gorhill/uBlock/issues/621
+search.yahoo.com###main > div > style + ol
+
 # http://www.wilderssecurity.com/threads/ublock-a-lean-and-fast-blocker.365273/page-25#post-2461804
 # Specific cosmetic filters for Youtube home page
 www.youtube.com##.masthead-ad-control
@@ -106,3 +109,28 @@ mail.yahoo.com###inboxcontainer .list-view-items-page > .ml-bg:not(.list-view-it
 #   `important` must be used as there is one EasyList exception preventing
 #   complete block.
 ||username1.link^$important
+
+# https://github.com/gorhill/uBlock/issues/641
+||c.speedtest.net/javascript/speedtest-main.js$important,inline-script,script,image,domain=c.speedtest.net
+speedtest.net###swiffycontainer canvas
+
+# https://github.com/gorhill/uBlock/issues/651
+ink361.com##.getridofAdsBlock[href^="javascript:"]
+
+# washingtonpost.com
+||js.washingtonpost.com/wpost*/js/combo$script,first-party
+www.washingtonpost.com###drawbridge-signup-overlay
+www.washingtonpost.com##.jqmOverlay
+
+# https://www.reddit.com/r/techsupport/comments/3kyd0m/sponsored_content_ads_that_only_show_up_with/
+explosm.net##.inner-wrap > .row > .columns.large-4.medium-12.small-12
+explosm.net##.inner-wrap > .row > .columns.large-8.medium-12 > hr + div:not(.row)
+
+# http://www.extremetech.com/mobile/214358-ad-blocking-for-the-masses-part-two-adblock-browser
+# "anyone else trying it on ET find that one ziffdavis.com ad bypasses ublock0 even though it's in the default lists for block"
+||inspiringsweater.xyz^
+||deservedlimp.xyz^
+
+# https://www.reddit.com/r/facebook/comments/3ld5gn/ive_discovered_that_i_cant_access_facebook/
+# Until all users have latest EasyList
+@@RPNcr3s-aD2.js$script,domain=facebook.com

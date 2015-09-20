@@ -19,7 +19,7 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument */
+/* global vAPI, HTMLDocument, XMLDocument */
 
 /******************************************************************************/
 
@@ -33,8 +33,14 @@
 
 // https://github.com/chrisaljoudi/uBlock/issues/464
 if ( document instanceof HTMLDocument === false ) {
-    //console.debug('contentscript-end.js > not a HTLMDocument');
-    return;
+    // https://github.com/chrisaljoudi/uBlock/issues/1528
+    // A XMLDocument can be a valid HTML document.
+    if (
+        document instanceof XMLDocument === false ||
+        document.createElement('div') instanceof HTMLDivElement === false
+    ) {
+        return;
+    }
 }
 
 // I've seen this happens on Firefox
@@ -81,7 +87,7 @@ vAPI.shutdown.add(function() {
 
 (function() {
     // Were there specific cosmetic filters?
-    if ( vAPI.specificHideStyle instanceof HTMLStyleElement === false ) {
+    if ( typeof vAPI.specificHideStyle !== 'object' ) {
         return;
     }
     // Is our style tag still in the DOM? (the guess is whatever parent there
@@ -171,7 +177,7 @@ var uBlockCollapser = (function() {
 
             // https://github.com/chrisaljoudi/uBlock/issues/1048
             // Use attribute to construct CSS rule
-            if ( value = target.getAttribute(entry.attr) ) {
+            if ( (value = target.getAttribute(entry.attr)) ) {
                 selectors.push(entry.tagName + '[' + entry.attr + '="' + value + '"]');
             }
         }
@@ -437,55 +443,58 @@ var uBlockCollapser = (function() {
         //console.debug('µBlock> generic cosmetic filters: injecting %d CSS rules:', selectors.length, text);
     };
 
-    var hideElements = function(selectors) {
-        // https://github.com/chrisaljoudi/uBlock/issues/207
-        // Do not call querySelectorAll() using invalid CSS selectors
-        if ( selectors.length === 0 ) {
-            return;
-        }
+    var hideElements = (function() {
         if ( document.body === null ) {
-            return;
+            return function() {};
         }
-        var elems = document.querySelectorAll(selectors);
-        var i = elems.length;
-        if ( i === 0 ) {
-            return;
-        }
-        // https://github.com/chrisaljoudi/uBlock/issues/158
-        // Using CSSStyleDeclaration.setProperty is more reliable
         if ( document.body.shadowRoot === undefined ) {
-            while ( i-- ) {
-                elems[i].style.setProperty('display', 'none', 'important');
-            }
-            return;
+            return function(selectors) {
+                // https://github.com/chrisaljoudi/uBlock/issues/207
+                // Do not call querySelectorAll() using invalid CSS selectors
+                if ( selectors.length === 0 ) { return; }
+                var elems = document.querySelectorAll(selectors);
+                var i = elems.length;
+                if ( i === 0 ) { return; }
+                // https://github.com/chrisaljoudi/uBlock/issues/158
+                // Using CSSStyleDeclaration.setProperty is more reliable
+                while ( i-- ) {
+                    elems[i].style.setProperty('display', 'none', 'important');
+                }
+            };
         }
-        // https://github.com/gorhill/uBlock/issues/435
-        // Using shadow content so that we do not have to modify style
-        // attribute.
-        var sessionId = vAPI.sessionId;
-        var elem, shadow;
-        while ( i-- ) {
-            elem = elems[i];
-            shadow = elem.shadowRoot;
-            // https://www.chromestatus.com/features/4668884095336448
-            // "Multiple shadow roots is being deprecated."
-            if ( shadow !== null ) {
-                if ( shadow.className !== sessionId ) {
+        return function(selectors) {
+            if ( selectors.length === 0 ) { return; }
+            var elems = document.querySelectorAll(selectors);
+            var i = elems.length;
+            if ( i === 0 ) { return; }
+            // https://github.com/gorhill/uBlock/issues/435
+            // Using shadow content so that we do not have to modify style
+            // attribute.
+            var sessionId = vAPI.sessionId;
+            var elem, shadow;
+            while ( i-- ) {
+                elem = elems[i];
+                shadow = elem.shadowRoot;
+                // https://www.chromestatus.com/features/4668884095336448
+                // "Multiple shadow roots is being deprecated."
+                if ( shadow !== null ) {
+                    if ( shadow.className !== sessionId ) {
+                        elem.style.setProperty('display', 'none', 'important');
+                    }
+                    continue;
+                }
+                // https://github.com/gorhill/uBlock/pull/555
+                // Not all nodes can be shadowed:
+                //   https://github.com/w3c/webcomponents/issues/102
+                try {
+                    shadow = elem.createShadowRoot();
+                    shadow.className = sessionId;
+                } catch (ex) {
                     elem.style.setProperty('display', 'none', 'important');
                 }
-                continue;
             }
-            // https://github.com/gorhill/uBlock/pull/555
-            // Not all nodes can be shadowed:
-            //   https://github.com/w3c/webcomponents/issues/102
-            try {
-                shadow = elem.createShadowRoot();
-                shadow.className = sessionId;
-            } catch (ex) {
-                elem.style.setProperty('display', 'none', 'important');
-            }
-        }
-    };
+        };
+    })();
 
     // Extract and return the staged nodes which (may) match the selectors.
 
@@ -534,7 +543,7 @@ var uBlockCollapser = (function() {
         var attrs = ['title', 'alt'];
         var attr, attrValue, nodeList, iNode, node;
         var selector;
-        while ( attr = attrs.pop() ) {
+        while ( (attr = attrs.pop()) ) {
             nodeList = selectNodes('[' + attr + ']');
             iNode = nodeList.length;
             while ( iNode-- ) {
@@ -571,19 +580,39 @@ var uBlockCollapser = (function() {
         var nodeList = selectNodes('a[href^="http"]');
         var iNode = nodeList.length;
         var node, href, pos, hash, selectors, selector, iSelector;
+
         while ( iNode-- ) {
             node = nodeList[iNode];
             href = node.getAttribute('href');
             if ( !href ) { continue; }
+
             pos = href.indexOf('://');
             if ( pos === -1 ) { continue; }
+
             hash = href.slice(pos + 3, pos + 11);
             selectors = generics[hash];
             if ( selectors === undefined ) { continue; }
+
+            // A string.
+            if ( typeof selectors === 'string' ) {
+                if (
+                    href.lastIndexOf(selectors.slice(8, -2), 0) === 0 &&
+                    injectedSelectors.hasOwnProperty(selectors) === false
+                ) {
+                    injectedSelectors[selectors] = true;
+                    out.push(selectors);
+                }
+                continue;
+            }
+
+            // An array of strings.
             iSelector = selectors.length;
             while ( iSelector-- ) {
                 selector = selectors[iSelector];
-                if ( injectedSelectors.hasOwnProperty(selector) === false ) {
+                if (
+                    href.lastIndexOf(selector.slice(8, -2), 0) === 0 &&
+                    injectedSelectors.hasOwnProperty(selector) === false
+                ) {
                     injectedSelectors[selector] = true;
                     out.push(selector);
                 }
@@ -673,31 +702,47 @@ var uBlockCollapser = (function() {
     // Extract all classes: these will be passed to the cosmetic filtering
     // engine, and in return we will obtain only the relevant CSS selectors.
 
+    // https://github.com/gorhill/uBlock/issues/672
+    // http://www.w3.org/TR/2014/REC-html5-20141028/infrastructure.html#space-separated-tokens
+    // http://jsperf.com/enumerate-classes/6
+
     var classesFromNodeList = function(nodes) {
         if ( !nodes || !nodes.length ) {
             return;
         }
+
         var qq = queriedSelectors;
         var ll = lowGenericSelectors;
-        var node, v, vv, j;
+        var v, vv, len, c, beg, end;
         var i = nodes.length;
+
         while ( i-- ) {
-            node = nodes[i];
-            // http://jsperf.com/enumerate-classes
-            // Chromium: classList a bit faster than manually enumerating
-            // class names.
-            // Firefox: classList quite slower than manually enumerating
-            // class names.
-            vv = node.classList;
-            if ( typeof vv !== 'object' ) { continue; }
-            j = vv.length || 0;
-            while ( j-- ) {
-                v = vv[j];
-                if ( typeof v !== 'string' ) { continue; }
-                v = '.' + v;
-                if ( qq.hasOwnProperty(v) ) { continue; }
-                ll.push(v);
-                qq[v] = true;
+            vv = nodes[i].className;
+            if ( typeof vv !== 'string' ) { continue; }
+            len = vv.length;
+            beg = 0;
+            for (;;) {
+                // Skip whitespaces
+                while ( beg !== len ) {
+                    c = vv.charCodeAt(beg);
+                    if ( c !== 0x20 && (c > 0x0D || c < 0x09) ) { break; }
+                    beg++;
+                }
+                if ( beg === len ) { break; }
+                end = beg + 1;
+                // Skip non-whitespaces
+                while ( end !== len ) {
+                    c = vv.charCodeAt(end);
+                    if ( c === 0x20 || (c <= 0x0D && c >= 0x09) ) { break; }
+                    end++;
+                }
+                v = '.' + vv.slice(beg, end);
+                if ( qq.hasOwnProperty(v) === false ) {
+                    ll.push(v);
+                    qq[v] = true;
+                }
+                if ( end === len ) { break; }
+                beg = end + 1;
             }
         }
     };
@@ -738,7 +783,7 @@ var uBlockCollapser = (function() {
 
     var treeMutationObservedHandler = function() {
         var nodeList, iNode, node;
-        while ( nodeList = addedNodeLists.pop() ) {
+        while ( (nodeList = addedNodeLists.pop()) ) {
             iNode = nodeList.length;
             while ( iNode-- ) {
                 node = nodeList[iNode];
@@ -875,19 +920,20 @@ var uBlockCollapser = (function() {
     if ( window !== window.top ) {
         return;
     }
-    var onContextMenu = function(ev) {
+    var onMouseClick = function(ev) {
         messager.send({
-            what: 'contextMenuEvent',
-            clientX: ev.clientX,
-            clientY: ev.clientY
+            what: 'mouseClick',
+            x: ev.clientX,
+            y: ev.clientY,
+            url: ev.target && ev.target.localName === 'a' ? ev.target.href : ''
         });
     };
 
-    window.addEventListener('contextmenu', onContextMenu, true);
+    window.addEventListener('mousedown', onMouseClick, true);
 
     // https://github.com/gorhill/uMatrix/issues/144
     vAPI.shutdown.add(function() {
-        document.removeEventListener('contextmenu', onContextMenu, true);
+        document.removeEventListener('mousedown', onMouseClick, true);
     });
 })();
 

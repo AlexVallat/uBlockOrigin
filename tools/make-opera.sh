@@ -10,6 +10,7 @@ rm -r $DES
 mkdir -p $DES
 
 cp -R assets $DES/
+./tools/fix-3p-assets.sh $DES
 rm $DES/assets/*.sh
 cp -R src/css $DES/
 cp -R src/img $DES/
@@ -26,7 +27,6 @@ cp LICENSE.txt $DES/
 
 rm -r $DES/_locales/hi
 rm -r $DES/_locales/mr
-rm -r $DES/_locales/sl
 rm -r $DES/_locales/sr
 rm -r $DES/_locales/ta
 

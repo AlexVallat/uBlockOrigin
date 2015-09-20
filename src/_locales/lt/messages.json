@@ -176,7 +176,7 @@
     "description":"English: Color-blind friendly"
   },
   "settingsCloudStorageEnabledPrompt":{
-    "message":"Enable cloud storage support",
+    "message":"Įjungti nuotolinės saugyklos palaikymą",
     "description":""
   },
   "settingsAdvancedUserPrompt":{
@@ -237,7 +237,7 @@
   },
   "3pParseAllABPHideFiltersInfo":{
     "message":"<p>Ši nuostata įjungia <a href=\"https:\/\/adblockplus.org\/en\/faq_internal#elemhide\">Su Adblock Plus suderinamų „elementų slėpimo“ filtrų<\/a> analizę ir taikymą. Šie filtrai iš esmės yra kosmetiniai, jie naudojami tinklalapio elementams, kurie yra laikomi vaizdiniais nepatogumais ir kurių negalima užblokuoti tinklo užklausomis paremtais filtrais, paslėpti.<\/p><p>Šios nuostatos įjungimas padidina uBlock₀ atminties naudojimą.<\/p>",
-    "description":"English: see English messages.json"
+    "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
     "message":"Blokuotų serverių sąrašas",
@@ -293,7 +293,7 @@
   },
   "3pExternalListObsolete":{
     "message":"pasenęs",
-    "description":"English: outdated"
+    "description":"a filter list is 'out of date' (possibly needs to be updated)"
   },
   "3pLastUpdate":{
     "message":"Paskutinis atnaujinimas: {{ago}}",
@@ -571,6 +571,10 @@
     "message":"Dėl šio filtro",
     "description":"English: Because of the following filter"
   },
+  "docblockedNoParamsPrompt":{
+    "message":"without parameters",
+    "description":"label to be used for the parameter-less URL"
+  },
   "docblockedFoundIn":{
     "message":"Rasta:",
     "description":"English: List of filter list names follows"
@@ -596,11 +600,11 @@
     "description":"English: Permanently"
   },
   "cloudPush":{
-    "message":"Export to cloud storage",
+    "message":"Eksportuoti į nuotolinę saugyklą",
     "description":"tooltip"
   },
   "cloudPull":{
-    "message":"Import from cloud storage",
+    "message":"Importuoti iš nuotolinės saugyklos",
     "description":"tooltip"
   },
   "cloudNoData":{
@@ -608,16 +612,20 @@
     "description":""
   },
   "cloudDeviceNamePrompt":{
-    "message":"This device name:",
+    "message":"Šio įrenginio vardas:",
     "description":"used as a prompt for the user to provide a custom device name"
   },
   "genericSubmit":{
-    "message":"Submit",
+    "message":"Pateikti",
     "description":"for generic 'submit' buttons"
   },
   "genericRevert":{
     "message":"Atstatyti",
     "description":"for generic 'revert' buttons"
+  },
+  "genericBytes":{
+    "message":"bytes",
+    "description":""
   },
   "dummy":{
     "message":"This entry must be the last one",

@@ -142,16 +142,8 @@ vAPI.browserSettings = {
             return;
         }
 
-        // Current value is same as original
-        if ( this.getValue(path, setting) === value ) {
-            return;
-        }
-
         // Reset to original value
-        try {
-            this.setValue(path, setting, value);
-        } catch (ex) {
-        }
+        this.setValue(path, setting, value);
     },
 
     getValue: function(path, setting) {
@@ -359,7 +351,7 @@ vAPI.storage = (function() {
 
                 var row;
 
-                while ( row = rows.getNextRow() ) {
+                while ( (row = rows.getNextRow()) ) {
                     // we assume that there will be two columns, since we're
                     // using it only for preferences
                     result[row.getResultByIndex(0)] = row.getResultByIndex(1);
@@ -1043,7 +1035,11 @@ var tabWatcher = (function() {
             vAPI.toolbarButton.attachToNewWindow(window);
         }
 
-        tabContainer.addEventListener('TabOpen', onOpen);
+        // https://github.com/gorhill/uBlock/issues/697
+        // Ignore `TabShow` events: unfortunately the `pending` attribute is
+        // not set when a tab is opened as a result of session restore -- it is
+        // set *after* the event is fired in such case.
+        //tabContainer.addEventListener('TabOpen', onOpen);
         tabContainer.addEventListener('TabShow', onShow);
         tabContainer.addEventListener('TabClose', onClose);
         // when new window is opened TabSelect doesn't run on the selected tab?
@@ -1086,7 +1082,7 @@ var tabWatcher = (function() {
             tabContainer = tabBrowser.tabContainer;
         }
         if ( tabContainer ) {
-            tabContainer.removeEventListener('TabOpen', onOpen);
+            //tabContainer.removeEventListener('TabOpen', onOpen);
             tabContainer.removeEventListener('TabShow', onShow);
             tabContainer.removeEventListener('TabClose', onClose);
             tabContainer.removeEventListener('TabSelect', onSelect);
@@ -1760,10 +1756,10 @@ var httpObserver = {
         //console.log('http-on-opening-request:', URI.spec);
 
         var pendingRequest = this.lookupPendingRequest(URI.spec);
+        var rawtype = channel.loadInfo && channel.loadInfo.contentPolicyType || 1;
 
         // Behind-the-scene request
         if ( pendingRequest === null ) {
-            var rawtype = channel.loadInfo && channel.loadInfo.contentPolicyType || 1;
             if ( this.handleRequest(channel, URI, { tabId: vAPI.noTabId, rawtype: rawtype }) ) {
                 return;
             }
@@ -1774,6 +1770,12 @@ var httpObserver = {
             }
 
             return;
+        }
+
+        // https://github.com/gorhill/uBlock/issues/654
+        // Use the request type from the HTTP observer point of view.
+        if ( rawtype !== 1 ) {
+            pendingRequest.rawtype = rawtype;
         }
 
         if ( this.handleRequest(channel, URI, pendingRequest) ) {
@@ -1914,8 +1916,16 @@ vAPI.net.registerListeners = function() {
 
     var locationChangedListenerMessageName = location.host + ':locationChanged';
     var locationChangedListener = function(e) {
-        var details = e.data;
         var browser = e.target;
+
+        // https://github.com/gorhill/uBlock/issues/697
+        // Dismiss event if the associated tab is pending.
+        var tab = tabWatcher.tabFromBrowser(browser);
+        if ( !vAPI.fennec && tab && tab.hasAttribute('pending') ) {
+            return;
+        }
+
+        var details = e.data;
         
         if (details.noRefresh && details.url === browser.currentURI.asciiSpec) { // If the location changed message specified not to refresh, and the URL is the same, no need to do anything
             //console.debug("nsIWebProgressListener: ignoring onLocationChange: " + details.url);
@@ -1928,8 +1938,6 @@ vAPI.net.registerListeners = function() {
         if ( details.url.lastIndexOf(vAPI.getURL('popup.html'), 0) === 0 ) {
             return;
         }
-
-        //console.debug("nsIWebProgressListener: onLocationChange: " + details.url + " (" + details.flags + ")");        
 
         // LOCATION_CHANGE_SAME_DOCUMENT = "did not load a new document"
         if ( details.flags & Ci.nsIWebProgressListener.LOCATION_CHANGE_SAME_DOCUMENT ) {
@@ -2722,14 +2730,22 @@ vAPI.contextMenu.displayMenuItem = function({target}) {
     var ctxMap = vAPI.contextMenu.contextMap;
 
     for ( var context of ctx ) {
-        if ( context === 'page' && !gContextMenu.onLink && !gContextMenu.onImage
-            && !gContextMenu.onEditableArea && !gContextMenu.inFrame
-            && !gContextMenu.onVideo && !gContextMenu.onAudio ) {
+        if (
+            context === 'page' &&
+            !gContextMenu.onLink &&
+            !gContextMenu.onImage &&
+            !gContextMenu.onEditableArea &&
+            !gContextMenu.inFrame &&
+            !gContextMenu.onVideo &&
+            !gContextMenu.onAudio
+        ) {
             menuitem.hidden = false;
             return;
         }
-
-        if ( gContextMenu[ctxMap[context]] ) {
+        if (
+            ctxMap.hasOwnProperty(context) &&
+            gContextMenu[ctxMap[context]]
+        ) {
             menuitem.hidden = false;
             return;
         }
@@ -3030,6 +3046,13 @@ vAPI.cloud = (function() {
     var extensionBranchPath = 'extensions.' + location.host;
     var cloudBranchPath = extensionBranchPath + '.cloudStorage';
 
+    // https://github.com/gorhill/uBlock/issues/80#issuecomment-132081658
+    //   We must use get/setComplexValue in order to properly handle strings
+    //   with unicode characters.
+    var iss = Ci.nsISupportsString;
+    var argstr = Components.classes['@mozilla.org/supports-string;1']
+                           .createInstance(iss);
+
     var options = {
         defaultDeviceName: '',
         deviceName: ''
@@ -3039,7 +3062,8 @@ vAPI.cloud = (function() {
     try {
         options.deviceName = Services.prefs
                                      .getBranch(extensionBranchPath + '.')
-                                     .getCharPref('deviceName');
+                                     .getComplexValue('deviceName', iss)
+                                     .data;
     } catch(ex) {
     }
 
@@ -3048,7 +3072,8 @@ vAPI.cloud = (function() {
         try {
             name = Services.prefs
                            .getBranch('services.sync.client.')
-                           .getCharPref('name');
+                           .getComplexValue('name', iss)
+                           .data;
         } catch(ex) {
         }
 
@@ -3060,11 +3085,12 @@ vAPI.cloud = (function() {
         var syncBranch = Services.prefs.getBranch('services.sync.prefs.sync.');
 
         // Mark config entries as syncable
+        argstr.data = '';
         var dataKey;
         for ( var i = 0; i < dataKeys.length; i++ ) {
             dataKey = dataKeys[i];
             if ( extensionBranch.prefHasUserValue('cloudStorage.' + dataKey) === false ) {
-                extensionBranch.setCharPref('cloudStorage.' + dataKey, '');
+                extensionBranch.setComplexValue('cloudStorage.' + dataKey, iss, argstr);
             }
             syncBranch.setBoolPref(cloudBranchPath + '.' + dataKey, true);
         }
@@ -3079,7 +3105,8 @@ vAPI.cloud = (function() {
             'size': 0
         };
         bin.size = JSON.stringify(bin).length;
-        branch.setCharPref(datakey, JSON.stringify(bin));
+        argstr.data = JSON.stringify(bin);
+        branch.setComplexValue(datakey, iss, argstr);
         if ( typeof callback === 'function' ) {
             callback();
         }
@@ -3089,7 +3116,7 @@ vAPI.cloud = (function() {
         var result = null;
         var branch = Services.prefs.getBranch(cloudBranchPath + '.');
         try {
-            var json = branch.getCharPref(datakey);
+            var json = branch.getComplexValue(datakey, iss).data;
             if ( typeof json === 'string' ) {
                 result = JSON.parse(json);
             }
@@ -3114,7 +3141,8 @@ vAPI.cloud = (function() {
         var branch = Services.prefs.getBranch(extensionBranchPath + '.');
 
         if ( typeof details.deviceName === 'string' ) {
-            branch.setCharPref('deviceName', details.deviceName);
+            argstr.data = details.deviceName;
+            branch.setComplexValue('deviceName', iss, argstr);
             options.deviceName = details.deviceName;
         }
 

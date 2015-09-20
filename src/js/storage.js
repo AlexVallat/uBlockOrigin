@@ -147,7 +147,7 @@
     // https://github.com/gorhill/uBlock/issues/63
     // Get built-in block lists: this will help us determine whether a
     // specific list must be included in the result.
-    this.assets.get('assets/ublock/filter-lists.json', onBuiltinListsLoaded);
+    this.loadAndPatchStockFilterLists(onBuiltinListsLoaded);
 };
 
 /******************************************************************************/
@@ -225,7 +225,7 @@
         var location, availableEntry, storedEntry;
         var off;
 
-        while ( location = locations.pop() ) {
+        while ( (location = locations.pop()) ) {
             storedEntry = lists[location];
             off = storedEntry.off === true;
             // New location?
@@ -242,7 +242,9 @@
                 continue;
             }
             availableEntry.off = off;
-            µb.assets.setHomeURL(location, availableEntry.homeURL);
+            if ( typeof availableEntry.homeURL === 'string' ) {
+                µb.assets.setHomeURL(location, availableEntry.homeURL);
+            }
             if ( storedEntry.entryCount !== undefined ) {
                 availableEntry.entryCount = storedEntry.entryCount;
             }
@@ -325,7 +327,7 @@
     }
 
     // get built-in block lists.
-    this.assets.get('assets/ublock/filter-lists.json', onBuiltinListsLoaded);
+    this.loadAndPatchStockFilterLists(onBuiltinListsLoaded);
 };
 
 /******************************************************************************/
@@ -897,3 +899,100 @@
 
     return handler;
 })();
+
+/******************************************************************************/
+
+// https://github.com/gorhill/uBlock/issues/602
+// - Load and patch `filter-list.json`
+// - Load and patch user's `remoteBlacklists`
+// - Load and patch cached filter lists
+// - Load and patch compiled filter lists
+//
+// Once enough time has passed to safely assume all uBlock Origin
+// installations have been converted to the new stock filter lists, this code
+// can be removed.
+
+µBlock.patchFilterLists = function(filterLists) {
+    var modified = false;
+    var oldListKey, newListKey, listEntry;
+    for ( var listKey in filterLists ) {
+        if ( filterLists.hasOwnProperty(listKey) === false ) {
+            continue;
+        }
+        oldListKey = listKey;
+        if ( this.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+            oldListKey = 'assets/thirdparties/' + listKey;
+            if ( this.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+        }
+        newListKey = this.oldListToNewListMap[oldListKey];
+        // https://github.com/gorhill/uBlock/issues/668
+        // https://github.com/gorhill/uBlock/issues/669
+        // Beware: an entry for the new list key may already exists. If it is
+        // the case, leave it as is.
+        if ( newListKey !== '' && filterLists.hasOwnProperty(newListKey) === false ) {
+            listEntry = filterLists[listKey];
+            listEntry.homeURL = undefined;
+            filterLists[newListKey] = listEntry;
+        }
+        delete filterLists[listKey];
+        modified = true;
+    }
+    return modified;
+};
+
+µBlock.loadAndPatchStockFilterLists = function(callback) {
+    var onStockListsLoaded = function(details) {
+        var µb = µBlock;
+        var stockLists;
+        try {
+            stockLists = JSON.parse(details.content);
+        } catch (e) {
+            stockLists = {};
+        }
+
+        // Migrate assets affected by the change to their new name.
+        var reExternalURL = /^https?:\/\//;
+        var newListKey;
+        for ( var oldListKey in stockLists ) {
+            if ( stockLists.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+            // https://github.com/gorhill/uBlock/issues/708
+            // Support migrating external stock filter lists as well.
+            if ( reExternalURL.test(oldListKey) === false ) {
+                oldListKey = 'assets/thirdparties/' + oldListKey;
+            }
+            if ( µb.oldListToNewListMap.hasOwnProperty(oldListKey) === false ) {
+                continue;
+            }
+            newListKey = µb.oldListToNewListMap[oldListKey];
+            if ( newListKey === '' ) {
+                continue;
+            }
+            // Rename cached asset to preserve content -- so it does not
+            // need to be fetched from remote server.
+            µb.assets.rename(oldListKey, newListKey);
+            µb.assets.purge(µb.getCompiledFilterListPath(oldListKey));
+        }
+        µb.patchFilterLists(stockLists);
+
+        // Stock lists information cascades into
+        // - In-memory user's selected filter lists, so we need to patch this.
+        µb.patchFilterLists(µb.remoteBlacklists);
+
+        // Stock lists information cascades into
+        // - In-storage user's selected filter lists, so we need to patch this.
+        vAPI.storage.get('remoteBlacklists', function(bin) {
+            var userLists = bin.remoteBlacklists || {};
+            if ( µb.patchFilterLists(userLists) ) {
+                µb.keyvalSetOne('remoteBlacklists', userLists);
+            }
+            details.content = JSON.stringify(stockLists);
+            callback(details);
+        });
+    };
+
+    this.assets.get('assets/ublock/filter-lists.json', onStockListsLoaded);
+};

@@ -84,25 +84,23 @@ var histogram = function(label, buckets) {
 //   #A9AdsMiddleBoxTop
 //   .AD-POST
 
-var FilterPlain = function(s) {
-    this.s = s;
+var FilterPlain = function() {
 };
 
 FilterPlain.prototype.retrieve = function(s, out) {
-    if ( s === this.s ) {
-        out.push(this.s);
-    }
+    out.push(s);
 };
 
 FilterPlain.prototype.fid = '#';
 
 FilterPlain.prototype.toSelfie = function() {
-    return this.s;
 };
 
-FilterPlain.fromSelfie = function(s) {
-    return new FilterPlain(s);
+FilterPlain.fromSelfie = function() {
+    return filterPlain;
 };
+
+var filterPlain = new FilterPlain();
 
 /******************************************************************************/
 
@@ -506,7 +504,6 @@ var makeHash = function(unhide, token, mask) {
 
 var FilterContainer = function() {
     this.domainHashMask = (1 << 10) - 1; // 10 bits
-    this.genericHashMask = (1 << 15) - 1; // 15 bits
     this.type0NoDomainHash = 'type0NoDomain';
     this.type1NoDomainHash = 'type1NoDomain';
     this.parser = new FilterParser();
@@ -564,26 +561,28 @@ FilterContainer.prototype.reset = function() {
 // https://github.com/chrisaljoudi/uBlock/issues/1004
 // Detect and report invalid CSS selectors.
 
-FilterContainer.prototype.div = document.createElement('div');
+FilterContainer.prototype.isValidSelector = (function() {
+    var div = document.createElement('div');
 
-// Not all browsers support `Element.matches`:
-// http://caniuse.com/#feat=matchesselector
+    // Not all browsers support `Element.matches`:
+    // http://caniuse.com/#feat=matchesselector
+    if ( typeof div.matches !== 'function' ) {
+        return function() {
+            return true;
+        };
+    }
 
-if ( typeof FilterContainer.prototype.div.matches === 'function' ) {
-    FilterContainer.prototype.isValidSelector = function(s) {
+    return function(s) {
         try {
-            this.div.matches(s);
+            // https://github.com/gorhill/uBlock/issues/693
+            div.matches(s + ',\n#foo');
         } catch (e) {
             console.error('uBlock> invalid cosmetic filter:', s);
             return false;
         }
         return true;
     };
-} else {
-    FilterContainer.prototype.isValidSelector = function() {
-        return true;
-    };
-}
+})();
 
 /******************************************************************************/
 
@@ -664,8 +663,7 @@ FilterContainer.prototype.compileGenericSelector = function(parsed, out) {
         if ( matches[1] === selector ) {
             out.push(
                 'c\vlg\v' +
-                makeHash(0, matches[1], this.genericHashMask) + '\v' +
-                selector
+                 matches[1]
             );
             return;
         }
@@ -673,7 +671,7 @@ FilterContainer.prototype.compileGenericSelector = function(parsed, out) {
         if ( this.isValidSelector(selector) ) {
             out.push(
                 'c\vlg+\v' +
-                makeHash(0, matches[1], this.genericHashMask) + '\v' +
+                 matches[1] + '\v' +
                 selector
             );
         }
@@ -767,7 +765,7 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg, skip) {
 
     var lineEnd;
     var textEnd = text.length;
-    var line, fields, filter, bucket;
+    var line, fields, filter, key, bucket;
 
     while ( lineBeg < textEnd ) {
         if ( text.charAt(lineBeg) !== 'c' ) {
@@ -808,7 +806,7 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg, skip) {
         // lg+	2jx	.Mpopup + #Mad > #MadZone
         if ( fields[0] === 'lg' || fields[0] === 'lg+' ) {
             filter = fields[0] === 'lg' ?
-                        new FilterPlain(fields[2]) :
+                        filterPlain :
                         new FilterPlainMore(fields[2]);
             bucket = this.lowGenericHide[fields[1]];
             if ( bucket === undefined ) {
@@ -839,10 +837,14 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg, skip) {
         }
 
         if ( fields[0] === 'hmg0' ) {
-            if ( Array.isArray(this.highMediumGenericHide[fields[1]]) ) {
-                this.highMediumGenericHide[fields[1]].push(fields[2]);
+            key = fields[1];
+            bucket = this.highMediumGenericHide[key];
+            if ( bucket === undefined ) {
+                this.highMediumGenericHide[key] = fields[2];
+            } else if ( Array.isArray(bucket) ) {
+                bucket.push(fields[2]);
             } else {
-                this.highMediumGenericHide[fields[1]] = [fields[2]];
+                this.highMediumGenericHide[key] = [bucket, fields[2]];
             }
             this.highMediumGenericHideCount += 1;
             continue;
@@ -1129,19 +1131,15 @@ FilterContainer.prototype.retrieveGenericSelectors = function(request) {
         r.donthide = this.genericDonthide;
     }
 
-    var hash, bucket;
-    var hashMask = this.genericHashMask;
     var hideSelectors = r.hide;
+    var selector, bucket;
     var selectors = request.selectors;
     var i = selectors.length;
-    var selector;
     while ( i-- ) {
-        selector = selectors[i];
-        if ( !selector ) {
-            continue;
-        }
-        hash = makeHash(0, selector, hashMask);
-        if ( bucket = this.lowGenericHide[hash] ) {
+        if (
+            (selector = selectors[i]) &&
+            (bucket = this.lowGenericHide[selector])
+        ) {
             bucket.retrieve(selector, hideSelectors);
         }
     }
@@ -1187,29 +1185,29 @@ FilterContainer.prototype.retrieveDomainSelectors = function(request) {
 
     var hash, bucket;
     hash = makeHash(0, domain, this.domainHashMask);
-    if ( bucket = this.hostnameFilters[hash] ) {
+    if ( (bucket = this.hostnameFilters[hash]) ) {
         bucket.retrieve(hostname, r.cosmeticHide);
     }
     // https://github.com/chrisaljoudi/uBlock/issues/188
     // Special bucket for those filters without a valid domain name as per PSL
-    if ( bucket = this.hostnameFilters[this.type0NoDomainHash] ) {
+    if ( (bucket = this.hostnameFilters[this.type0NoDomainHash]) ) {
         bucket.retrieve(hostname, r.cosmeticHide);
     }
 
     // entity filter buckets are always plain js array
-    if ( bucket = this.entityFilters[r.entity] ) {
+    if ( (bucket = this.entityFilters[r.entity]) ) {
         r.cosmeticHide = r.cosmeticHide.concat(bucket);
     }
     // No entity exceptions as of now
 
     hash = makeHash(1, domain, this.domainHashMask);
-    if ( bucket = this.hostnameFilters[hash] ) {
+    if ( (bucket = this.hostnameFilters[hash]) ) {
         bucket.retrieve(hostname, r.cosmeticDonthide);
     }
 
     // https://github.com/chrisaljoudi/uBlock/issues/188
     // Special bucket for those filters without a valid domain name as per PSL
-    if ( bucket = this.hostnameFilters[this.type1NoDomainHash] ) {
+    if ( (bucket = this.hostnameFilters[this.type1NoDomainHash]) ) {
         bucket.retrieve(hostname, r.cosmeticDonthide);
     }
 
