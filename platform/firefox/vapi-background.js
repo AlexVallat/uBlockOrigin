@@ -2368,7 +2368,6 @@ vAPI.toolbarButton = {
         return null;
     }
     var CustomizableUI = null;
-
     try {
         CustomizableUI = Cu.import('resource:///modules/CustomizableUI.jsm', null).CustomizableUI;
     } catch (ex) {

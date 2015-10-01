@@ -633,7 +633,7 @@ var onMessage = function(request, sender, callback) {
 
             callback({
                 frameContent: this.responseText.replace(reStrings, replacer),
-                    target: µb.epickerTarget,
+                target: µb.epickerTarget,
                 clientX: µb.mouseX,
                 clientY: µb.mouseY,
                 eprom: µb.epickerEprom
