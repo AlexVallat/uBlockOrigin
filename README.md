@@ -89,24 +89,22 @@ Once you install uBlock₀, you may easily un-select any of the pre-selected fil
 #### Memory
 
 <div align="center">
-On average, uBlock₀ <b>really</b> does make your browser run leaner. <sup>[1]</sup><br><br>
+On average, uBlock Origin does make your browser run leaner. <sup>[1]</sup><br><br>
 
-Chromium <sup>[2]</sup><br>
-<img src="https://raw.githubusercontent.com/gorhill/uBlock/master/doc/benchmarks/mem-usage-overall-chart-20141224.png" /><br><br>
+Chromium<br>
+<img src="https://cloud.githubusercontent.com/assets/585534/10074141/15f04128-629c-11e5-9155-177fd4909083.png" /><br><br>
 
 Firefox<br>
-<img src="https://raw.githubusercontent.com/gorhill/uBlock/master/doc/benchmarks/mem-usage-overall-chart-20150205.png" /><br><br>
+<img src="https://cloud.githubusercontent.com/assets/585534/10074130/0577118c-629c-11e5-9902-bf367c6a96c3.png" /><br><br>
 
 </div>
 
 <sup>[1] Details of the benchmark available at <a href="https://github.com/gorhill/uBlock/wiki/Firefox-version:-benchmarking-memory-footprint">Firefox version: benchmarking memory footprint</a>.</sup><br>
 
-<sup>[2] Important note: There is currently a [bug in Chromium v39 to v41 which causes a new memory leak each time the popup UI of an extension is opened](https://code.google.com/p/chromium/issues/detail?id=441500). This affects <i>all</i> extensions. Keep this in mind when measuring Chromium's memory usage. In the benchmarks, I avoided opening the popups completely.</sup><br>
-
 #### CPU
 
 <p align="center">
-uBlock₀ is also easy on the CPU<br>
+uBlock Origin is also easy on the CPU<br>
 <img src="https://raw.githubusercontent.com/gorhill/uBlock/master/doc/benchmarks/cpu-usage-overall-chart-20141226.png" /><br>
 <sup>Details of the benchmark available in <a href="https://github.com/gorhill/uBlock/blob/master/doc/benchmarks/cpu-usage-overall-20141226.ods">this LibreOffice spreadsheet</a>.</sup>
 </p>
@@ -133,7 +131,7 @@ Feel free to read [about the extension's required permissions](https://github.co
 
 #### Chromium
 
-You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/en-gb/extensions/details/ublock/).
+You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/en-gb/extensions/details/ublock/) (uBlock Origin is pusblished under the name "µBlock" in the Opera store -- the name can't be changed).
 
 #### Firefox / Firefox for Android
 
