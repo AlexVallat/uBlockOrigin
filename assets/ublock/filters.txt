@@ -117,11 +117,6 @@ speedtest.net###swiffycontainer canvas
 # https://github.com/gorhill/uBlock/issues/651
 ink361.com##.getridofAdsBlock[href^="javascript:"]
 
-# washingtonpost.com
-||js.washingtonpost.com/wpost*/js/combo$script,first-party
-www.washingtonpost.com###drawbridge-signup-overlay
-www.washingtonpost.com##.jqmOverlay
-
 # https://www.reddit.com/r/techsupport/comments/3kyd0m/sponsored_content_ads_that_only_show_up_with/
 explosm.net##.inner-wrap > .row > .columns.large-4.medium-12.small-12
 explosm.net##.inner-wrap > .row > .columns.large-8.medium-12 > hr + div:not(.row)
@@ -143,3 +138,17 @@ jeu.info###page [class^="banniere-"]
 # Until fixed in EasyPrivacy
 @@||eplayerhtml5.performgroup.com/js/tsEplayerHtml5/js/Eplayer/js/quantcast/quant.js$script,first-party
 @@||eplayerhtml5.performgroup.com/js/tsEplayerHtml5/js/Eplayer/js/quantcast/vquant.js$script,first-party
+
+# http://arstechnica.com/civis/viewtopic.php?f=3&t=1296357
+arstechnica.com###lg-pushdown
+
+# This prevents spurious redirection, but breaks comments
+||js.washingtonpost.com/wpost/js/combo?*/util/util.identity-management-1.1.0.js$script,first-party
+
+# Useful inline script tag filters until filter list maintainers start to use
+# it in their respective filter lists
+arstechnica.com##script:contains(ars.READY.push)
+dayt.se##script:contains(adBlockDetected)
+explosm.net##script:contains(/^__durl=/)
+extremetube.com,gaytube.com,keezmovies.com,mofosex.com,pornhub.com,redtube.com,spankwire.com,thumbzilla.com,tube8.*,xtube.com,youporn.com,youporngay.com##script:contains(FastPopSessionRequestNumber)
+auto-motor-und-sport.de,boerse-online.de,echo-online.de,fem.com,finanzen.net,focus.de,gamestar.de,kabeleins.de,pcwelt.de,prosieben.de,prosiebenmaxx.de,rp-online.de,sat1.de,sat1gold.de,sixx.de,the-voice-of-germany.de,tvspielfilm.de,wetter.com,wetteronline.de##script:contains(uabInject)

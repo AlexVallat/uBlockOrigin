@@ -1454,7 +1454,10 @@ FilterParser.prototype.parseOptions = function(s) {
             this.parseOptParty(false, not);
             continue;
         }
-        if ( opt === 'elemhide' ) {
+        // https://issues.adblockplus.org/ticket/616
+        // `generichide` concept already supported, just a matter of
+        // adding support for the new keyword.
+        if ( opt === 'elemhide' || opt === 'generichide' ) {
             if ( this.action === AllowAction ) {
                 this.parseOptType('elemhide', false);
                 this.action = BlockAction;
