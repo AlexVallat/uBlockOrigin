@@ -814,7 +814,7 @@ var onMessage = function(request, sender, callback) {
 
     switch ( request.what ) {
     case 'purgeCache':
-        µb.assets.purge(request.path);
+        µb.assets.purgeCacheableAsset(request.path);
         break;
 
     default:

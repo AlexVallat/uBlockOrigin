@@ -224,3 +224,17 @@ ovh.strim.io#@##tweets
 @@||www.google-analytics.com/plugins/ua/linkid.js$script,domain=support.amd.com
 @@||www.google-analytics.com/analytics.js$script,domain=support.amd.com
 @@||www.googletagmanager.com/gtm.js$script,domain=support.amd.com
+
+# https://www.reddit.com/r/uBlockOrigin/comments/3oca9w/how_to_keep_ublock_from_interfering_with_button/
+@@||partner.googleadservices.com/gpt/$script,domain=www.merriam-webster.com
+@@||www.atpworldtour.com/assets/js/util/googleAnalytics.js$script,first-party
+
+# https://twitter.com/bociusz/status/653693746626871296
+# To counter Peter Lowe's `pagefair.com`, but only when on `pagefair.com`
+@@||pagefair.com^$first-party
+
+# Chrome store: "Some of the useful content on website such as pictures and maps on redfin get blocked"
+@@||ssl.cdn-redfin.com/*/redfin/common/analytics/PixelTracking.js$script,domain=redfin.com
+
+# Chrome store: "uBlock Origin seems to think Southwest.com's background and header image are ads"
+@@||www.southwest.com/*/mbox.js$script,first-party
