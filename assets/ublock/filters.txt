@@ -151,7 +151,7 @@ jeu.info###page [class^="banniere-"]
 arstechnica.com###lg-pushdown
 
 # This prevents spurious redirection, but breaks comments
-||js.washingtonpost.com/wpost/js/combo?*/util/util.identity-management-1.1.0.js$script,first-party
+||www.washingtonpost.com/*/twp-global.js$script,first-party
 
 # https://adblockplus.org/forum/viewtopic.php?f=2&t=26700&start=120#p141228
 ||www.valuewalk.com/wp-content/plugins/adblade-publisher-tools$script,first-party
@@ -159,12 +159,16 @@ arstechnica.com###lg-pushdown
 # Useful inline script tag filters until filter list maintainers start to use
 # it in their respective filter lists
 arstechnica.com##script:contains(ars.READY.push)
-auto-motor-und-sport.de,boerse-online.de,echo-online.de,fem.com,finanzen.net,focus.de,gamestar.de,kabeleins.de,pcwelt.de,prosieben.de,prosiebenmaxx.de,rp-online.de,sat1.de,sat1gold.de,sixx.de,the-voice-of-germany.de,tvspielfilm.de,wetter.com,wetteronline.de##script:contains(uabInject)
+arcor.de,auto-motor-und-sport.de,boerse-online.de,echo-online.de,fem.com,finanzen.net,focus.de,gamestar.de,kabeleins.de,pcwelt.de,prosieben.de,prosiebenmaxx.de,rp-online.de,sat1.de,sat1gold.de,sixx.de,the-voice-of-germany.de,tvspielfilm.de,wetter.com,wetteronline.de##script:contains(uabInject)
 bild.de##script:contains(/^\s*de.bild.cmsKonfig/)
 bild.de##script:contains(Javascript)
 dayt.se##script:contains(adblock.php)
 dpstream.net,jeux-porno.net##script:contains(/^\s*?var\s+?uniqueParam\s*?=/)
-explosm.net,valuewalk.com##script:contains(/^\s*?__durl=/)
+activistpost.com,explosm.net,valuewalk.com##script:contains(/^\s*?__durl=/)
 extremetube.com,gaytube.com,keezmovies.com,mofosex.com,pornhub.com,redtube.com,spankwire.com,thumbzilla.com,tube8.*,xtube.com,youporn.com,youporngay.com##script:contains(FastPopSessionRequestNumber)
-metronews.fr##script:contains(ligatus-ad)
+foot01.com,metronews.fr##script:contains(ligatus)
+layer13.net##script:contains(adBlockDetected)
 opensubtitles.org##script:contains(defaultCheckForAdBlockExistance)
+vg.no##script:contains(/^\s*?window\.__AB__/)
+voetbalzone.nl##script:contains(/^\s*?var\s+?init_ads/)
+
