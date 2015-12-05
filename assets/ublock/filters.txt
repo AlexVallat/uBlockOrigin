@@ -155,20 +155,49 @@ arstechnica.com###lg-pushdown
 
 # https://adblockplus.org/forum/viewtopic.php?f=2&t=26700&start=120#p141228
 ||www.valuewalk.com/wp-content/plugins/adblade-publisher-tools$script,first-party
+www.valuewalk.com##.widgetad
+www.valuewalk.com###sidebar > div[class]:not([id])
+www.valuewalk.com##article > div > headr
+
+# https://github.com/gorhill/uBlock/issues/923#issuecomment-154903084
+investopedia.com##.pg-wrapper > div:not(#Nav):not(.nav-space):not(.subnav-space):not(#Header):not(#Content):not(#Footer):not(.region-content)
 
 # Useful inline script tag filters until filter list maintainers start to use
 # it in their respective filter lists
 arstechnica.com##script:contains(ars.READY.push)
-arcor.de,auto-motor-und-sport.de,boerse-online.de,echo-online.de,fem.com,finanzen.net,focus.de,gamestar.de,kabeleins.de,pcwelt.de,prosieben.de,prosiebenmaxx.de,rp-online.de,sat1.de,sat1gold.de,sixx.de,the-voice-of-germany.de,tvspielfilm.de,wetter.com,wetteronline.de##script:contains(uabInject)
+1erforum.de,20min.ch,allgemeine-zeitung.de,arcor.de,ariva.de,auto-motor-und-sport.de,boerse-online.de,buerstaedter-zeitung.de,comunio.de,echo-online.de,fem.com,finanzen.net,focus.de,gamestar.de,kabeleins.de,lampertheimer-zeitung.de,lustich.de,main-spitze.de,motorradonline.de,notebookcheck.net,pcwelt.de,prosieben.de,prosiebenmaxx.de,rhein-main-presse.de,rp-online.de,sat1.de,sat1gold.de,serienjunkies.de,sixx.de,spiegel.de,spox.com,shz.de,teccentral.de,the-voice-of-germany.de,transfermarkt.de,tvspielfilm.de,tvtoday.de,webfail.com,wetter.com,wetteronline.at,wetteronline.de,wiesbadener-kurier.de,wiesbadener-tagblatt.de,wormser-zeitung.de##script:contains(uabInject)
+activistpost.com,alfonzorachel.com,breathecast.com,bulletsfirst.net,clashdaily.com,comicallyincorrect.com,conservativebyte.com,cowboybyte.com,dailysurge.com,dccrimestories.com,drhotze.com,explosm.net,genfringe.com,girlsjustwannahaveguns.com,joeforamerica.com,latinpost.com,mensfitness.com,minutemennews.com,mobilelikez.com,muscleandfitness.com,naturalblaze.com,oddee.com,okmagazine.com,patriotoutdoornews.com,pitgrit.com,radaronline.com,redmaryland.com,segmentnext.com,shark-tank.com,theblacksphere.net,thegatewaypundit,themattwalshblog.com,thepoke.co.uk,unilad.co.uk,valuewalk.com,vcpost.com,victoriajackson.com,viralnova.com##script:contains(/^.{0,16}__durl=/)
+aussenwirtschaftslupe.de,autozeitung.de,donnerwetter.de,formel1.de,fremdwort.de,inside-handy.de,motorsport-total.com,rechtslupe.de,wintotal.de##script:contains(window.tisoomi)
 bild.de##script:contains(/^\s*de.bild.cmsKonfig/)
 bild.de##script:contains(Javascript)
 dayt.se##script:contains(adblock.php)
 dpstream.net,jeux-porno.net##script:contains(/^\s*?var\s+?uniqueParam\s*?=/)
-activistpost.com,explosm.net,valuewalk.com##script:contains(/^\s*?__durl=/)
 extremetube.com,gaytube.com,keezmovies.com,mofosex.com,pornhub.com,redtube.com,spankwire.com,thumbzilla.com,tube8.*,xtube.com,youporn.com,youporngay.com##script:contains(FastPopSessionRequestNumber)
 foot01.com,metronews.fr##script:contains(ligatus)
+getvids.de,podcast.de,spielespielen24.de##script:contains(/^\s*function\s+gS/)
 layer13.net##script:contains(adBlockDetected)
+linternaute.com##script:contains(/^\s*var\s+Asl=/)
 opensubtitles.org##script:contains(defaultCheckForAdBlockExistance)
+sueddeutsche.de##script:contains(BlockAdBlock)
 vg.no##script:contains(/^\s*?window\.__AB__/)
 voetbalzone.nl##script:contains(/^\s*?var\s+?init_ads/)
 
+# uabInject-related ads
+@@||allgemeine-zeitung.de*/ad_bomb/*$image,first-party
+20min.ch#@#.wingadblock
+spiegel.de#@#.wrapad
+
+# https://adblockplus.org/forum/viewtopic.php?f=2&t=26700
+segmentnext.com###sidebar > div[class] > div[class] > div[class]
+segmentnext.com###sidebar > div[class] > div[class] > span[class]
+segmentnext.com###content > div > div[class] > div[class] > span[class]
+segmentnext.com###content > div > div[class] > div[class] > div[class]
+
+# http://forum.palemoon.org/viewtopic.php?f=46&t=10271#p71697
+@@||cdn.windows7themes.net/wp-content/advert.js$script,first-party
+
+# https://github.com/gorhill/uBlock/issues/991
+# New `popunder` filter option to explicitly block popunders.
+# Older version of uBO will discard this unknown filter option -- so it's safe
+# to add it here now.
+|http://$popunder,third-party,domain=xhamster.com

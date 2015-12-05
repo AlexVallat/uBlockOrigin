@@ -95,17 +95,14 @@ var isIPAddress = function(hostname) {
 /******************************************************************************/
 
 var toBroaderHostname = function(hostname) {
-    if ( hostname === '*' ) {
-        return '';
-    }
     if ( isIPAddress(hostname) ) {
         return '*';
     }
     var pos = hostname.indexOf('.');
-    if ( pos === -1 ) {
-        return '*';
+    if ( pos !== -1 ) {
+        return hostname.slice(pos + 1);
     }
-    return hostname.slice(pos + 1);
+    return hostname !== '*' && hostname !== '' ? '*' : '';
 };
 
 Matrix.toBroaderHostname = toBroaderHostname;
@@ -372,6 +369,10 @@ Matrix.prototype.evaluateCellZY = function(srcHostname, desHostname, type) {
 
     // Specific-destination, any party, any type
     var d = desHostname;
+    if ( d === '' ) {
+        this.r = 0;
+        return this;
+    }
     while ( d !== '*' ) {
         this.y = d;
         if ( this.evaluateCellZ(srcHostname, d, '*') !== 0 ) { return this; }

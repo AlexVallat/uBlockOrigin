@@ -63,6 +63,7 @@ var typeNameToTypeValue = {
          'sub_frame':  6 << 4,
               'font':  7 << 4,
              'other':  8 << 4,
+          'popunder': 11 << 4,
         'main_frame': 12 << 4,
 'cosmetic-filtering': 13 << 4,
      'inline-script': 14 << 4,
@@ -79,6 +80,7 @@ var typeValueToTypeName = {
      6: 'subdocument',
      7: 'font',
      8: 'other',
+    11: 'popunder',
     12: 'document',
     13: 'cosmetic-filtering',
     14: 'inline-script',
@@ -212,7 +214,7 @@ var strToRegex = function(s, anchor, flags) {
     if ( anchor < 0 ) {
         reStr = '^' + reStr;
     } else if ( anchor > 0 ) {
-        reStr += reStr + '$';
+        reStr += '$';
     }
 
     //console.debug('µBlock.staticNetFilteringEngine: created RegExp("%s")', reStr);
@@ -1385,6 +1387,7 @@ FilterParser.prototype.toNormalizedType = {
        'subdocument': 'sub_frame',
               'font': 'font',
              'other': 'other',
+          'popunder': 'popunder',
           'document': 'main_frame',
           'elemhide': 'cosmetic-filtering',
      'inline-script': 'inline-script',
@@ -1404,10 +1407,11 @@ FilterParser.prototype.reset = function() {
     this.hostnamePure = false;
     this.domainOpt = '';
     this.isRegex = false;
+    this.raw = '';
+    this.redirect = false;
     this.thirdParty = false;
-    this.token = '';
+    this.token = '*';
     this.tokenBeg = 0;
-    this.tokenEnd = 0;
     this.types = 0;
     this.important = 0;
     this.unsupported = false;
@@ -1488,7 +1492,7 @@ FilterParser.prototype.parseOptions = function(s) {
             this.parseOptType(opt, not);
             continue;
         }
-        if ( opt.slice(0,7) === 'domain=' ) {
+        if ( opt.lastIndexOf('domain=', 0) === 0 ) {
             this.domainOpt = opt.slice(7);
             continue;
         }
@@ -1500,6 +1504,16 @@ FilterParser.prototype.parseOptions = function(s) {
             this.parseOptParty(true, not);
             continue;
         }
+        if ( opt.lastIndexOf('redirect=', 0) === 0 ) {
+            if ( this.action === BlockAction ) {
+                this.redirect = true;
+                continue;
+            }
+            this.unsupported = true;
+            break;
+        }
+
+        // Unrecognized filter option: ignore whole filter.
         this.unsupported = true;
         break;
     }
@@ -1511,7 +1525,7 @@ FilterParser.prototype.parse = function(raw) {
     // important!
     this.reset();
 
-    var s = raw;
+    var s = this.raw = raw;
 
     // plain hostname?
     if ( reHostnameRule.test(s) ) {
@@ -1539,10 +1553,21 @@ FilterParser.prototype.parse = function(raw) {
     }
 
     // options
-    pos = s.indexOf('$');
-    if ( pos !== -1 ) {
-        this.parseOptions(s.slice(pos + 1));
-        s = s.slice(0, pos);
+    // https://github.com/gorhill/uBlock/issues/842
+    // - ensure sure we are not dealing with a regex-based filter.
+    // - lookup the last occurrence of `$`.
+    if ( s.charAt(0) !== '/' || s.slice(-1) !== '/' ) {
+        pos = s.lastIndexOf('$');
+        if ( pos !== -1 ) {
+            // https://github.com/gorhill/uBlock/issues/952
+            // Discard Adguard-specific `$$` filters.
+            if ( s.indexOf('$$') !== -1 ) {
+                this.unsupported = true;
+                return this;
+            }
+            this.parseOptions(s.slice(pos + 1));
+            s = s.slice(0, pos);
+        }
     }
 
     // regex?
@@ -1597,8 +1622,10 @@ FilterParser.prototype.parse = function(raw) {
     // TODO: transforming `^` into `*` is not a strict interpretation of
     // ABP syntax.
     if ( this.reHasWildcard.test(s) ) {
+        s = s.replace(/^\*+([^%0-9a-z])/, '$1')  // remove pointless leading *
+             .replace(/([^%0-9a-z])\*+$/, '$1'); // remove pointless trailing *
+        s = trimChar(s, '^');
         s = s.replace(/\^/g, '*').replace(/\*\*+/g, '*');
-        s = trimChar(s, '*');
     }
 
     // nothing left?
@@ -1625,6 +1652,7 @@ FilterParser.prototype.parse = function(raw) {
 // performance.
 // These "bad tokens" are collated manually.
 
+// Hostname-anchored with no wildcard always have a token index of 0.
 var reHostnameToken = /^[0-9a-z]+/g;
 var reGoodToken = /[%0-9a-z]{2,}/g;
 
@@ -1643,25 +1671,27 @@ var badTokens = {
 
 var findFirstGoodToken = function(s) {
     reGoodToken.lastIndex = 0;
-    var matches;
+    var matches, lpos;
+    var badTokenMatch = null;
     while ( (matches = reGoodToken.exec(s)) ) {
+        // https://github.com/gorhill/uBlock/issues/997
+        // Ignore token if preceded by wildcard.
+        lpos = matches.index;
+        if ( lpos !== 0 && s.charAt(lpos - 1) === '*' ) {
+            continue;
+        }
         if ( s.charAt(reGoodToken.lastIndex) === '*' ) {
             continue;
         }
         if ( badTokens.hasOwnProperty(matches[0]) ) {
+            if ( badTokenMatch === null ) {
+                badTokenMatch = matches;
+            }
             continue;
         }
         return matches;
     }
-    // No good token found, try again without minding "bad" tokens
-    reGoodToken.lastIndex = 0;
-    while ( (matches = reGoodToken.exec(s)) ) {
-        if ( s.charAt(reGoodToken.lastIndex) === '*' ) {
-            continue;
-        }
-        return matches;
-    }
-    return null;
+    return badTokenMatch;
 };
 
 var findHostnameToken = function(s) {
@@ -1672,42 +1702,20 @@ var findHostnameToken = function(s) {
 /******************************************************************************/
 
 FilterParser.prototype.makeToken = function() {
-    if ( this.isRegex ) {
-        this.token = '*';
-        return;
-    }
-
-    var s = this.f;
-
     // https://github.com/chrisaljoudi/uBlock/issues/1038
-    // Match any URL.
-    if ( s === '*' ) {
-        this.token = '*';
+    // Single asterisk will match any URL.
+    if ( this.isRegex || this.f === '*' ) {
         return;
     }
 
-    var matches;
+    var matches = this.hostnameAnchored && this.f.indexOf('*') === -1 ?
+        findHostnameToken(this.f) :
+        findFirstGoodToken(this.f);
 
-    // Hostname-anchored with no wildcard always have a token index of 0.
-    if ( this.hostnameAnchored && s.indexOf('*') === -1 ) {
-        matches = findHostnameToken(s);
-        if ( !matches || matches[0].length === 0 ) {
-            return;
-        }
+    if ( matches !== null && matches[0].length !== 0 ) {
+        this.token = matches[0];
         this.tokenBeg = matches.index;
-        this.tokenEnd = reHostnameToken.lastIndex;
-        this.token = s.slice(this.tokenBeg, this.tokenEnd);
-        return;
     }
-
-    matches = findFirstGoodToken(s);
-    if ( matches === null || matches[0].length === 0 ) {
-        this.token = '*';
-        return;
-    }
-    this.tokenBeg = matches.index;
-    this.tokenEnd = reGoodToken.lastIndex;
-    this.token = s.slice(this.tokenBeg, this.tokenEnd);
 };
 
 /******************************************************************************/
@@ -1900,12 +1908,6 @@ FilterContainer.prototype.compile = function(raw, out) {
         return false;
     }
 
-    // Ignore comments
-    var c = s.charAt(0);
-    if ( c === '[' || c === '!' ) {
-        return false;
-    }
-
     var parsed = this.filterParser.parse(s);
 
     // Ignore element-hiding filters
@@ -1981,8 +1983,8 @@ FilterContainer.prototype.compileHostnameOnlyFilter = function(parsed, out) {
 
 FilterContainer.prototype.compileFilter = function(parsed, out) {
     parsed.makeToken();
-    if ( parsed.token === '' ) {
-        console.error('static-net-filtering.js > FilterContainer.addFilter("%s"): can\'t tokenize', parsed.f);
+    if ( parsed.token === '*' && parsed.hostnameAnchored ) {
+        console.error('FilterContainer.compileFilter("%s"): invalid filter', parsed.f);
         return false;
     }
 
@@ -2028,6 +2030,21 @@ FilterContainer.prototype.compileToAtomicFilter = function(filterClass, parsed, 
         bitOffset += 1;
         type >>>= 1;
     } while ( type !== 0 );
+
+    // Only static filter with an explicit type can be redirected. If we reach
+    // this point, it's because there is one or more explicit type.
+    if ( !parsed.redirect ) {
+        return;
+    }
+
+    var redirects = µb.redirectEngine.compileRuleFromStaticFilter(parsed.raw);
+    if ( Array.isArray(redirects) === false ) {
+        return;
+    }
+    var i = redirects.length;
+    while ( i-- ) {
+        out.push('n\v\v\v=>\v' + redirects[i]);
+    }
 };
 
 /******************************************************************************/
@@ -2038,7 +2055,7 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg) {
     var line, fields, bucket, entry, factory, filter;
 
     while ( lineBeg < textEnd ) {
-        if ( text.charAt(lineBeg) !== 'n' ) {
+        if ( text.charCodeAt(lineBeg) !== 0x6E /* 'n' */ ) {
             return lineBeg;
         }
         lineEnd = text.indexOf('\n', lineBeg);
@@ -2049,6 +2066,14 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg) {
         fields = line.split('\v');
         lineBeg = lineEnd + 1;
 
+        // Special cases: delegate to more specialized engines.
+        // Redirect engine.
+        if ( fields[2] === '=>' ) {
+            µb.redirectEngine.fromCompiledRule(fields[3]);
+            continue;
+        }
+
+        // Plain static filters.
         this.acceptedCount += 1;
 
         bucket = this.categories[fields[0]];

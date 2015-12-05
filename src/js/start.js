@@ -125,9 +125,13 @@ var onSelfieReady = function(selfie) {
     if ( publicSuffixList.fromSelfie(selfie.publicSuffixList) !== true ) {
         return false;
     }
-    //console.log('start.js/onSelfieReady: selfie looks good');
+    if ( selfie.redirectEngine === undefined ) {
+        return false;
+    }
+
     µb.remoteBlacklists = selfie.filterLists;
     µb.staticNetFilteringEngine.fromSelfie(selfie.staticNetFilteringEngine);
+    µb.redirectEngine.fromSelfie(selfie.redirectEngine);
     µb.cosmeticFilteringEngine.fromSelfie(selfie.cosmeticFilteringEngine);
     return true;
 };
@@ -196,7 +200,7 @@ var onSystemSettingsReady = function(fetched) {
     }
     if ( mustSaveSystemSettings ) {
         fetched.selfie = null;
-        µb.destroySelfie();
+        µb.selfieManager.destroy();
         vAPI.storage.set(µb.systemSettings, µb.noopFunc);
     }
 };
@@ -218,6 +222,7 @@ var onFirstFetchReady = function(fetched) {
         return;
     }
 
+    µb.loadRedirectResources();
     µb.loadPublicSuffixList(onPSLReady);
 };
 
@@ -254,7 +259,7 @@ return function() {
 
         var fetchableProps = {
             'compiledMagic': '',
-            'dynamicFilteringString': '',
+            'dynamicFilteringString': 'behind-the-scene * 3p noop\nbehind-the-scene * 3p-frame noop',
             'urlFilteringString': '',
             'hostnameSwitchesString': '',
             'lastRestoreFile': '',

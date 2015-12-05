@@ -119,15 +119,14 @@ var filterPlain = new FilterPlain();
 //   #center_col > div[style="font-size:14px;margin-right:0;min-height:5px"] ...
 //   #adframe:not(frameset)
 //   .l-container > #fishtank
+//   body #sliding-popup
 
 var FilterPlainMore = function(s) {
     this.s = s;
 };
 
 FilterPlainMore.prototype.retrieve = function(s, out) {
-    if ( this.s.lastIndexOf(s, 0) === 0 ) {
-        out.push(this.s);
-    }
+    out.push(this.s);
 };
 
 FilterPlainMore.prototype.fid = '#+';
@@ -245,7 +244,6 @@ var FilterParser = function() {
     this.hostnames = [];
     this.invalid = false;
     this.cosmetic = true;
-    this.reParser = /^([^#]*?)(##|#@#)(.+)$/;
     this.reScriptContains = /^script:contains\(.+?\)$/;
 };
 
@@ -266,14 +264,59 @@ FilterParser.prototype.parse = function(raw) {
     // important!
     this.reset();
 
-    var matches = this.reParser.exec(raw);
-    if ( matches === null || matches.length !== 4 ) {
+    // Find the bounds of the anchor.
+    var lpos = raw.indexOf('#');
+    if ( lpos === -1 ) {
         this.cosmetic = false;
         return this;
     }
-    this.prefix = matches[1].trim();
-    this.unhide = matches[2].charAt(1) === '@' ? 1 : 0;
-    this.suffix = matches[3].trim();
+    var rpos = raw.indexOf('#', lpos + 1);
+    if ( rpos === -1 ) {
+        this.cosmetic = false;
+        return this;
+    }
+
+    // Coarse-check that the anchor is valid.
+    // `##`: l = 1
+    // `#@#`, `#$#`, `#%#`: l = 2
+    // `#@$#`, `#@%#`: l = 3
+    if ( (rpos - lpos) > 3 ) {
+        this.cosmetic = false;
+        return this;
+    }
+
+    // Find out type of cosmetic filter.
+    // Exception filter?
+    if ( raw.charCodeAt(lpos + 1) === 0x40 /* '@' */ ) {
+        this.unhide = 1;
+    }
+
+    // https://github.com/gorhill/uBlock/issues/952
+    // Find out whether we are dealing with an Adguard-specific cosmetic
+    // filter, and if so, discard the filter.
+    var cCode = raw.charCodeAt(rpos - 1);
+    if ( cCode !== 0x23 /* '#' */ && cCode !== 0x40 /* '@' */ ) {
+        // We have an Adguard cosmetic filter if and only if the character is
+        // `$` or `%`, otherwise it's not a cosmetic filter.
+        if ( cCode === 0x24 /* '$' */ || cCode === 0x25 /* '%' */ ) {
+            this.invalid = true;
+        } else {
+            this.cosmetic = false;
+        }
+        return this;
+    }
+
+    // Extract the hostname(s).
+    if ( lpos !== 0 ) {
+        this.prefix = raw.slice(0, lpos);
+    }
+
+    // Extract the selector.
+    this.suffix = raw.slice(rpos + 1);
+    if ( this.suffix.length === 0 ) {
+        this.cosmetic = false;
+        return this;
+    }
 
     // Cosmetic filters with explicit style properties can apply only:
     // - to specific cosmetic filters (those which apply to a specific site)
@@ -660,6 +703,7 @@ FilterContainer.prototype.compile = function(s, out) {
         return false;
     }
     if ( parsed.invalid ) {
+        //console.error("uBlock Origin> discarding invalid cosmetic filter '%s'", s);
         return true;
     }
 
@@ -728,10 +772,10 @@ FilterContainer.prototype.compileGenericSelector = function(parsed, out) {
         // Single-CSS rule: no need to test for whether the selector
         // is valid, the regex took care of this. Most generic selector falls
         // into that category.
-        if ( matches[1] === selector ) {
+        if ( matches[0] === selector ) {
             out.push(
                 'c\vlg\v' +
-                 matches[1]
+                 matches[0]
             );
             return;
         }
@@ -739,42 +783,54 @@ FilterContainer.prototype.compileGenericSelector = function(parsed, out) {
         if ( this.isValidSelector(selector) ) {
             out.push(
                 'c\vlg+\v' +
-                 matches[1] + '\v' +
+                matches[0] + '\v' +
                 selector
             );
         }
         return;
     }
 
+    if ( this.isValidSelector(selector) !== true ) {
+        return;
+    }
+
     // ["title"] and ["alt"] will go in high-low generic bin.
     if ( this.reHighLow.test(selector) ) {
-        if ( this.isValidSelector(selector) ) {
-            out.push('c\vhlg0\v' + selector);
-        }
+        out.push('c\vhlg0\v' + selector);
         return;
     }
 
     // [href^="..."] will go in high-medium generic bin.
     matches = this.reHighMedium.exec(selector);
     if ( matches && matches.length === 2 ) {
-        if ( this.isValidSelector(selector) ) {
-            out.push(
-                'c\vhmg0\v' +
-                matches[1] + '\v' +
-                selector
-            );
-        }
+        out.push(
+            'c\vhmg0\v' +
+            matches[1] + '\v' +
+            selector
+        );
+        return;
+    }
+
+    // https://github.com/gorhill/uBlock/issues/909
+    // Anything which contains a plain id/class selector can be classified
+    // as a low generic cosmetic filter.
+    matches = this.rePlainSelectorEx.exec(selector);
+    if ( matches && matches.length === 2 ) {
+        out.push(
+            'c\vlg+\v' +
+            matches[1] + '\v' +
+            selector
+        );
         return;
     }
 
     // All else
-    if ( this.isValidSelector(selector) ) {
-        out.push('c\vhhg0\v' + selector);
-    }
+    out.push('c\vhhg0\v' + selector);
 };
 
-FilterContainer.prototype.reClassOrIdSelector = /^([#.][\w-]+)$/;
-FilterContainer.prototype.rePlainSelector = /^([#.][\w-]+)/;
+FilterContainer.prototype.reClassOrIdSelector = /^[#.][\w-]+$/;
+FilterContainer.prototype.rePlainSelector = /^[#.][\w-]+/;
+FilterContainer.prototype.rePlainSelectorEx = /^[^#.\[(]+([#.][\w-]+)/;
 FilterContainer.prototype.reHighLow = /^[a-z]*\[(?:alt|title)="[^"]+"\]$/;
 FilterContainer.prototype.reHighMedium = /^\[href\^="https?:\/\/([^"]{8})[^"]*"\]$/;
 
@@ -836,7 +892,7 @@ FilterContainer.prototype.fromCompiledContent = function(text, lineBeg, skip) {
     var line, fields, filter, key, bucket;
 
     while ( lineBeg < textEnd ) {
-        if ( text.charAt(lineBeg) !== 'c' ) {
+        if ( text.charCodeAt(lineBeg) !== 0x63 /* 'c' */ ) {
             return lineBeg;
         }
         lineEnd = text.indexOf('\n', lineBeg);
@@ -950,7 +1006,7 @@ FilterContainer.prototype.skipCompiledContent = function(text, lineBeg) {
     var textEnd = text.length;
 
     while ( lineBeg < textEnd ) {
-        if ( text.charAt(lineBeg) !== 'c' ) {
+        if ( text.charCodeAt(lineBeg) !== 0x63 /* 'c' */ ) {
             return lineBeg;
         }
         lineEnd = text.indexOf('\n', lineBeg);
