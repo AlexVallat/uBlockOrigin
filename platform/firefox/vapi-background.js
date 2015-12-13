@@ -3367,7 +3367,7 @@ vAPI.contextMenu.registerForWebInspector = function(eventName, toolbox, panel) {
 vAPI.contextMenu.registerForNetMonitor = function(eventName, toolbox, panel) {
     var doc = panel.panelWin.document;
     var menuPopup = doc.getElementById("network-request-popup");
-    var insertBeforeMenuItem = doc.getElementById("request-menu-context-separator");
+    var insertBeforeMenuItem = doc.getElementById("request-menu-context-resend");
     
     if (menuPopup && insertBeforeMenuItem) {
         var menuitem = vAPI.contextMenu.createContextMenuItem(doc);
