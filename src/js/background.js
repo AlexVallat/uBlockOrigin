@@ -50,6 +50,7 @@ return {
     userSettings: {
         advancedUserEnabled: false,
         autoUpdate: true,
+        cloudStorageEnabled: false,
         collapseBlocked: true,
         colorBlindFriendly: false,
         contextMenuEnabled: true,
@@ -62,7 +63,7 @@ return {
         prefetchingDisabled: true,
         requestLogMaxEntries: 1000,
         showIconBadge: true,
-        cloudStorageEnabled: false,
+        tooltipsDisabled: false,
         webrtcIPAddressHidden: false
     },
 
@@ -135,6 +136,13 @@ return {
             group: 'default',
             supportURL: 'https://github.com/gorhill/uBlock/wiki/Badware-risks',
             instructionURL: 'https://github.com/gorhill/uBlock/wiki/Badware-risks'
+        },
+        'assets/ublock/experimental.txt': {
+            title: 'uBlock filters – Experimental',
+            group: 'default',
+            off: true,
+            supportURL: 'https://github.com/gorhill/uBlock/wiki/Experimental-filters',
+            instructionURL: 'https://github.com/gorhill/uBlock/wiki/Experimental-filters'
         }
     },
 

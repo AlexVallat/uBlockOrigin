@@ -77,7 +77,9 @@ while ( i-- ) {
         continue;
     }
     loggedSelectors[selector] = true;
-    matchedSelectors.push(selector);
+    // https://github.com/gorhill/uBlock/issues/1015
+    // Discard `:root ` prefix.
+    matchedSelectors.push(selector.slice(6));
 }
 
 vAPI.loggedSelectors = loggedSelectors;
