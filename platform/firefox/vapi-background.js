@@ -2367,7 +2367,7 @@ vAPI.net.registerListeners = function() {
         var tabId = tabWatcher.tabIdFromTarget(browser);
 
         // Ignore notifications related to our popup
-        if ( details.url.lastIndexOf(vAPI.getURL('popup.html'), 0) === 0 ) {
+        if ( details.url.startsWith(vAPI.getURL('popup.html')) ) {
             return;
         }
 
@@ -2386,7 +2386,7 @@ vAPI.net.registerListeners = function() {
         vAPI.tabs.onNavigation({
             frameId: 0,
             tabId: tabId,
-            url: details.url,
+            url: details.url
         });
     };
 

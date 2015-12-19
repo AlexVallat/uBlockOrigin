@@ -227,12 +227,16 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
     var srcs = [];
     var options = matches[3].split(','), option;
     while ( (option = options.pop()) ) {
-        if ( option.lastIndexOf('redirect=', 0) === 0 ) {
+        if ( option.startsWith('redirect=') ) {
             redirect = option.slice(9);
             continue;
         }
-        if ( option.lastIndexOf('domain=', 0) === 0 ) {
+        if ( option.startsWith('domain=') ) {
             srcs = option.slice(7).split('|');
+            continue;
+        }
+        if ( option === 'first-party' ) {
+            srcs.push(des);
             continue;
         }
         // One and only one type must be specified.
@@ -251,7 +255,7 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
     }
 
     // Need one single type -- not negated.
-    if ( type === undefined || type.charAt(0) === '~' ) {
+    if ( type === undefined || type.startsWith('~') ) {
         return;
     }
 
@@ -270,7 +274,7 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
         if ( src === '' ) {
             continue;
         }
-        if ( src.charAt(0) === '~' ) {
+        if ( src.startsWith('~') ) {
             continue;
         }
         // Need at least one specific src or des.
@@ -376,7 +380,7 @@ RedirectEngine.prototype.resourcesFromString = function(text) {
         line = text.slice(lineBeg, lineEnd);
         lineBeg = lineEnd + 1;
 
-        if ( line.charAt(0) === '#' ) {
+        if ( line.startsWith('#') ) {
             continue;
         }
 

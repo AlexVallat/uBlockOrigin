@@ -9,6 +9,37 @@
 # encoding will be set to `;base64`.
 
 
+# http://probablyprogramming.com/2009/03/15/the-tiniest-gif-ever
+1x1-transparent.gif image/gif;base64
+R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+
+
+2x2-transparent.png image/png;base64
+iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAC0lEQVQI12NgQAcAABIAAe+JVKQAAAAASUVORK5CYII=
+
+
+# Obsolete: to be removed -- need to stick to sensible resource names
+handtinytrans.gif image/gif;base64
+R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+
+
+noopcss text/css
+
+
+noopjs application/javascript
+(function() {
+    ;
+})();
+
+
+noopframe text/html
+<!DOCTYPE html>
+<html>
+    <head><title></title></head>
+    <body></body>
+</html>
+
+
 hd-main.js application/javascript
 var L = (function(){
     var l = {};
@@ -23,15 +54,6 @@ var L = (function(){
 })();
 
 
-# http://probablyprogramming.com/2009/03/15/the-tiniest-gif-ever
-handtinytrans.gif image/gif;base64
-R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
-
-
-2x2-transparent.png image/png;base64
-iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAC0lEQVQI12NgQAcAABIAAe+JVKQAAAAASUVORK5CYII=
-
-
 fuckadblock.js-3.2.0 application/javascript
 (function() {
     var noopfn = function() {
@@ -39,23 +61,18 @@ fuckadblock.js-3.2.0 application/javascript
     };
     //
     var Fab = function() {};
-    Fab.prototype._bait = null;
-    Fab.prototype._checkBait = noopfn;
-    Fab.prototype._creatBait = noopfn;
-    Fab.prototype._destroyBait = noopfn;
-    Fab.prototype._log = noopfn;
-    Fab.prototype._options = null;
-    Fab.prototype._stopLoop = noopfn;
-    Fab.prototype._var = null;
     Fab.prototype.check = noopfn;
     Fab.prototype.clearEvent = noopfn;
     Fab.prototype.emitEvent = noopfn;
     Fab.prototype.on = function(a, b) {
         if ( !a ) { b(); }
     };
-    Fab.prototype.onDetected = noopfn;
+    Fab.prototype.onDetected = function() {
+        return this;
+    };
     Fab.prototype.onNotDetected = function(a) {
         a();
+        return this;
     };
     Fab.prototype.setOption = noopfn;
     window.FuckAdBlock = Fab;
@@ -64,12 +81,17 @@ fuckadblock.js-3.2.0 application/javascript
 })();
 
 
-noopframe text/html
-<!DOCTYPE html>
-<html>
-    <head><title></title></head>
-    <body></body>
-</html>
+antiAdBlock.js application/javascript
+(function() {
+    window.antiAdBlock = {
+        onDetected: function() {
+            ;
+        },
+        onNotDetected: function(a) {
+            a();
+        }
+    };
+})();
 
 
 # To neutralize GA scripts. The goal is to provide the minimal API
@@ -106,6 +128,11 @@ www.google-analytics.com/ga.js application/javascript
         return a;
     };
     //
+    var tracker = {
+        _initData: noopfn,
+        _trackPageview: noopfn
+    };
+    //
     var Gat = function() {
         ;
     };
@@ -113,7 +140,9 @@ www.google-analytics.com/ga.js application/javascript
     Gat.prototype._createTracker = noopfn;
     Gat.prototype._forceSSL = noopfn;
     Gat.prototype._getPlugin = noopfn;
-    Gat.prototype._getTracker = noopfn;
+    Gat.prototype._getTracker = function() {
+        return tracker;
+    };
     Gat.prototype._getTrackerByName = function() {
         return tracker;
     };

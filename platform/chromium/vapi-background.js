@@ -109,6 +109,26 @@ vAPI.browserSettings = {
                 break;
 
             case 'webrtcIPAddress':
+                // https://github.com/gorhill/uBlock/issues/533#issuecomment-164292868
+                // If WebRTC is supported, there won't be an exception if we
+                // try to instanciate a peer connection object.
+                var pc = null;
+                try {
+                    var PC = self.RTCPeerConnection || self.webkitRTCPeerConnection;
+                    if ( PC ) {
+                        pc = new PC(null);
+                    }
+                } catch (ex) {
+                    console.error(ex);
+                }
+                if ( pc === null ) {
+                    break;
+                }
+                pc.close();
+
+                // https://github.com/gorhill/uBlock/issues/533
+                // If we reach this point, the property
+                // `webRTCMultipleRoutesEnabled` can be safely accessed.
                 if ( typeof chrome.privacy.network.webRTCMultipleRoutesEnabled === 'object' ) {
                     try {
                         chrome.privacy.network.webRTCMultipleRoutesEnabled.set({
@@ -804,7 +824,7 @@ vAPI.net.registerListeners = function() {
         // something else. Test case for "unfriendly" font URLs:
         //   https://www.google.com/fonts
         if ( details.type === 'object' ) {
-            if ( headerValue(details.responseHeaders, 'content-type').lastIndexOf('font/', 0) === 0 ) {
+            if ( headerValue(details.responseHeaders, 'content-type').startsWith('font/') ) {
                 details.type = 'font';
                 var r = onBeforeRequestClient(details);
                 if ( typeof r === 'object' && r.cancel === true ) {

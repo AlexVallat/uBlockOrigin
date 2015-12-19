@@ -444,7 +444,7 @@ vAPI.tabs.onNavigation = function(details) {
     }
 
     var tabContext = µb.tabContextManager.commit(details.tabId, details.url);
-    var pageStore = µb.bindTabToPageStats(details.tabId, 'afterNavigate');
+    var pageStore = µb.bindTabToPageStats(details.tabId, 'tabChanged');
 
     // https://github.com/chrisaljoudi/uBlock/issues/630
     // The hostname of the bound document must always be present in the
@@ -453,8 +453,12 @@ vAPI.tabs.onNavigation = function(details) {
     // TODO: Eventually, we will have to use an API to check whether a scheme
     //       is supported as I suspect we are going to start to see `ws`, `wss`
     //       as well soon.
-    if ( pageStore && tabContext.rawURL.lastIndexOf('http', 0) === 0 ) {
-        pageStore.hostnameToCountMap[tabContext.rootHostname] = 0;
+    if (
+        pageStore &&
+        tabContext.rawURL.startsWith('http') &&
+        pageStore.hostnameToCountMap.hasOwnProperty(tabContext.rootHostname) === false
+    ) {
+        pageStore.hostnameToCountMap[tabContext.rootHostname] = 0x00010000;
     }
 };
 
@@ -516,6 +520,22 @@ vAPI.tabs.onPopupUpdated = (function() {
     // remember whether a popup or popunder was matched.
     var context = {};
 
+    // https://github.com/gorhill/uBlock/commit/1d448b85b2931412508aa01bf899e0b6f0033626#commitcomment-14944764
+    // See if two URLs are different, disregarding scheme -- because the scheme
+    // can be unilaterally changed by the browser.
+    var areDifferentURLs = function(a, b) {
+        var pos = a.indexOf('://');
+        if ( pos === -1 ) {
+            return false;
+        }
+        a = a.slice(pos);
+        pos = b.indexOf('://');
+        if ( pos === -1 ) {
+            return false;
+        }
+        return b.slice(pos) !== a;
+    };
+
     var popupMatch = function(openerURL, targetURL, clickedURL, popupType) {
         var openerHostname = µb.URI.hostnameFromURI(openerURL);
         var openerDomain = µb.URI.domainFromHostname(openerHostname);
@@ -529,12 +549,19 @@ vAPI.tabs.onPopupUpdated = (function() {
         context.requestHostname = µb.URI.hostnameFromURI(targetURL);
         context.requestType = 'popup';
 
+        // https://github.com/gorhill/uBlock/commit/1d448b85b2931412508aa01bf899e0b6f0033626#commitcomment-14944764
+        // Ignore bad target URL. On Firefox, an `about:blank` tab may be
+        // opened for a new tab before it is filled in with the real target URL.
+        if ( context.requestHostname === '' ) {
+            return '';
+        }
+
         // Dynamic filtering makes sense only when we have a valid hostname.
         if ( openerHostname !== '' ) {
             // Check user switch first
             if (
                 popupType !== 'popunder' &&
-                targetURL !== clickedURL &&
+                areDifferentURLs(targetURL, clickedURL) &&
                 µb.hnSwitches.evaluateZ('no-popups', openerHostname)
             ) {
                 return 'ub:no-popups: ' + µb.hnSwitches.z + ' true';
@@ -595,7 +622,7 @@ vAPI.tabs.onPopupUpdated = (function() {
 
         // If the page URL is that of our "blocked page" URL, extract the URL of
         // the page which was blocked.
-        if ( targetURL.lastIndexOf(vAPI.getURL('document-blocked.html'), 0) === 0 ) {
+        if ( targetURL.startsWith(vAPI.getURL('document-blocked.html')) ) {
             var matches = /details=([^&]+)/.exec(targetURL);
             if ( matches !== null ) {
                 targetURL = JSON.parse(atob(matches[1])).url;
@@ -606,10 +633,8 @@ vAPI.tabs.onPopupUpdated = (function() {
         var popupType = 'popup';
         var result = popupMatch(openerURL, targetURL, µb.mouseURL, popupType);
 
-        // Popunder test. Ignore if the target URL was opened by clicking on
-        // a link, or else this could prevent opening a legitimate site for
-        // which there is a very broad popunder filter.
-        if ( result === '' && targetURL !== µb.mouseURL ) {
+        // Popunder test.
+        if ( result === '' ) {
             var tmp = openerTabId; openerTabId = targetTabId; targetTabId = tmp;
             popupType = 'popunder';
             result = popupMatch(targetURL, openerURL, µb.mouseURL, popupType);

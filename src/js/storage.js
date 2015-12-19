@@ -125,7 +125,7 @@
             // https://github.com/gorhill/uBlock/issues/277
             // uBlock's filter lists are always enabled by default, so we
             // have to include in backup only those which are turned off.
-            if ( path.lastIndexOf('assets/ublock/', 0) === 0 ) {
+            if ( path.startsWith('assets/ublock/') ) {
                 if ( entry.off !== true ) {
                     delete result[path];
                 }
@@ -436,6 +436,7 @@
     };
 
     this.getAvailableLists(onFilterListsReady);
+    this.loadRedirectResources();
 };
 
 /******************************************************************************/
@@ -458,7 +459,7 @@
         var listMeta = µb.remoteBlacklists[path];
         // https://github.com/gorhill/uBlock/issues/313
         // Always try to fetch the name if this is an external filter list.
-        if ( listMeta && listMeta.title === '' || /^https?:/.test(path) ) {
+        if ( listMeta && (listMeta.title === '' || listMeta.group === 'custom') ) {
             var matches = details.content.slice(0, 1024).match(/(?:^|\n)!\s*Title:([^\n]+)/i);
             if ( matches !== null ) {
                 listMeta.title = matches[1].trim();
@@ -888,10 +889,6 @@
     // Assets are supposed to have been all updated, prevent fetching from
     // remote servers.
     µb.assets.remoteFetchBarrier += 1;
-
-    if ( details.hasOwnProperty('assets/ublock/redirect-resources.txt') ) {
-        µb.loadRedirectResources();
-    }
 
     var onFiltersReady = function() {
         µb.assets.remoteFetchBarrier -= 1;

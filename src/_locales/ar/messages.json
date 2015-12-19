@@ -1,6 +1,6 @@
 {
   "extName":{
-    "message":"uBlock₀",
+    "message":"يو بلوك أوريجين",
     "description":"extension name."
   },
   "extShortDesc":{
@@ -167,6 +167,10 @@
     "message":"عرض عدد طلبات المحضوره على الايقونه",
     "description":"English: Show the number of blocked requests on the icon"
   },
+  "settingsTooltipsPrompt":{
+    "message":"تعطيل التلميحات",
+    "description":"A checkbox in the Settings pane"
+  },
   "settingsContextMenuPrompt":{
     "message":"إستخدم لائحة السياق في المكان المناسب",
     "description":"English: Make use of context menu where appropriate"
@@ -240,7 +244,7 @@
     "description":"This option enables the parsing and enforcing of Adblock Plus-compatible 'element hiding' filters. These filters are essentially cosmetic, they serve to hide elements in a web page which are deemed to be a visual nuisance, and which can't be blocked by the net request-based filtering engine.\n\nEnabling this feature increases uBlock Origin's memory footprint."
   },
   "3pListsOfBlockedHostsHeader":{
-    "message":"لستة مواقع المحضوره",
+    "message":"قائمة المواقع المحجوبة",
     "description":"English: Lists of blocked hosts"
   },
   "3pApplyChanges":{
@@ -573,7 +577,7 @@
   },
   "docblockedNoParamsPrompt":{
     "message":"دون معلمات",
-    "description":"label to be used for the parameter-less URL"
+    "description":"label to be used for the parameter-less URL: https:\/\/cloud.githubusercontent.com\/assets\/585534\/9832014\/bfb1b8f0-593b-11e5-8a27-fba472a5529a.png"
   },
   "docblockedFoundIn":{
     "message":"موجود في:",
