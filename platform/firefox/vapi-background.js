@@ -3351,7 +3351,7 @@ vAPI.contextMenu.registerForWebInspector = function(eventName, toolbox, panel) {
                 selectedNodeFront = selectedNodeFront.parentNode();
             }
             if (selectedNodeFront) {
-                selectedNodeFront.getUniqueSelector().then(selector => µBlock.elementPickerExec(tabWatcher.tabIdFromTarget(panel.browser), { type: 'element', value: selector}));
+                selectedNodeFront.getUniqueSelector().then(selector => µBlock.elementPickerExec(tabWatcher.tabIdFromTarget(toolbox.target.tab), { type: 'element', value: selector}));
 
                 // Turn off 3D view, if it's turned on.
                 if (tiltButton && tiltButton.checked) {
