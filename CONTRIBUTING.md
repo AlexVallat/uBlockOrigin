@@ -1,5 +1,7 @@
 # Submitting issues
 
+**The issue tracker is for provable issues only:** You will have to make the case that the issue is really with uBlock Origin and not something else on your side. To make a case means to provide detailed steps so that anybody can reproduce the issue. Be sure to rule out that the issue is not caused by something specific on your side.
+
 **Any issue opened without effort to provide the required details for me (or anybody else) to reproduce the problem will be closed as _invalid_.** If you provide more details thereafter for me to reproduce the issue, I will reopen it if I can confirm there is indeed an issue with uBlock Origin. Example of detailed steps:
 
 > 1. browser version/ublock version
@@ -26,6 +28,7 @@ The most important part when opening an issue: **detailed steps**.
 1. _One specific_ issue per submission.
 1. The logger is the tool of choice to use to help diagnose issues.
 1. Do **NOT**:
+    - Submit pull requests.
     - Submit design ideas.
     - Submit feature requests.
     - Submit "revolutionary ideas".
@@ -41,7 +44,6 @@ The most important part when opening an issue: **detailed steps**.
 ***
 
 ### What to include
-
 
 To help diagnose and fix the bug/issue, please always include the following in your report:
 

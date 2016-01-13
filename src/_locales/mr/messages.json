@@ -24,7 +24,7 @@
     "description":"appears as tab name in dashboard"
   },
   "rulesPageName":{
-    "message":"My rules",
+    "message":"माझे नियम",
     "description":"appears as tab name in dashboard"
   },
   "whitelistPageName":{
@@ -32,8 +32,8 @@
     "description":"appears as tab name in dashboard"
   },
   "statsPageName":{
-    "message":"uBlock₀ — Network request log",
-    "description":"Title for the network request log window"
+    "message":"uBlock₀ — लॉगर",
+    "description":"Title for the logger window"
   },
   "aboutPageName":{
     "message":"माहिती",
@@ -73,30 +73,46 @@
   },
   "popupTipLog":{
     "message":"विनंती लॉग ला जा",
-    "description":"English: Go to request log"
+    "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
-    "message":"Toggle the blocking of all popups for this site",
+    "message":"या साइटसाठी सर्व पॉपअप अवरोधित करणे टॉगल करा",
     "description":"English: Toggle the blocking of all popups for this site"
   },
   "popupTipNoStrictBlocking":{
-    "message":"Toggle strict blocking for this site",
+    "message":"या साइटसाठी टॉगल कठोर अवरोधित करणे",
     "description":"English: Toggle strict blocking for this site"
   },
   "popupTipNoCosmeticFiltering":{
-    "message":"Toggle cosmetic filtering for this site",
+    "message":"या साइटसाठी कॉस्मेटिक फिल्टरिंग टॉगल करा",
     "description":"English: Toggle cosmetic filtering for this site"
   },
   "popupTipNoRemoteFonts":{
     "message":"Toggle the blocking of remote fonts for this site",
     "description":"English: Toggle the blocking of remote fonts for this site"
   },
+  "popupTipGlobalRules":{
+    "message":"Global rules: this column is for rules which apply to all sites.",
+    "description":"Tooltip when hovering the top-most cell of the global-rules column."
+  },
+  "popupTipLocalRules":{
+    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "description":"Tooltip when hovering the top-most cell of the local-rules column."
+  },
+  "popupTipSaveRules":{
+    "message":"Click to make your changes permanent.",
+    "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
+  },
+  "popupTipRevertRules":{
+    "message":"Click to revert your changes.",
+    "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
+  },
   "popupAnyRulePrompt":{
-    "message":"all",
+    "message":"सर्व",
     "description":""
   },
   "popupImageRulePrompt":{
-    "message":"images",
+    "message":"चित्रे",
     "description":""
   },
   "popup3pAnyRulePrompt":{
@@ -128,7 +144,7 @@
     "description":"appears in popup"
   },
   "popupHitDomainCount":{
-    "message":"{{count}} out of {{total}}",
+    "message":"{{count}} पैकी {{total}}",
     "description":"appears in popup"
   },
   "pickerCreate":{
@@ -208,7 +224,7 @@
     "description":"English: Storage used: {{}} bytes"
   },
   "settingsLastRestorePrompt":{
-    "message":"Last restore:",
+    "message":"अखेरचे पुनर्संचयित:",
     "description":"English: Last restore:"
   },
   "settingsLastBackupPrompt":{
@@ -324,11 +340,11 @@
     "description":"English: Apply changes"
   },
   "rulesPermanentHeader":{
-    "message":"Permanent rules",
+    "message":"स्थायी नियम",
     "description":"header"
   },
   "rulesTemporaryHeader":{
-    "message":"Temporary rules",
+    "message":"अस्थायी नियम",
     "description":"header"
   },
   "rulesRevert":{
@@ -340,7 +356,7 @@
     "description":"This will persist temporary rules"
   },
   "rulesEdit":{
-    "message":"Edit",
+    "message":"संपादित करा",
     "description":"Will enable manual-edit mode (textarea)"
   },
   "rulesEditSave":{

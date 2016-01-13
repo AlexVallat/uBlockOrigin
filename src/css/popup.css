@@ -46,11 +46,22 @@ a {
     line-height: 12px;
     margin: 0;
     padding: 3px 0;
+    position: relative;
     text-align: center;
     }
 #version {
     font-size: 10px;
     font-weight: normal;
+    }
+#gotoPrefs > span:nth-of-type(3) {
+    opacity: 0.5;
+    position: absolute;
+    }
+body[dir="ltr"] #gotoPrefs > span:nth-of-type(3) {
+    left: 3px;
+    }
+body[dir="rtl"] #gotoPrefs > span:nth-of-type(3) {
+    right: 3px;
     }
 body[dir="ltr"] #panes {
     direction: rtl;
@@ -169,16 +180,16 @@ body.off #switch .fa {
     position: relative;
     }
 #extraTools > span > span.badge {
-    color: #666;
+    color: #222;
     bottom: 0;
     font: 10.5px sans-serif;
     position: absolute;
     }
 body[dir="ltr"] #extraTools > span > span.badge {
-    left: 90%;
+    left: 100%;
     }
 body[dir="rtl"] #extraTools > span > span.badge {
-    right: 90%;
+    right: 100%;
     }
 #extraTools > span.on > span:last-of-type {
     color: #e00;

@@ -663,6 +663,7 @@ vAPI.tabs.onPopupUpdated = (function() {
         var pageStore = µb.pageStoreFromTabId(openerTabId);
         if ( pageStore ) {
             pageStore.logRequest(context, result);
+            pageStore.popupBlockedCount += 1;
         }
 
         // Blocked
@@ -769,7 +770,7 @@ vAPI.tabs.registerListeners();
         if ( pageStore !== null ) {
             state = pageStore.getNetFilteringSwitch();
             if ( state && this.userSettings.showIconBadge && pageStore.perLoadBlockedRequestCount ) {
-                badge = this.utils.formatCount(pageStore.perLoadBlockedRequestCount);
+                badge = this.formatCount(pageStore.perLoadBlockedRequestCount);
             }
         }
 

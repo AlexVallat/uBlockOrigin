@@ -304,6 +304,7 @@ PageStore.prototype.init = function(tabId) {
     this.perLoadAllowedRequestCount = 0;
     this.hiddenElementCount = ''; // Empty string means "unknown"
     this.remoteFontCount = 0;
+    this.popupBlockedCount = 0;
     this.netFilteringCache = NetFilteringResultCache.factory();
 
     // Support `elemhide` filter option. Called at this point so the required
@@ -447,23 +448,16 @@ PageStore.prototype.getNetFilteringSwitch = function() {
 /******************************************************************************/
 
 PageStore.prototype.getSpecificCosmeticFilteringSwitch = function() {
-    var tabContext = µb.tabContextManager.mustLookup(this.tabId);
-
-    if ( µb.hnSwitches.evaluateZ('no-cosmetic-filtering', tabContext.rootHostname) ) {
-        return false;
-    }
-
-    return µb.userSettings.advancedUserEnabled === false ||
-           µb.sessionFirewall.mustAllowCellZY(tabContext.rootHostname, tabContext.rootHostname, '*') === false;
+    var tabContext = µb.tabContextManager.lookup(this.tabId);
+    return tabContext !== null &&
+           µb.hnSwitches.evaluateZ('no-cosmetic-filtering', tabContext.rootHostname) !== true;
 };
 
 /******************************************************************************/
 
 PageStore.prototype.getGenericCosmeticFilteringSwitch = function() {
-    if ( this.skipCosmeticFiltering ) {
-        return false;
-    }
-    return this.getSpecificCosmeticFilteringSwitch();
+    return this.skipCosmeticFiltering !== true &&
+           this.getSpecificCosmeticFilteringSwitch();
 };
 
 /******************************************************************************/

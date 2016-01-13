@@ -42,48 +42,42 @@ var toBroaderHostname = function(hostname) {
 
 var RedirectEntry = function() {
     this.mime = '';
-    this.encoded = false;
-    this.ph = false;
     this.data = '';
 };
 
 /******************************************************************************/
 
-RedirectEntry.rePlaceHolders = /\{\{.+?\}\}/;
-RedirectEntry.reRequestURL = /\{\{requestURL\}\}/g;
+RedirectEntry.prototype.toURL = function() {
+    if ( this.data.startsWith('data:') === false ) {
+        if ( this.mime.indexOf(';') === -1 ) {
+            this.data = 'data:' + this.mime + ';base64,' + btoa(this.data);
+        } else {
+            this.data = 'data:' + this.mime + ',' + this.data;
+        }
+    }
+    return this.data;
+};
 
 /******************************************************************************/
 
-RedirectEntry.prototype.toURL = function(requestURL) {
-    if ( this.ph === false ) {
-        return this.data;
+RedirectEntry.prototype.toContent = function() {
+    if ( this.data.startsWith('data:') ) {
+        var pos = this.data.indexOf(',');
+        var base64 = this.data.endsWith(';base64', pos);
+        this.data = this.data.slice(pos + 1);
+        if ( base64 ) {
+            this.data = atob(this.data);
+        }
     }
-    return 'data:' +
-           this.mime + ';base64,' +
-           btoa(this.data.replace(RedirectEntry.reRequestURL, requestURL));
+    return this.data;
 };
 
 /******************************************************************************/
 
 RedirectEntry.fromFields = function(mime, lines) {
     var r = new RedirectEntry();
-
     r.mime = mime;
-    r.encoded = mime.indexOf(';') !== -1;
-    var data = lines.join(r.encoded ? '' : '\n');
-    // check for placeholders.
-    r.ph = r.encoded === false && RedirectEntry.rePlaceHolders.test(data);
-    if ( r.ph ) {
-        r.data = data;
-    } else {
-        r.data = 
-            'data:' +
-            mime +
-            (r.encoded ? '' : ';base64') +
-            ',' +
-            (r.encoded ? data : btoa(data));
-    }
-
+    r.data = lines.join(mime.indexOf(';') !== -1 ? '' : '\n');
     return r;
 };
 
@@ -91,12 +85,8 @@ RedirectEntry.fromFields = function(mime, lines) {
 
 RedirectEntry.fromSelfie = function(selfie) {
     var r = new RedirectEntry();
-
     r.mime = selfie.mime;
-    r.encoded = selfie.encoded;
-    r.ph = selfie.ph;
     r.data = selfie.data;
-
     return r;
 };
 
@@ -106,6 +96,7 @@ RedirectEntry.fromSelfie = function(selfie) {
 var RedirectEngine = function() {
     this.resources = Object.create(null);
     this.reset();
+    this.resourceNameRegister = '';
 };
 
 /******************************************************************************/
@@ -141,7 +132,7 @@ RedirectEngine.prototype.lookup = function(context) {
                     while ( i-- ) {
                         entry = entries[i];
                         if ( entry.c.test(reqURL) ) {
-                            return entry.r;
+                            return (this.resourceNameRegister = entry.r);
                         }
                     }
                 }
@@ -167,7 +158,7 @@ RedirectEngine.prototype.toURL = function(context) {
     }
     var entry = this.resources[token];
     if ( entry !== undefined ) {
-        return entry.toURL(context.requestURL);
+        return entry.toURL();
     }
 };
 
@@ -217,11 +208,10 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
         return;
     }
 
-    var pattern = (matches[1] + matches[2]).replace(/[.+?{}()|[\]\\]/g, '\\$&')
-                                           .replace(/\^/g, '[^\\w\\d%-]')
-                                           .replace(/\*/g, '.*?');
-
-    var des = matches[1];
+    var des = matches[1] || '';
+    var pattern = (des + matches[2]).replace(/[.+?{}()|[\]\\]/g, '\\$&')
+                                    .replace(/\^/g, '[^\\w\\d%-]')
+                                    .replace(/\*/g, '.*?');
     var type;
     var redirect = '';
     var srcs = [];
@@ -277,10 +267,6 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
         if ( src.startsWith('~') ) {
             continue;
         }
-        // Need at least one specific src or des.
-        if ( src === '*' && des === '*' ) {
-            continue;
-        }
         out.push(src + '\t' + des + '\t' + type + '\t' + pattern + '\t' + redirect);
     }
 
@@ -289,7 +275,7 @@ RedirectEngine.prototype.compileRuleFromStaticFilter = function(line) {
 
 /******************************************************************************/
 
-RedirectEngine.prototype.reFilterParser = /^\|\|([^\/?#^*]+)([^$]+)\$([^$]+)$/;
+RedirectEngine.prototype.reFilterParser = /^(?:\|\|([^\/?#^*]+)|\*)([^$]+)\$([^$]+)$/;
 
 RedirectEngine.prototype.supportedTypes = (function() {
     var types = Object.create(null);
@@ -355,6 +341,24 @@ RedirectEngine.prototype.fromSelfie = function(selfie) {
     }
 
     return true;
+};
+
+/******************************************************************************/
+
+RedirectEngine.prototype.resourceURIFromName = function(name, mime) {
+    var entry = this.resources[name];
+    if ( entry && (mime === undefined || entry.mime.startsWith(mime)) ) {
+        return entry.toURL();
+    }
+};
+
+/******************************************************************************/
+
+RedirectEngine.prototype.resourceContentFromName = function(name, mime) {
+    var entry = this.resources[name];
+    if ( entry && (mime === undefined || entry.mime.startsWith(mime)) ) {
+        return entry.toContent();
+    }
 };
 
 /******************************************************************************/

@@ -47,6 +47,8 @@ var defaultExternalLists = [
 /******************************************************************************/
 
 return {
+    firstInstall: false,
+
     userSettings: {
         advancedUserEnabled: false,
         autoUpdate: true,
@@ -90,8 +92,8 @@ return {
 
     // read-only
     systemSettings: {
-        compiledMagic: 'cxubjrcfrnrq',
-        selfieMagic: 'mnigwksyvgkv'
+        compiledMagic: 'xtsldiywhvgc',
+        selfieMagic: 'xtsldiywhvgc'
     },
 
     restoreBackupSettings: {
@@ -125,10 +127,6 @@ return {
         },
         'assets/ublock/unbreak.txt': {
             title: 'uBlock filters – Unbreak',
-            group: 'default'
-        },
-        'assets/ublock/redirect.txt': {
-            title: 'uBlock filters – Block-then-redirect',
             group: 'default'
         },
         'assets/ublock/badware.txt': {

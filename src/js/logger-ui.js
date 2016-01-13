@@ -487,6 +487,9 @@ var renderNetLogEntry = function(tr, entry) {
     } else if ( filteringOp === 'n' ) {
         trcl.add('nooped');
         td.textContent = '**';
+    } else if ( filteringOp === 'r' ) {
+        trcl.add('redirected');
+        td.textContent = '>>';
     } else {
         td.textContent = '';
     }
@@ -517,6 +520,7 @@ var renderLogEntry = function(entry) {
 
     case 'cosmetic':
     case 'net':
+    case 'redirect':
         tr = createRow('1111');
         renderNetLogEntry(tr, entry);
         break;
