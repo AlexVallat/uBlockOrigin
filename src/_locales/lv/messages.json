@@ -76,20 +76,20 @@
     "description":"Tooltip used for the logger icon in the panel"
   },
   "popupTipNoPopups":{
-    "message":"Ieslēgt\/Izslēgt uznirstošos logus šajā vietnē",
-    "description":"English: Toggle the blocking of all popups for this site"
+    "message":"Pārslēgt uznirstošo logu bloķēšanu šajā vietnē",
+    "description":"Tooltip for the no-popups per-site switch"
   },
-  "popupTipNoStrictBlocking":{
-    "message":"Ieslēgt\/Izslēgt stingro bloķēšanu šai vietnei",
-    "description":"English: Toggle strict blocking for this site"
+  "popupTipNoLargeMedia":{
+    "message":"Pārslēgt lielu multivides elementu bloķēšanu šajā vietnē",
+    "description":"Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoCosmeticFiltering":{
-    "message":"Ieslēgt\/Izslēgt kosmētikas filtrus šai vietnei",
-    "description":"English: Toggle cosmetic filtering for this site"
+    "message":"Pārslēgt kosmētisko filtrēšanu šajā vietnē",
+    "description":"Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoRemoteFonts":{
-    "message":"Pārslēgt ārējo fontu bloķēšanu šai vietnei",
-    "description":"English: Toggle the blocking of remote fonts for this site"
+    "message":"Pārslēgt ārējo fontu bloķēšanu šajā vietnē",
+    "description":"Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipGlobalRules":{
     "message":"Globālie ierobežojumi: šī kolonna paredzēta ierobežojumiem, kas attieksies uz visām mājaslapām.",
@@ -215,9 +215,25 @@
     "message":"Novērst savas IP adreses noplūdi ar WebRTC",
     "description":"English: "
   },
-  "settingsExperimentalPrompt":{
-    "message":"Iespējot eksperimentālas iespējas (<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Experimental-features'>Sīkāk šeit<\/a>)",
-    "description":"English: Enable experimental features"
+  "settingPerSiteSwitchGroup":{
+    "message":"Noklusējuma darbība",
+    "description":""
+  },
+  "settingPerSiteSwitchGroupSynopsis":{
+    "message":"Šos uzstādījumus var mainīt katrai vietnei atsevišķi",
+    "description":""
+  },
+  "settingsNoCosmeticFilteringPrompt":{
+    "message":"Atslēgt kosmētiskos filtrus",
+    "description":""
+  },
+  "settingsNoLargeMediaPrompt":{
+    "message":"Bloķēt multivides elementus kas lielāki par {{input:number}} kB",
+    "description":""
+  },
+  "settingsNoRemoteFontsPrompt":{
+    "message":"Bloķēt ārējos fontus",
+    "description":""
   },
   "settingsStorageUsed":{
     "message":"Izmantotais krātuves lielums: {{value}} baiti",
@@ -233,23 +249,23 @@
   },
   "3pListsOfBlockedHostsPrompt":{
     "message":"{{netFilterCount}} tīkla filtri ＋ {{cosmeticFilterCount}} kosmētikas filtri no:",
-    "description":"English: {{netFilterCount}} network filters ＋ {{cosmeticFilterCount}} cosmetic filters from:"
+    "description":"Appears at the top of the _3rd-party filters_ pane"
   },
   "3pListsOfBlockedHostsPerListStats":{
     "message":"{{used}} izmanto no {{total}}",
-    "description":"English: {{used}} used out of {{total}}"
+    "description":"Appears aside each filter list in the _3rd-party filters_ pane"
   },
   "3pAutoUpdatePrompt1":{
     "message":"Automātiski atjaunināt filtra sarakstus.",
-    "description":"English: Auto-update filter lists."
+    "description":"A checkbox in the _3rd-party filters_ pane"
   },
   "3pUpdateNow":{
     "message":"Atjaunināt tūlīt",
-    "description":"English: Update now"
+    "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pPurgeAll":{
     "message":"Visas kešatmiņas iztīrīšana",
-    "description":"English: Purge all caches"
+    "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pParseAllABPHideFiltersPrompt1":{
     "message":"Apstrādāt un izpildīt kosmētikas filtrus.",
@@ -627,6 +643,10 @@
     "message":"Imports no mākoņdatu glabātuves",
     "description":"tooltip"
   },
+  "cloudPullAndMerge":{
+    "message":"Importēt no mākoņdatu glabātuves un apvienot ar pašreizējiem iestatījumiem",
+    "description":"tooltip"
+  },
   "cloudNoData":{
     "message":"...\n...",
     "description":""
@@ -646,6 +666,10 @@
   "genericBytes":{
     "message":"baiti",
     "description":""
+  },
+  "contextMenuTemporarilyAllowLargeMediaElements":{
+    "message":"Īslaicīgi atļaut lielos multivides elementus",
+    "description":"A context menu entry, present when large media elements have been blocked on the current site"
   },
   "dummy":{
     "message":"Šim ierakstam ir jābūt pēdējam",

@@ -77,34 +77,34 @@
   },
   "popupTipNoPopups":{
     "message":"ఈ వెబ్సైట్ లో అన్ని పాప్అప్స్ ని నిషేధించు",
-    "description":"English: Toggle the blocking of all popups for this site"
+    "description":"Tooltip for the no-popups per-site switch"
   },
-  "popupTipNoStrictBlocking":{
-    "message":"ఈ వెబ్సైట్లో అన్ని అభ్యర్ధనలను ఖచ్చితంగా నిరోధించవద్దు",
-    "description":"English: Toggle strict blocking for this site"
+  "popupTipNoLargeMedia":{
+    "message":"ఈ సైట్లో వున్న పెద్దవైన దృశ్య\/శ్రవణ అంశాలను నిరోధినా స్థితిని మార్చు",
+    "description":"Tooltip for the no-large-media per-site switch"
   },
   "popupTipNoCosmeticFiltering":{
     "message":"ఈ వెబ్ సైట్ లో కాస్మెటిక్ వడపోత స్థితిని మార్చండి",
-    "description":"English: Toggle cosmetic filtering for this site"
+    "description":"Tooltip for the no-cosmetic-filtering per-site switch"
   },
   "popupTipNoRemoteFonts":{
     "message":"ఈ సైట్ నుండి వచ్చే ఖతుల యొక్క వాడుక ని సక్రియ లేదా నిర్వీర్యపరచు",
-    "description":"English: Toggle the blocking of remote fonts for this site"
+    "description":"Tooltip for the no-remote-fonts per-site switch"
   },
   "popupTipGlobalRules":{
-    "message":"Global rules: this column is for rules which apply to all sites.",
+    "message":"సామాన్య నియమాలు: ఈ నిలువరుసలో వున్న నియమాలు అన్ని సైట్లకు వర్తిస్తాయి.",
     "description":"Tooltip when hovering the top-most cell of the global-rules column."
   },
   "popupTipLocalRules":{
-    "message":"Local rules: this column is for rules which apply to the current site only.\nLocal rules override global rules.",
+    "message":"స్థానిక నియమాలు: ఈ నిలువరుసలో వున్న నియమాలు కేవలం ప్రస్తుత సైట్ కే వర్తిస్తాయి.\nసామాన్య నియమాలపై స్థానిక నియమాలు అతిక్రమిస్తాయి.",
     "description":"Tooltip when hovering the top-most cell of the local-rules column."
   },
   "popupTipSaveRules":{
-    "message":"Click to make your changes permanent.",
+    "message":"మీ మార్పులను శాశ్వతపరచడానికి క్లిక్ చేయండి.",
     "description":"Tooltip when hovering over the padlock in the dynamic filtering pane."
   },
   "popupTipRevertRules":{
-    "message":"Click to revert your changes.",
+    "message":"మీ మార్పులను తిరిగరాయుటకు క్లిక్ చేయండి.",
     "description":"Tooltip when hovering over the eraser in the dynamic filtering pane."
   },
   "popupAnyRulePrompt":{
@@ -215,9 +215,25 @@
     "message":"WebRTCని మీ స్థానిక IP చిరునామాలను బహిర్గతపరచనివ్వొద్దు",
     "description":"English: "
   },
-  "settingsExperimentalPrompt":{
-    "message":"ప్రయోగాత్మక సామర్థ్యాల వాడుకను అనుమతించుము(<a href='https:\/\/github.com\/gorhill\/uBlock\/wiki\/Experimental-features'>మరిన్ని వివరాలు<\/a>)",
-    "description":"English: Enable experimental features"
+  "settingPerSiteSwitchGroup":{
+    "message":"సామాన్య ప్రవర్తన",
+    "description":""
+  },
+  "settingPerSiteSwitchGroupSynopsis":{
+    "message":"ఈ సామాన్య ప్రవర్తనను ఒక్కో సైట్లో ప్రత్యేకంగా మార్చుకోవోచ్చు",
+    "description":""
+  },
+  "settingsNoCosmeticFilteringPrompt":{
+    "message":"కాస్మెటిక్ వడపోతను నిర్వీర్యపరచు",
+    "description":""
+  },
+  "settingsNoLargeMediaPrompt":{
+    "message":"{{input:number}} కేబికన్నా పెద్దవైన అంశాలను నిరోధించు",
+    "description":""
+  },
+  "settingsNoRemoteFontsPrompt":{
+    "message":"బయటి ఖతులను నిరోధించు",
+    "description":""
   },
   "settingsStorageUsed":{
     "message":"వాడుతున్న నిలువల పరిమాణం: {{value}} బైట్స్",
@@ -233,23 +249,23 @@
   },
   "3pListsOfBlockedHostsPrompt":{
     "message":"{{netFilterCount}} నెట్వర్క్ వడపోతలు ＋ {{cosmeticFilterCount}} కాస్మెటిక్ వడపోతల ఇందులోనుండి:",
-    "description":"English: {{netFilterCount}} network filters ＋ {{cosmeticFilterCount}} cosmetic filters from:"
+    "description":"Appears at the top of the _3rd-party filters_ pane"
   },
   "3pListsOfBlockedHostsPerListStats":{
     "message":"{{total}} లో వాడుతున్నది {{used}}",
-    "description":"English: {{used}} used out of {{total}}"
+    "description":"Appears aside each filter list in the _3rd-party filters_ pane"
   },
   "3pAutoUpdatePrompt1":{
     "message":"వడపోత జాబితాలను స్వయంచాలకంగా నవీకరించుము.",
-    "description":"English: Auto-update filter lists."
+    "description":"A checkbox in the _3rd-party filters_ pane"
   },
   "3pUpdateNow":{
     "message":"జాబితా నవీకరించుము",
-    "description":"English: Update now"
+    "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pPurgeAll":{
     "message":"తాత్కాలిక నిలువలను త్యజించు",
-    "description":"English: Purge all caches"
+    "description":"A button in the in the _3rd-party filters_ pane"
   },
   "3pParseAllABPHideFiltersPrompt1":{
     "message":"పదనిరుపనచేసి కాస్మెటిక్ వడపోతను లాగుపరచు.",
@@ -627,6 +643,10 @@
     "message":"క్లౌడ్ నుండి దిగుమతిపరచు",
     "description":"tooltip"
   },
+  "cloudPullAndMerge":{
+    "message":"అంతర్జాలంలో భద్రపరచిన ఎంపికలను దిగుమతి చేసి ప్రస్తుత ఎంపికలకు జోడించు",
+    "description":"tooltip"
+  },
   "cloudNoData":{
     "message":"...\n...",
     "description":""
@@ -646,6 +666,10 @@
   "genericBytes":{
     "message":"బైట్లు",
     "description":""
+  },
+  "contextMenuTemporarilyAllowLargeMediaElements":{
+    "message":"తాత్కాలికంగా పెద్ద అంశాలను సైతం అనుమతించు",
+    "description":"A context menu entry, present when large media elements have been blocked on the current site"
   },
   "dummy":{
     "message":"ఇది అంతిమంగా వుండాల్సిన నమోదు",

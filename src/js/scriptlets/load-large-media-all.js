@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-    uBlock - a browser extension to block requests.
+    uBlock Origin - a browser extension to block requests.
     Copyright (C) 2015 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
@@ -27,41 +27,41 @@
 
 /******************************************************************************/
 
-if ( typeof vAPI !== 'object' ) {
-    return;
-}
+// For all media resources which have failed to load, trigger a reload.
 
-/******************************************************************************/
+var elems, i, elem, src;
 
-// Insert all cosmetic filtering-related style tags in the DOM
+// <audio> and <video> elements.
+// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
 
-var injectedSelectors = [];
-var filteredElementCount = 0;
-
-var reProperties = /\s*\{[^}]+\}\s*/;
-var i;
-
-var styles = vAPI.styles || [];
-i = styles.length;
+elems = document.querySelectorAll('audio,video');
+i = elems.length;
 while ( i-- ) {
-    injectedSelectors = injectedSelectors.concat(styles[i].textContent.replace(reProperties, '').split(/\s*,\n\s*/));
+    elem = elems[i];
+    if ( elem.error !== null ) {
+        elem.load();
+    }
 }
 
-if ( injectedSelectors.length !== 0 ) {
-    filteredElementCount = document.querySelectorAll(injectedSelectors.join(',')).length;
+// <img> elements.
+// https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement
+
+elems = document.querySelectorAll('img');
+i = elems.length;
+while ( i-- ) {
+    elem = elems[i];
+    if ( elem.naturalWidth !== 0 && elem.naturalHeight !== 0 ) {
+        continue;
+    }
+    if ( window.getComputedStyle(elem).getPropertyValue('display') === 'none' ) {
+        continue;
+    }
+    src = elem.getAttribute('src');
+    if ( src ) {
+        elem.removeAttribute('src');
+        elem.setAttribute('src', src);
+    }
 }
-
-/******************************************************************************/
-
-var localMessager = vAPI.messaging.channel('scriptlets');
-
-localMessager.send({
-    what: 'liveCosmeticFilteringData',
-    pageURL: window.location.href,
-    filteredElementCount: filteredElementCount
-}, function() {
-    localMessager.close();
-});
 
 /******************************************************************************/
 

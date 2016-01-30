@@ -64,15 +64,20 @@ var L = (function(){
 
 1216.js application/javascript
 (function() {
-    delete window.noHomad;
-    try {
-        Object.defineProperty(window, 'noHomad', {
-            get: function() { return true; },
-            set: function() { }
-        });
-    } catch(ex) {
-    }
-})()
+	//
+	var sto = window.setTimeout;
+	var mysto = function(a, b) {
+		if ( b === 15000 && a.toString().lastIndexOf('function a()', 0) === 0 ) {
+			return;
+		}
+		return sto(a, b);
+	};
+	Object.defineProperty(window, 'setTimeout', {
+		get: function() {
+			return mysto;
+		}
+	});
+})();
 
 
 # fuckadblock defuser
@@ -98,9 +103,9 @@ fuckadblock.js-3.2.0 application/javascript
 		return this;
 	};
 	Fab.prototype.setOption = noopfn;
-	window.FuckAdBlock = Fab;
+	window.FuckAdBlock = window.BlockAdBlock = Fab;
 	//
-	window.fuckAdBlock = new Fab();
+	window.fuckAdBlock = window.blockAdBlock = new Fab();
 })();
 
 
@@ -235,6 +240,15 @@ google-analytics.com/analytics.js application/javascript
 	};
 	ga.remove = noopfn;
 	window[gaName] = ga;
+})();
+
+google-analytics.com/inpage_linkid.js application/javascript
+(function() {
+	window._gaq = window._gaq || {
+		push: function() {
+			;
+		}
+	};
 })();
 
 
@@ -380,19 +394,35 @@ i.ligatus.com/*/angular-tag.js application/javascript
 # suffering Yavli's click-bait ads.
 yavli-defuser.js application/javascript
 (function() {
-	var descriptor = {
-		set: function() {
-			;
-		},
+	var noopfn = function() {
+		;
+	};
+	var nourl = {
+		set: noopfn,
 		get: function() {
 			return '';
 		}
 	};
 	try {
-		Object.defineProperty(window, '__durl', descriptor);
-		Object.defineProperty(window, '__lsurl', descriptor);
-		Object.defineProperty(window, '__lturl', descriptor);
+		Object.defineProperty(window, '__durl', nourl);
+		Object.defineProperty(window, '__lsurl', nourl);
+		Object.defineProperty(window, '__lturl', nourl);
 	} catch (ex) {
+	}
+	var aa = ['_x','_y','_z'];
+	var no = {
+		set: noopfn,
+		get: function() {
+			return {
+				start: noopfn
+			};
+		}
+	};
+	while ( aa.length ) {
+		try {
+			Object.defineProperty(window, aa.pop(), no);
+		} catch (e) {
+		}
 	}
 })();
 
@@ -427,7 +457,7 @@ pornhub-popup-defuser.js application/javascript
 # https://news.ycombinator.com/item?id=10814913
 forbes-defuser.js application/javascript
 (function() {
-	if ( !window.location.pathname.startsWith('/forbes/welcome/') ) {
+	if ( window.location.pathname.lastIndexOf('/forbes/welcome/', 0) !== 0 ) {
 		return;
 	}
 	var noopfn = function() {
@@ -497,8 +527,11 @@ openload-defuser.js application/javascript
 	var noopfn = function() {
 		;
 	};
-	var makefn = function(a) {
-		return function(r, o) {
+	var wjdmpGet = function() {
+		return wjdmp;
+	};
+	var wjdmpSet = function(a) {
+		wjdmp = function(r, o) {
 			if ( r.length === 1 && r[0] === 4 ) {
 				for ( var k in o ) {
 					if ( o.hasOwnProperty(k) && typeof o[k] === 'function' ) {
@@ -509,14 +542,13 @@ openload-defuser.js application/javascript
 			a(r, o);
 		};
 	};
-	Object.defineProperty(window, 'webpackJsonpdmp', {
-		get: function() {
-			return wjdmp;
-		},
-		set: function(a) {
-			wjdmp = makefn(a);
-		}
-	});
+	try {
+		Object.defineProperty(window, 'webpackJsonpdmp', {
+			get: wjdmpGet,
+			set: wjdmpSet
+		});
+	} catch(ex) {
+	}
 })();
 
 
@@ -530,3 +562,79 @@ bab-defuser.js application/javascript
 		}
 	};
 })();
+
+
+kissanime-defuser.js application/javascript
+(function() {
+	Object.defineProperty(window, 'isBlockAds2', {
+		get: function() { return false; },
+		set: function(a) {}
+	});
+})();
+
+
+scorecardresearch.com/beacon.js application/javascript
+(function() {
+	window.COMSCORE = {
+		purge: function() {
+			_comscore = [];
+		},
+		beacon: function() {
+			;
+		}
+	};
+})();
+
+
+# https://github.com/gorhill/uBlock/issues/1250#issuecomment-173533894
+widgets.outbrain.com/outbrain.js application/javascript
+(function() {
+	var noopfn = function() {
+		;
+	};
+	var obr = {};
+	obr.extern = {
+		callClick: noopfn,
+		callLoadMore: noopfn,
+		callRecs: noopfn,
+		callUserZapping: noopfn,
+		callWhatIs: noopfn,
+		cancelRecommendation: noopfn,
+		cancelRecs: noopfn,
+		closeCard: noopfn,
+		closeModal: noopfn,
+		closeTbx: noopfn,
+		errorInjectionHandler: noopfn,
+		getCountOfRecs: noopfn,
+		getStat: noopfn,
+		imageError: noopfn,
+		manualVideoClicked: noopfn,
+		onOdbReturn: noopfn,
+		onVideoClick: noopfn,
+		pagerLoad: noopfn,
+		recClicked: noopfn,
+		refreshSpecificWidget: noopfn,
+		refreshWidget: noopfn,
+		reloadWidget: noopfn,
+		researchWidget: noopfn,
+		returnedError: noopfn,
+		returnedHtmlData: noopfn,
+		returnedIrdData: noopfn,
+		returnedJsonData: noopfn,
+		scrollLoad: noopfn,
+		showDescription: noopfn,
+		showRecInIframe: noopfn,
+		userZappingMessage: noopfn,
+		video: {
+			getVideoRecs: noopfn,
+			videoClicked: noopfn
+		},
+		zappingFormAction: noopfn
+	};
+	window.OBR = window.OBR || obr;
+})();
+
+
+# https://github.com/gorhill/uBlock/issues/1228
+window.name-defuser application/javascript
+window.name = null;

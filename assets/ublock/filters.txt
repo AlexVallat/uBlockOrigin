@@ -208,7 +208,8 @@ segmentnext.com###content > div > div[class] > div[class] > div[class]
 # New `popunder` filter option to explicitly block popunders.
 # Older version of uBO will discard this unknown filter option -- so it's safe
 # to add it here now.
-|http://$popunder,third-party,domain=xhamster.com
+# https://github.com/gorhill/uBlock/issues/1094
+||slopeaota.com^$document,popunder,popup
 # https://github.com/gorhill/uBlock/issues/1173
 ||exoclick.com^$popunder
 # https://github.com/gorhill/uBlock/issues/1053
@@ -254,11 +255,16 @@ activistpost.com,alfonzorachel.com,aplus.com,breathecast.com,bulletsfirst.net,cl
 
 # https://github.com/gorhill/uBlock/issues/1094
 extremetube.com,pornhub.com,primewire.*,redtube.*,spankwire.com,tube8.*,youporn.com,youporngay.com##script:inject(pornhub-popup-defuser.js)
+# Using important will prevent the site from leveraging random exception filters
+||trafficjunky.net^$third-party,important
+||xxxmyself.com^$important
 
 # https://adblockplus.org/forum/viewtopic.php?f=2&t=43192
 # Users should not have to punch holes in their blockers if it can be avoided.
 */fuckadblock-$script,redirect=fuckadblock.js-3.2.0
 */fuckadblock.$script,redirect=fuckadblock.js-3.2.0
+# https://github.com/gorhill/uBlock/issues/1271
+*/blockadblock.$script,redirect=fuckadblock.js-3.2.0
 
 # https://github.com/gorhill/uBlock/issues/1136
 ||dailymotion.com/ac/video/$image,first-party,redirect=2x2-transparent.png
@@ -298,3 +304,9 @@ chip.de##script:inject(1216.js)
 openload.co##script:inject(openload-defuser.js)
 # https://github.com/gorhill/uBlock/issues/1201
 openload.*##script:contains(/^\s*window\.popAdsLoaded=/)
+
+# https://forums.lanik.us/viewtopic.php?f=64&t=27505
+kissanime.to##script:inject(kissanime-defuser.js)
+
+# https://forums.lanik.us/viewtopic.php?f=64&t=27908
+ip-address.org##script:inject(bab-defuser.js)

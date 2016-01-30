@@ -19,8 +19,6 @@
     Home: https://github.com/gorhill/uBlock
 */
 
-/* global vAPI, HTMLDocument, XMLDocument */
-
 /******************************************************************************/
 
 // Injected into content pages
@@ -30,18 +28,6 @@
 'use strict';
 
 /******************************************************************************/
-
-// https://github.com/chrisaljoudi/uBlock/issues/464
-if ( document instanceof HTMLDocument === false ) {
-    // https://github.com/chrisaljoudi/uBlock/issues/1528
-    // A XMLDocument can be a valid HTML document.
-    if (
-        document instanceof XMLDocument === false ||
-        document.createElement('div') instanceof HTMLDivElement === false
-    ) {
-        return;
-    }
-}
 
 // I've seen this happens on Firefox
 if ( window.location === null ) {
@@ -237,6 +223,18 @@ var uBlockCollapser = (function() {
         attributeFilter: [ 'src' ]
     };
 
+    var primeLocalIFrame = function(iframe) {
+        // Should probably also copy injected styles.
+        if ( vAPI.injectedScripts ) {
+            var scriptTag = document.createElement('script');
+            scriptTag.appendChild(document.createTextNode(vAPI.injectedScripts));
+            var parent = iframe.contentDocument && iframe.contentDocument.head;
+            if ( parent ) {
+                parent.appendChild(scriptTag);
+            }
+        }
+    };
+
     var addIFrame = function(iframe, dontObserve) {
         // https://github.com/gorhill/uBlock/issues/162
         // Be prepared to deal with possible change of src attribute.
@@ -246,6 +244,7 @@ var uBlockCollapser = (function() {
 
         var src = iframe.src;
         if ( src === '' || typeof src !== 'string' ) {
+            primeLocalIFrame(iframe);
             return;
         }
         if ( src.lastIndexOf('http', 0) !== 0 ) {
