@@ -57,6 +57,18 @@
 		"lang": "zh",
 		"supportURL": "http://abpchina.org/forum/forum.php"
 	},
+	"https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjxlist.txt": {
+		"off": true,
+		"title": "CHN: CJX's EasyList Lite (main focus on Chinese sites)",
+		"group": "regions",
+		"supportURL": "https://github.com/cjx82630/cjxlist"
+	},
+	"https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt": {
+		"off": true,
+		"title": "CHN: CJX's Annoyance List",
+		"group": "regions",
+		"supportURL": "https://github.com/cjx82630/cjxlist"
+	},
 	"https://easylist-downloads.adblockplus.org/easylistdutch.txt": {
 		"off": true,
 		"title": "NLD: EasyList Dutch",
@@ -221,14 +233,14 @@
 	"mirror1.malwaredomains.com/files/justdomains": {
 		"title": "Malware domains",
 		"group": "malware",
-		"homeURL": "http://malwaredomains.lehigh.edu/files/justdomains",
+		"homeURL": "https://mirror.cedia.org.ec/malwaredomains/justdomains",
 		"supportURL": "http://www.malwaredomains.com/"
 	},
 	"pgl.yoyo.org/as/serverlist": {
 		"title": "Peter Lowe’s Ad server list",
 		"group": "ads",
-		"homeURL": "http://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=1&mimetype=plaintext",
-		"supportURL": "http://pgl.yoyo.org/adservers/"
+		"homeURL": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=hosts&showintro=1&mimetype=plaintext",
+		"supportURL": "https://pgl.yoyo.org/adservers/"
 	},
 	"https://raw.githubusercontent.com/AdBlockPlusIsrael/EasyListHebrew/master/EasyListHebrew.txt": {
 		"off": true,
@@ -236,12 +248,6 @@
 		"group": "regions",
 		"lang": "he",
 		"supportURL": "https://github.com/AdBlockPlusIsrael/EasyListHebrew"
-	},
-	"https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjxlist.txt": {
-		"off": true,
-		"title": "CHN: China: cjxlist (main focus on Chinese sites)",
-		"group": "regions",
-		"supportURL": "https://github.com/cjx82630/cjxlist"
 	},
 	"https://raw.githubusercontent.com/reek/anti-adblock-killer/master/anti-adblock-killer-filters.txt": {
 		"off": true,
@@ -344,7 +350,7 @@
 	"www.malwaredomainlist.com/hostslist/hosts.txt": {
 		"title": "Malware Domain List",
 		"group": "malware",
-		"homeURL": "http://www.malwaredomainlist.com/hostslist/hosts.txt"
+		"homeURL": "https://www.malwaredomainlist.com/hostslist/hosts.txt"
 	},
 	"https://www.void.gr/kargig/void-gr-filters.txt": {
 		"off": true,

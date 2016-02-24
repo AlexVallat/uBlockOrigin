@@ -1428,7 +1428,11 @@ vAPI.setIcon = function(tabId, iconStatus, badge) {
     var win = badge === undefined
         ? iconStatus
         : winWatcher.getCurrentWindow();
-    var curTabId = tabWatcher.tabIdFromTarget(getTabBrowser(win).selectedTab);
+    var curTabId;
+    var tabBrowser = getTabBrowser(win);
+    if ( tabBrowser ) {
+        curTabId = tabWatcher.tabIdFromTarget(tabBrowser.selectedTab);
+    }
     var tb = vAPI.toolbarButton;
 
     // from 'TabSelect' event
@@ -1438,7 +1442,7 @@ vAPI.setIcon = function(tabId, iconStatus, badge) {
         tb.tabs[tabId] = { badge: badge, img: iconStatus === 'on' };
     }
 
-    if ( tabId === curTabId ) {
+    if ( curTabId && tabId === curTabId ) {
         tb.updateState(win, tabId);
         vAPI.contextMenu.onMustUpdate(tabId);
     }
@@ -2715,8 +2719,11 @@ vAPI.toolbarButton = {
             palette.appendChild(toolbarButton);
         }
 
-        // Find the place to put the button
-        var toolbars = toolbox.externalToolbars.slice();
+        // Find the place to put the button.
+        // Pale Moon: `toolbox.externalToolbars` can be undefined. Seen while
+        //   testing popup test number 3:
+        //   http://raymondhill.net/ublock/popup.html
+        var toolbars = toolbox.externalToolbars ? toolbox.externalToolbars.slice() : [];
         for ( var child of toolbox.children ) {
             if ( child.localName === 'toolbar' ) {
                 toolbars.push(child);
@@ -2731,6 +2738,11 @@ vAPI.toolbarButton = {
             var currentset = currentsetString.split(/\s*,\s*/);
             var index = currentset.indexOf(tbb.id);
             if ( index === -1 ) {
+                continue;
+            }
+            // This can occur with Pale Moon:
+            //   "TypeError: toolbar.insertItem is not a function"
+            if ( typeof toolbar.insertItem !== 'function' ) {
                 continue;
             }
             // Found our button on this toolbar - but where on it?
