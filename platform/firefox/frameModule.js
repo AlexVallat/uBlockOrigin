@@ -456,7 +456,7 @@ var contentObserver = {
                 // It is possible, in some cases (#1140) for document-element-inserted to occur *before* nsIWebProgressListener.onLocationChange, so ensure that the URL is correct before continuing
                 let messageManager = doc.docShell.getInterface(Ci.nsIContentFrameMessageManager);
 
-                messageManager.sendSyncMessage(locationChangedMessageName, {
+                messageManager.sendSyncMessage(this.messageName, {
                     url: loc.href,
                     noRefresh: true, // If the URL is the same, then don't refresh it so that if this occurs after onLocationChange, no the block count isn't reset
                 });

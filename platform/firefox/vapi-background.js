@@ -3292,7 +3292,7 @@ vAPI.contextMenu = (function() {
 
         // Also add a context menu to the web inspector
         try {
-            gDevTools = Cu.import('resource:///modules/devtools/gDevTools.jsm', null).gDevTools;
+            gDevTools = Cu.import('resource://devtools/client/framework/gDevTools.jsm', null).gDevTools;
         } catch (ex) {
             // console.error(ex);
         }
