@@ -1,7 +1,7 @@
 /*******************************************************************************
 
-    µBlock - a browser extension to block requests.
-    Copyright (C) 2014 Raymond Hill
+    uBlock Origin - a browser extension to block requests.
+    Copyright (C) 2014-2016 Raymond Hill
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -135,8 +135,6 @@ if ( pickerRoot ) {
     // If it's already running, stop it and then allow it to restart
     pickerRoot.onload(); // Calls stopPicker
 }
-
-var localMessager = vAPI.messaging.channel('element-picker.js');
 
 var svgOcean = null;
 var svgIslands = null;
@@ -293,12 +291,15 @@ var netFilterFromUnion = (function() {
         if ( from === '' || a.host === '' || a.host !== lastNetFilterHostname ) {
             lastNetFilterHostname = a.host;
             lastNetFilterUnion = to;
-            localMessager.send({
-                what: 'elementPickerEprom',
-                lastNetFilterSession: lastNetFilterSession,
-                lastNetFilterHostname: lastNetFilterHostname,
-                lastNetFilterUnion: lastNetFilterUnion
-            });
+            vAPI.messaging.send(
+                'elementPicker',
+                {
+                    what: 'elementPickerEprom',
+                    lastNetFilterSession: lastNetFilterSession,
+                    lastNetFilterHostname: lastNetFilterHostname,
+                    lastNetFilterUnion: lastNetFilterUnion
+                }
+            );
             return;
         }
 
@@ -339,12 +340,15 @@ var netFilterFromUnion = (function() {
         lastNetFilterUnion = from;
 
         // Remember across element picker sessions
-        localMessager.send({
-            what: 'elementPickerEprom',
-            lastNetFilterSession: lastNetFilterSession,
-            lastNetFilterHostname: lastNetFilterHostname,
-            lastNetFilterUnion: lastNetFilterUnion
-        });
+        vAPI.messaging.send(
+            'elementPicker',
+            {
+                what: 'elementPickerEprom',
+                lastNetFilterSession: lastNetFilterSession,
+                lastNetFilterHostname: lastNetFilterHostname,
+                lastNetFilterUnion: lastNetFilterUnion
+            }
+        );
     };
 })();
 
@@ -712,10 +716,13 @@ var onDialogClicked = function(ev) {
         var filter = userFilterFromCandidate();
         if ( filter ) {
             var d = new Date();
-            localMessager.send({
-                what: 'createUserFilter',
-                filters: '! ' + d.toLocaleString() + ' ' + window.location.href + '\n' + filter,
-            });
+            vAPI.messaging.send(
+                'elementPicker',
+                {
+                    what: 'createUserFilter',
+                    filters: '! ' + d.toLocaleString() + ' ' + window.location.href + '\n' + filter,
+                }
+            );
             removeElements(elementsFromFilter(taCandidate.value));
             stopPicker();
         }
@@ -919,7 +926,6 @@ var stopPicker = function() {
     dialog =
     svgRoot = svgOcean = svgIslands =
     taCandidate = null;
-    localMessager.close();
 
     window.focus();
 };
@@ -1019,7 +1025,12 @@ pickerRoot.style.cssText = [
 ].join('!important; ');
 
 pickerRoot.onload = function() {
-    localMessager.send({ what: 'elementPickerArguments' }, startPicker);
+    vAPI.shutdown.add(stopPicker);
+    vAPI.messaging.send(
+        'elementPicker',
+        { what: 'elementPickerArguments' },
+        startPicker
+    );
 };
 
 document.documentElement.appendChild(pickerRoot);

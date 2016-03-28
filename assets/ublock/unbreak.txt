@@ -266,3 +266,33 @@ phoronix.com#@#div[style^="text-align: center;"]
 
 # https://forums.lanik.us/viewtopic.php?f=64&t=28701
 @@||files.explosm.net/files/$image,first-party
+
+# `amazon-adsystem.com` is blocked by Peter Lowe's. The neutered script should
+# help lower chances of breakage. Examples:
+# - http://www.food.com/recipe/oven-baked-sweet-plantains-80130 (slideshow controls broken)
+# - [add more]
+||amazon-adsystem.com/aax2/amzn_ads.js$script,redirect=amazon-adsystem.com/aax2/amzn_ads.js
+
+# This potentially unbreaks sites broken by EasyPrivacy's `/b/ss/*&aqe=`
+# Confirmed for:
+# - http://www.surfline.com/video/ (links not working)
+# - https://github.com/gorhill/uBlock/issues/529
+# - http://www.scotrail.co.uk/check-your-journey (via https://twitter.com/andy_pee_tho/status/710508529405263872)
+*/b/ss/*&aqe=$image,redirect=1x1-transparent.gif
+
+# This unbreak video player:
+# - http://www.cnet.com/videos/big-mac-survives-molten-copper-and-heats-up-internet-ep-233/
+# And possibly other sites -- `taboola.com` is blocked by Peter Lowe's.
+||cdn.taboola.com/libtrc/*/loader.js$script,redirect=noopjs,important,domain=cnet.com
+
+# https://twitter.com/peikas/status/711911523837460480
+# To counter `/analytics.min.js` in EasyPrivacy
+@@||cdn.segment.com/analytics.js/*/analytics.min.js$script,domain=vyte.in
+
+# https://twitter.com/maknz/status/712731132484124672
+# To counter `-google-tag-manager/$script` in EasyPrivacy
+@@||sorted.org.nz/*/angulartics-google-tag-manager.js$script,first-party
+
+# https://twitter.com/mtarnovan/status/713088377994682368
+# This counters `analytics.google.com` in Peter Lowe's
+@@||analytics.google.com^$first-party

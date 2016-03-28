@@ -110,21 +110,13 @@ Being lean and efficient doesn't mean blocking less<br>
 <a href="https://github.com/gorhill/uBlock/wiki/uBlock-and-others%3A-Blocking-ads%2C-trackers%2C-malwares">uBlock₀ and others: Blocking ads, trackers, malwares</a>.
 </p>
 
-#### Quick tests
-
-- [Index](http://raymondhill.net/ublock/tests.html)
-- [Web page components](http://raymondhill.net/ublock/tiles1.html)
-- [Popups](http://raymondhill.net/ublock/popup.html)
-- [Page load speed](http://www.raymondhill.net/ublock/pageloadspeed.html)
-- [ABP Test Pages](https://testpages.adblockplus.org/)
-
 ## Installation
 
 Feel free to read [about the extension's required permissions](https://github.com/gorhill/uBlock/wiki/About-the-required-permissions).
 
 #### Chromium
 
-You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/en-gb/extensions/details/ublock/) (uBlock Origin is published under the name "µBlock" in the Opera store -- the name can't be changed).
+You can install the latest version [manually](https://github.com/gorhill/uBlock/tree/master/dist#install), from the [Chrome Store](https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm), or from the [Opera store](https://addons.opera.com/en-gb/extensions/details/ublock/).
 
 It is expected that uBlock Origin is compatible with any Chromium-based browsers.
 
